@@ -31,10 +31,6 @@ export default function CreatePage() {
   const effectiveTimer = useCustomTimer ? Math.max(15, Math.min(3600, Number(customTimer) || 0)) : timerSeconds;
 
   function handleCreate() {
-    if (!hostName.trim()) {
-      setError('Enter your name.');
-      return;
-    }
     setSubmitting(true);
     setError(null);
     const socket = getSocket();
@@ -74,7 +70,7 @@ export default function CreatePage() {
           <TextInput
             value={hostName}
             onChange={(e) => setHostName(e.target.value)}
-            placeholder="e.g. Desz"
+            placeholder="Leave blank for a random name"
             maxLength={24}
           />
         </div>

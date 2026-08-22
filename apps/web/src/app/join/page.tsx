@@ -20,10 +20,6 @@ function JoinForm() {
       setError('Enter a game code.');
       return;
     }
-    if (!name.trim()) {
-      setError('Enter your name.');
-      return;
-    }
     setSubmitting(true);
     setError(null);
     const socket = getSocket();
@@ -66,7 +62,12 @@ function JoinForm() {
         </div>
         <div>
           <SectionLabel>Your Name</SectionLabel>
-          <TextInput value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Desz" maxLength={24} />
+          <TextInput
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Leave blank for a random name"
+            maxLength={24}
+          />
         </div>
       </Panel>
 

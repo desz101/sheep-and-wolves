@@ -1,0 +1,20 @@
+version: 1
+applications:
+  - appRoot: apps/web
+    frontend:
+      buildPath: / # install and build from the monorepo root so npm workspaces (@sw/shared) resolve
+      phases:
+        preBuild:
+          commands:
+            - npm ci
+        build:
+          commands:
+            - npm run build --workspace=web
+      artifacts:
+        baseDirectory: apps/web/.next
+        files:
+          - '**/*'
+      cache:
+        paths:
+          - node_modules/**/*
+          - apps/web/.next/cache/**/*

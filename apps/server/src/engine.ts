@@ -9,6 +9,7 @@ import {
   drawQuestion,
   freshQuestionDeck,
   generateGameCode,
+  generateRandomName,
   normalizeGameCode,
   pickRandom,
   tallyVotes,
@@ -77,8 +78,7 @@ export function createGame(
   hostName: string,
   config: GameConfig
 ): { game: Game; playerId: string; playerToken: string } {
-  const trimmedName = hostName.trim().slice(0, 24);
-  if (!trimmedName) throw new GameError('Enter a name.', 'INVALID_NAME');
+  const trimmedName = hostName.trim().slice(0, 24) || generateRandomName();
 
   const validationError = validateGameConfig(config.maxPlayers, config.wolfCount, config.roundTimerSeconds);
   if (validationError) throw new GameError(validationError, 'INVALID_CONFIG');
@@ -141,8 +141,7 @@ export function joinGame(gameCodeRaw: string, name: string): { game: Game; playe
   if (game.playerOrder.length >= game.config.maxPlayers) {
     throw new GameError('This game is full.', 'GAME_FULL');
   }
-  const trimmedName = name.trim().slice(0, 24);
-  if (!trimmedName) throw new GameError('Enter a name.', 'INVALID_NAME');
+  const trimmedName = name.trim().slice(0, 24) || generateRandomName();
 
   const playerId = newPlayerId();
   const player: Player = {

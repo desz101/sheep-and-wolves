@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@next/third-parties": "^16.3.2",
     "@sw/shared": "*",
     "framer-motion": "^11.11.9",
     "next": "16.3.2",

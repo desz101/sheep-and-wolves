@@ -1,8 +1,25 @@
 import Link from 'next/link';
 
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'Sheep & Wolves',
+  applicationCategory: 'GameApplication',
+  operatingSystem: 'Any (web browser)',
+  description:
+    'Sheep & Wolves is a free real-time social deduction party game for your phone. Host a game, share the code or QR, and find the wolves before they outnumber the sheep. No app download required.',
+  url: 'https://sheepishwolves.com',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
+  },
+};
+
 export default function Home() {
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center gap-12 p-6 text-center">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
       <div className="flex flex-col items-center gap-4">
         <div className="flex items-center gap-1 text-6xl">
           <span>🐑</span>
@@ -29,6 +46,24 @@ export default function Home() {
         >
           Join a Game
         </Link>
+      </div>
+
+      <div className="flex w-full flex-col gap-3 text-left text-sm text-muted">
+        <h2 className="text-center text-xs font-semibold uppercase tracking-[0.2em] text-muted">How it works</h2>
+        <ol className="flex flex-col gap-2">
+          <li>
+            <span className="font-bold text-foreground">1. Host sets up the round.</span> Pick a player count, wolf
+            count, and discussion timer, then share the code or QR.
+          </li>
+          <li>
+            <span className="font-bold text-foreground">2. Everyone gets a secret role.</span> Most players are
+            sheep; a hidden few are wolves.
+          </li>
+          <li>
+            <span className="font-bold text-foreground">3. Discuss, then vote.</span> Talk it out in person, then
+            vote out who you think is a wolf before they outnumber the sheep.
+          </li>
+        </ol>
       </div>
     </main>
   );

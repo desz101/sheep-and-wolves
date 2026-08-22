@@ -6,9 +6,10 @@
     "apps/*"
   ],
   "scripts": {
-    "dev": "concurrently -n server,web -c blue,magenta \"npm run dev -w apps/server\" \"npm run dev -w apps/web\"",
-    "dev:server": "npm run dev -w apps/server",
-    "dev:web": "npm run dev -w apps/web",
+    "predev": "npm run build -w packages/shared",
+    "dev": "concurrently -n shared,server,web -c yellow,blue,magenta \"npm run watch -w packages/shared\" \"npm run dev -w apps/server\" \"npm run dev -w apps/web\"",
+    "dev:server": "npm run build -w packages/shared && npm run dev -w apps/server",
+    "dev:web": "npm run build -w packages/shared && npm run dev -w apps/web",
     "build:shared": "npm run build -w packages/shared"
   },
   "devDependencies": {
