@@ -7,6 +7,11 @@ applications:
         preBuild:
           commands:
             - npm ci
+            # @sw/shared's package.json points "main"/"types" at its compiled dist/
+            # output (needed so a plain `node` process, i.e. apps/server in
+            # production, can actually require() it) -- so it must be built
+            # before anything that imports it, including this Next.js build.
+            - npm run build -w packages/shared
         build:
           commands:
             - npm run build --workspace=web
