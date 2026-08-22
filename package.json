@@ -1,0 +1,17 @@
+{
+  "name": "sheep-and-wolves",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,web -c blue,magenta \"npm run dev -w apps/server\" \"npm run dev -w apps/web\"",
+    "dev:server": "npm run dev -w apps/server",
+    "dev:web": "npm run dev -w apps/web",
+    "build:shared": "npm run build -w packages/shared"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
