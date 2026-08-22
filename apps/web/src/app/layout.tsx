@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const SITE_URL = "https://sheepishwolves.com";
+const SITE_URL = "https://sheepandwolves.app";
 const SITE_NAME = "Sheep & Wolves";
 const DESCRIPTION =
   "Sheep & Wolves is a free real-time social deduction party game for your phone. Host a game, share the code or QR, and find the wolves before they outnumber the sheep. No app download required.";

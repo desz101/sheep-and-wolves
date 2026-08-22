@@ -26,7 +26,7 @@ In the Amplify Console:
    - `NEXT_PUBLIC_SERVER_URL` → the game server's URL from step 2 below (e.g.
      `https://xxxxxxxx.us-east-1.awsapprunner.com`). You'll need to deploy the server first
      to know this value, then come back and set it, then redeploy the frontend.
-5. Add your custom domain (`sheepishwolves.com`) under **Hosting → Custom domains**.
+5. Add your custom domain (`sheepandwolves.app`) under **Hosting → Custom domains**.
 
 ## 2. Game server — AWS App Runner (recommended)
 
@@ -43,7 +43,7 @@ supports WebSockets, gives you HTTPS out of the box, and needs no VPC/load balan
 4. Port: `4000` (matches `EXPOSE 4000` in the Dockerfile; App Runner reads this automatically
    from the image, or set it explicitly if asked).
 5. Environment variables:
-   - `CLIENT_ORIGIN` → your Amplify app's URL (e.g. `https://sheepishwolves.com`) — this
+   - `CLIENT_ORIGIN` → your Amplify app's URL (e.g. `https://sheepandwolves.app`) — this
      locks down Socket.IO's CORS to only your frontend instead of `*`.
    - `PORT` → `4000` (only needed if App Runner doesn't infer it from the Dockerfile).
 6. Health check path: `/health` (already implemented in `apps/server/src/index.ts`).
