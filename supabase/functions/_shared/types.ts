@@ -1,5 +1,8 @@
-// Core domain types shared between server and any client (web, future native apps).
-// The server is the only place a full `Game` object with all roles/votes ever exists.
+// Ported from packages/shared/src/types.ts. Deno Edge Functions can't resolve
+// the @sw/shared npm workspace package (they're bundled standalone, outside
+// the monorepo's node_modules), so the pieces engine.ts/sanitize.ts/gameStore.ts
+// need are duplicated here. Keep this in sync with packages/shared/src/types.ts
+// by hand if either changes -- there's no automated link between them.
 
 export type Role = 'sheep' | 'wolf';
 
@@ -26,9 +29,6 @@ export interface Player {
   hasRevealedRole: boolean;
   hasVoted: boolean;
   joinedAt: number;
-  // Updated on every authenticated request from this player (action or state
-  // poll). connectionStatus is derived from this, not stored directly -- there's
-  // no socket to tell us the instant someone drops.
   lastSeenAt: number;
   eliminatedRound: number | null;
 }
@@ -74,10 +74,10 @@ export interface Game {
   currentRound: number;
   currentQuestion: string | null;
   questionHistory: string[];
-  questionDeck: string[]; // remaining shuffled deck
+  questionDeck: string[];
   players: Record<string, Player>;
   playerOrder: string[];
-  votes: Record<string, string>; // voterId -> targetId, cleared each vote phase
+  votes: Record<string, string>;
   voteHistory: RoundVoteRecord[];
   voteRecordVisible: boolean;
   voteRecordUsedThisReveal: boolean;
@@ -86,7 +86,7 @@ export interface Game {
   lastEliminatedPlayerId: string | null;
   questionCardHolderId: string | null;
   winner: Winner | null;
-  phaseEndsAt: number | null; // epoch ms, null when phase isn't timed
+  phaseEndsAt: number | null;
   paused: boolean;
   pausedRemainingMs: number | null;
   createdAt: number;
@@ -105,7 +105,7 @@ export interface ClientPlayer {
   hasVoted: boolean;
   connectionStatus: ConnectionStatus;
   eliminatedRound: number | null;
-  revealedRole: Role | null; // only set if this player has been eliminated (public knowledge)
+  revealedRole: Role | null;
 }
 
 export interface ClientVoteRecord {
@@ -128,6 +128,13 @@ export interface VoteTallyDisplay {
   tiedPlayerIds: string[];
 }
 
+export interface FinalSummaryEntry {
+  playerId: string;
+  name: string;
+  role: Role;
+  eliminatedRound: number | null;
+}
+
 export interface ClientGameState {
   gameCode: string;
   status: GameStatus;
@@ -141,12 +148,12 @@ export interface ClientGameState {
   selfHasVoted: boolean;
   selfIsAlive: boolean;
   votingOptions: { id: string; name: string }[];
-  voteCountsSubmitted: number; // how many alive players have voted (no identities)
+  voteCountsSubmitted: number;
   voteCountsNeeded: number;
-  voteTally: VoteTallyDisplay | null; // shown during VOTE_REVEAL / ELIMINATION (totals only, no identities)
-  latestVoteRecord: ClientVoteRecord | null; // only populated when voteRecordVisible (individual votes - paper trail)
+  voteTally: VoteTallyDisplay | null;
+  latestVoteRecord: ClientVoteRecord | null;
   voteRecordVisible: boolean;
-  voteRecordAvailable: boolean; // true if a record exists that CAN still be revealed once
+  voteRecordAvailable: boolean;
   tiebreaker: { candidateIds: string[]; attempt: number } | null;
   winner: Winner | null;
   finalSummary: FinalSummaryEntry[] | null;
@@ -158,33 +165,4 @@ export interface ClientGameState {
   questionCardHolderId: string | null;
   questionCardHolderName: string | null;
   isQuestionCardHolder: boolean;
-}
-
-export interface FinalSummaryEntry {
-  playerId: string;
-  name: string;
-  role: Role;
-  eliminatedRound: number | null; // null = survived
-}
-
-// ---- HTTP payloads ----
-
-export interface CreateGamePayload {
-  hostName: string;
-  maxPlayers: number;
-  wolfCount: number;
-  roundTimerSeconds: number;
-}
-
-// Returned by POST /games and POST /games/:code/join -- the credentials the
-// client stores and sends with every subsequent request.
-export interface SessionAck {
-  gameCode: string;
-  playerId: string;
-  playerToken: string;
-}
-
-export interface ErrorPayload {
-  message: string;
-  code?: string;
 }

@@ -52,6 +52,8 @@ export function RoleCard({ role, onConfirm }: { role: Role; onConfirm: () => voi
         <div className="w-72 max-w-full animate-fade-up">
           <BigButton
             variant={isWolf ? 'wolf' : 'sheep'}
+            className="animate-attention-pulse"
+            style={{ '--pulse-color': isWolf ? 'var(--wolf)' : 'var(--sheep)' } as React.CSSProperties}
             onClick={() => {
               setConfirmed(true);
               onConfirm();
