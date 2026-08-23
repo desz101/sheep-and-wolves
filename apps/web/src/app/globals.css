@@ -47,6 +47,22 @@ body {
   animation: pulse-ring 1s ease-out infinite;
 }
 
+@keyframes attention-pulse {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--pulse-color, var(--accent)) 55%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 16px color-mix(in srgb, var(--pulse-color, var(--accent)) 0%, transparent);
+  }
+}
+
+/* Draws the eye to a button that's blocking the group -- set --pulse-color
+   inline to match the button's own color so the glow reads as "this button"
+   rather than a generic alert. */
+.animate-attention-pulse {
+  animation: attention-pulse 1.4s ease-out infinite;
+}
+
 @keyframes fade-up {
   from {
     opacity: 0;
