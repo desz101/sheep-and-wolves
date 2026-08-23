@@ -33,10 +33,40 @@ export class GameError extends Error {
 const VOTE_REVEAL_DISPLAY_MS = 6000;
 const TIEBREAKER_ANNOUNCE_MS = 4000;
 const ELIMINATION_DISPLAY_MS = 6000;
-const MAX_UPDATE_ATTEMPTS = 8;
+const MAX_UPDATE_ATTEMPTS = 5;
+// Presence (lastSeenAt) doesn't need sub-second precision -- only actually
+// write it once it's gone stale by this much. With N tabs polling every
+// ~1.5s, this turns most polls into a pure read with zero write contention
+// instead of a write every single poll from every open tab.
+const PRESENCE_TOUCH_INTERVAL_MS = 3000;
 
 function newPlayerId(): string {
   return randomHex(8);
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Exponential-ish backoff with jitter, capped at ~400ms base. Spreads out
+ * retries from competing writers on the same row so they don't all wake up
+ * and re-collide at the same instant -- without this, a handful of tabs
+ * polling the same game can retry in lockstep indefinitely under load.
+ */
+function backoffDelay(attempt: number): number {
+  const base = Math.min(40 * 2 ** attempt, 400);
+  return base + Math.random() * base;
+}
+
+/** Touches a player's presence only if it's actually gone stale. Returns whether it wrote anything. */
+function touchIfStale(game: Game, playerId: string): boolean {
+  const player = game.players[playerId];
+  if (!player) return false;
+  const now = Date.now();
+  if (now - player.lastSeenAt < PRESENCE_TOUCH_INTERVAL_MS) return false;
+  player.lastSeenAt = now;
+  return true;
 }
 
 function alivePlayers(game: Game): Player[] {
@@ -56,8 +86,10 @@ function resetVotes(game: Game): void {
  * time has passed. A phase advances the moment *any* player next interacts
  * with the game (an action or a state poll), not at the exact millisecond.
  */
-function resolveExpiry(game: Game): void {
+function resolveExpiry(game: Game): boolean {
+  let changed = false;
   while (game.phaseEndsAt !== null && !game.paused && Date.now() >= game.phaseEndsAt) {
+    changed = true;
     switch (game.status) {
       case 'DISCUSSION':
         game.status = 'VOTING';
@@ -77,9 +109,10 @@ function resolveExpiry(game: Game): void {
         advanceRoundOrEndGame(game);
         break;
       default:
-        return;
+        return changed;
     }
   }
+  return changed;
 }
 
 /**
@@ -103,6 +136,7 @@ async function withGame<T>(
 ): Promise<{ game: Game; result: T }> {
   const gameCode = normalizeGameCode(gameCodeRaw);
   for (let attempt = 0; attempt < MAX_UPDATE_ATTEMPTS; attempt++) {
+    if (attempt > 0) await sleep(backoffDelay(attempt - 1));
     const row = await gameStore.getWithVersion(gameCode);
     if (!row) throw new GameError('Game not found.', 'NOT_FOUND');
     const game = row.state;
@@ -114,10 +148,39 @@ async function withGame<T>(
   throw new GameError('This game is busy right now -- try again.', 'CONFLICT');
 }
 
-/** Fetches a game with any due phase transitions applied and persisted -- used by the state poll route. */
-export async function getGameState(gameCode: string): Promise<Game> {
-  const { game } = await withGame(gameCode, () => {});
-  return game;
+/**
+ * Like withGame, but for paths where a write frequently isn't needed at all
+ * -- specifically, polling. `mutator` reports whether it actually changed
+ * anything (see touchIfStale); when neither it nor the lazy phase-expiry
+ * check changed anything, the read is returned without ever attempting a
+ * write. A game with several idle tabs polling it generates near-zero
+ * database writes instead of one full read-modify-write per poll per tab.
+ */
+async function withGameMaybeWrite(gameCodeRaw: string, mutator: (game: Game) => boolean): Promise<Game> {
+  const gameCode = normalizeGameCode(gameCodeRaw);
+  for (let attempt = 0; attempt < MAX_UPDATE_ATTEMPTS; attempt++) {
+    if (attempt > 0) await sleep(backoffDelay(attempt - 1));
+    const row = await gameStore.getWithVersion(gameCode);
+    if (!row) throw new GameError('Game not found.', 'NOT_FOUND');
+    const game = row.state;
+    const expiryChanged = resolveExpiry(game);
+    const mutatorChanged = mutator(game);
+    if (!expiryChanged && !mutatorChanged) return game;
+    const ok = await gameStore.setIfVersion(game, row.version);
+    if (ok) return game;
+  }
+  throw new GameError('This game is busy right now -- try again.', 'CONFLICT');
+}
+
+/**
+ * Fetches a game with any due phase transitions applied and persisted, and
+ * marks the requesting player freshly seen (only actually writing that if
+ * it's gone stale -- see touchIfStale). This is the *only* thing a plain
+ * state poll needs, so it does the whole cycle in one read-modify-write
+ * instead of the two separate ones (touch, then a fresh read) it used to.
+ */
+export async function pollGameState(gameCode: string, playerId: string): Promise<Game> {
+  return withGameMaybeWrite(gameCode, (game) => touchIfStale(game, playerId));
 }
 
 function requireHost(game: Game, requesterId: string): void {
@@ -128,14 +191,6 @@ function requireAlive(game: Game, requesterId: string): void {
   if (!game.players[requesterId]?.isAlive) {
     throw new GameError('Eliminated players can only spectate.', 'ELIMINATED');
   }
-}
-
-/** Marks a player as freshly seen. Called on every authenticated request (action or poll). */
-export async function touchPlayer(gameCode: string, playerId: string): Promise<void> {
-  await withGame(gameCode, (game) => {
-    const player = game.players[playerId];
-    if (player) player.lastSeenAt = Date.now();
-  });
 }
 
 // ---------------- Lobby ----------------
@@ -239,8 +294,9 @@ export async function joinGame(
 
 // ---------------- Game start / role reveal ----------------
 
-export async function startGame(gameCodeRaw: string, requesterId: string): Promise<void> {
-  await withGame(gameCodeRaw, (game) => {
+export async function startGame(gameCodeRaw: string, requesterId: string): Promise<Game> {
+  const { game } = await withGame(gameCodeRaw, (game) => {
+    touchIfStale(game, requesterId);
     requireHost(game, requesterId);
     if (game.status !== 'LOBBY') throw new GameError('Game already started.', 'BAD_STATE');
     if (game.playerOrder.length < game.config.maxPlayers) {
@@ -253,10 +309,12 @@ export async function startGame(gameCodeRaw: string, requesterId: string): Promi
     }
     game.status = 'ROLE_REVEAL';
   });
+  return game;
 }
 
-export async function acknowledgeRoleReveal(gameCode: string, playerId: string): Promise<void> {
-  await withGame(gameCode, (game) => {
+export async function acknowledgeRoleReveal(gameCode: string, playerId: string): Promise<Game> {
+  const { game } = await withGame(gameCode, (game) => {
+    touchIfStale(game, playerId);
     if (game.status !== 'ROLE_REVEAL') throw new GameError('Not in role reveal.', 'BAD_STATE');
     const player = game.players[playerId];
     if (!player) throw new GameError('Player not found.', 'NOT_FOUND');
@@ -267,6 +325,7 @@ export async function acknowledgeRoleReveal(gameCode: string, playerId: string):
       beginRound(game, 1);
     }
   });
+  return game;
 }
 
 // ---------------- Rounds ----------------
@@ -283,8 +342,9 @@ function beginRound(game: Game, roundNumber: number): void {
   game.phaseEndsAt = null;
 }
 
-export async function drawQuestionCard(gameCodeRaw: string, requesterId: string): Promise<void> {
-  await withGame(gameCodeRaw, (game) => {
+export async function drawQuestionCard(gameCodeRaw: string, requesterId: string): Promise<Game> {
+  const { game } = await withGame(gameCodeRaw, (game) => {
+    touchIfStale(game, requesterId);
     if (game.status !== 'QUESTION_SELECTION') throw new GameError('Not waiting on the question card.', 'BAD_STATE');
     if (game.questionCardHolderId !== requesterId) {
       throw new GameError('Only the player holding the question card can draw it.', 'NOT_ALLOWED');
@@ -292,10 +352,12 @@ export async function drawQuestionCard(gameCodeRaw: string, requesterId: string)
     game.status = 'DISCUSSION';
     game.phaseEndsAt = Date.now() + game.config.roundTimerSeconds * 1000;
   });
+  return game;
 }
 
-export async function submitVote(gameCodeRaw: string, voterId: string, targetId: string): Promise<void> {
-  await withGame(gameCodeRaw, (game) => {
+export async function submitVote(gameCodeRaw: string, voterId: string, targetId: string): Promise<Game> {
+  const { game } = await withGame(gameCodeRaw, (game) => {
+    touchIfStale(game, voterId);
     if (game.status !== 'VOTING') throw new GameError('Voting is not open.', 'BAD_STATE');
     const voter = game.players[voterId];
     if (!voter || !voter.isAlive) throw new GameError('You cannot vote.', 'NOT_ALLOWED');
@@ -314,6 +376,7 @@ export async function submitVote(gameCodeRaw: string, voterId: string, targetId:
       resolveVotes(game);
     }
   });
+  return game;
 }
 
 function resolveVotes(game: Game): void {
@@ -396,35 +459,42 @@ function advanceRoundOrEndGame(game: Game): void {
 
 // ---------------- Vote record (paper trail) ----------------
 
-export async function showVoteRecord(gameCodeRaw: string): Promise<void> {
-  await withGame(gameCodeRaw, (game) => {
+export async function showVoteRecord(gameCodeRaw: string, requesterId: string): Promise<Game> {
+  const { game } = await withGame(gameCodeRaw, (game) => {
+    touchIfStale(game, requesterId);
     const latest = game.voteHistory[game.voteHistory.length - 1];
     if (!latest) throw new GameError('No vote record yet.', 'NOT_FOUND');
     if (latest.revealUsed) throw new GameError('The vote record has already been revealed for this round.', 'ALREADY_USED');
     game.voteRecordVisible = true;
     latest.revealUsed = true;
   });
+  return game;
 }
 
-export async function hideVoteRecord(gameCodeRaw: string): Promise<void> {
-  await withGame(gameCodeRaw, (game) => {
+export async function hideVoteRecord(gameCodeRaw: string, requesterId: string): Promise<Game> {
+  const { game } = await withGame(gameCodeRaw, (game) => {
+    touchIfStale(game, requesterId);
     game.voteRecordVisible = false;
   });
+  return game;
 }
 
 // ---------------- Host controls ----------------
 
-export async function hostEndGame(gameCodeRaw: string, requesterId: string): Promise<void> {
-  await withGame(gameCodeRaw, (game) => {
+export async function hostEndGame(gameCodeRaw: string, requesterId: string): Promise<Game> {
+  const { game } = await withGame(gameCodeRaw, (game) => {
+    touchIfStale(game, requesterId);
     requireHost(game, requesterId);
     requireAlive(game, requesterId);
     game.status = 'CANCELLED';
     game.phaseEndsAt = null;
   });
+  return game;
 }
 
-export async function hostPauseGame(gameCodeRaw: string, requesterId: string): Promise<void> {
-  await withGame(gameCodeRaw, (game) => {
+export async function hostPauseGame(gameCodeRaw: string, requesterId: string): Promise<Game> {
+  const { game } = await withGame(gameCodeRaw, (game) => {
+    touchIfStale(game, requesterId);
     requireHost(game, requesterId);
     requireAlive(game, requesterId);
     if (game.status !== 'DISCUSSION' || game.phaseEndsAt === null) {
@@ -433,10 +503,12 @@ export async function hostPauseGame(gameCodeRaw: string, requesterId: string): P
     game.paused = true;
     game.pausedRemainingMs = Math.max(0, game.phaseEndsAt - Date.now());
   });
+  return game;
 }
 
-export async function hostResumeGame(gameCodeRaw: string, requesterId: string): Promise<void> {
-  await withGame(gameCodeRaw, (game) => {
+export async function hostResumeGame(gameCodeRaw: string, requesterId: string): Promise<Game> {
+  const { game } = await withGame(gameCodeRaw, (game) => {
+    touchIfStale(game, requesterId);
     requireHost(game, requesterId);
     requireAlive(game, requesterId);
     if (!game.paused || game.pausedRemainingMs === null) throw new GameError('Game is not paused.', 'BAD_STATE');
@@ -445,4 +517,5 @@ export async function hostResumeGame(gameCodeRaw: string, requesterId: string): 
     game.pausedRemainingMs = null;
     game.phaseEndsAt = Date.now() + remaining;
   });
+  return game;
 }

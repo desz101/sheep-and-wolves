@@ -4,21 +4,21 @@ import { cors } from 'jsr:@hono/hono@4/cors';
 import { normalizeGameCode } from '../_shared/gameLogic.ts';
 import { gameStore } from '../_shared/gameStore.ts';
 import { buildClientView } from '../_shared/sanitize.ts';
+import type { Game } from '../_shared/types.ts';
 import {
   GameError,
   acknowledgeRoleReveal,
   createGame,
   drawQuestionCard,
-  getGameState,
   hideVoteRecord,
   hostEndGame,
   hostPauseGame,
   hostResumeGame,
   joinGame,
+  pollGameState,
   showVoteRecord,
   startGame,
   submitVote,
-  touchPlayer,
 } from '../_shared/engine.ts';
 
 // Ported from apps/server/src/index.ts (Express) -- same routes, same
@@ -89,19 +89,23 @@ async function parseBody(c: Context): Promise<Record<string, unknown>> {
 }
 
 /**
- * Wraps an authenticated POST action: checks the caller's token, marks them as
- * freshly seen, runs the action, then responds with the resulting state -- so
- * every mutating call doubles as that player's next "poll" for free.
+ * Wraps an authenticated POST action: checks the caller's token, runs the
+ * action (which touches the caller's presence itself, inside the same
+ * read-modify-write cycle -- see touchIfStale in engine.ts), and responds
+ * with the resulting state, so every mutating call doubles as that player's
+ * next "poll" for free. Deliberately a single round trip through the
+ * engine, not "touch, then act, then re-fetch": under concurrent load
+ * (several tabs polling/acting on the same game) each extra round trip is
+ * another chance to collide with a competing write and have to retry.
  */
-function action(fn: (gameCode: string, playerId: string, body: Record<string, unknown>) => Promise<void>): Handler {
+function action(fn: (gameCode: string, playerId: string, body: Record<string, unknown>) => Promise<Game>): Handler {
   return async (c: Context) => {
     try {
       const gameCode = c.req.param('code');
       const { playerId, playerToken, ...rest } = await parseBody(c);
       await authenticate(gameCode, playerId, playerToken);
-      await touchPlayer(gameCode, playerId as string);
-      await fn(gameCode, playerId as string, rest);
-      return c.json(buildClientView(await getGameState(gameCode), playerId as string));
+      const game = await fn(gameCode, playerId as string, rest);
+      return c.json(buildClientView(game, playerId as string));
     } catch (err) {
       return errorResponse(c, err);
     }
@@ -140,8 +144,8 @@ mount('get', '/games/:code/state', async (c) => {
     const playerId = c.req.query('playerId');
     const playerToken = c.req.query('playerToken');
     await authenticate(gameCode, playerId, playerToken);
-    await touchPlayer(gameCode, playerId as string);
-    return c.json(buildClientView(await getGameState(gameCode), playerId as string));
+    const game = await pollGameState(gameCode, playerId as string);
+    return c.json(buildClientView(game, playerId as string));
   } catch (err) {
     return errorResponse(c, err);
   }
@@ -155,8 +159,8 @@ mount(
   '/games/:code/vote',
   action((gameCode, playerId, body) => submitVote(gameCode, playerId, String(body.targetPlayerId ?? '')))
 );
-mount('post', '/games/:code/vote-record/show', action((gameCode) => showVoteRecord(gameCode)));
-mount('post', '/games/:code/vote-record/hide', action((gameCode) => hideVoteRecord(gameCode)));
+mount('post', '/games/:code/vote-record/show', action((gameCode, playerId) => showVoteRecord(gameCode, playerId)));
+mount('post', '/games/:code/vote-record/hide', action((gameCode, playerId) => hideVoteRecord(gameCode, playerId)));
 mount('post', '/games/:code/end', action((gameCode, playerId) => hostEndGame(gameCode, playerId)));
 mount('post', '/games/:code/pause', action((gameCode, playerId) => hostPauseGame(gameCode, playerId)));
 mount('post', '/games/:code/resume', action((gameCode, playerId) => hostResumeGame(gameCode, playerId)));
