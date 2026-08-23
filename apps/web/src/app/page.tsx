@@ -64,6 +64,9 @@ export default function Home() {
             vote out who you think is a wolf before they outnumber the sheep.
           </li>
         </ol>
+        <Link href="/how-to-play" className="text-center text-sm font-semibold text-accent underline underline-offset-4">
+          Full rules &amp; FAQ
+        </Link>
       </div>
     </main>
   );
