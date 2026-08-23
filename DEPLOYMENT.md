@@ -23,36 +23,69 @@ In the Amplify Console:
    app has a dynamic route (`/game/[code]`). Leave build settings as detected — `amplify.yml`
    takes precedence over anything in the console anyway.
 4. Add an environment variable:
-   - `NEXT_PUBLIC_SERVER_URL` → the game server's URL from step 2 below (e.g.
-     `https://xxxxxxxx.us-east-1.awsapprunner.com`). You'll need to deploy the server first
-     to know this value, then come back and set it, then redeploy the frontend.
+   - `NEXT_PUBLIC_SERVER_URL` → the game server's URL from step 2 below (an ECS Express
+     Mode service URL). You'll need to deploy the server first to know this value, then
+     come back and set it, then trigger a **new build** of the frontend (not just a
+     redeploy — this value is baked into the JS bundle at build time).
 5. Add your custom domain (`sheepandwolves.app`) under **Hosting → Custom domains**.
 
-## 2. Game server — AWS App Runner (recommended)
+## 2. Game server — Amazon ECS Express Mode
 
-App Runner is the simplest AWS-native fit: it runs containers as a persistent service,
-supports WebSockets, gives you HTTPS out of the box, and needs no VPC/load balancer setup.
-`apps/server/Dockerfile` is ready to go.
+AWS App Runner stopped accepting new customers on April 30, 2026. AWS's official
+successor is **ECS Express Mode** (launched re:Invent 2025) — same idea as App Runner
+(persistent Fargate container, auto HTTPS via an Application Load Balancer, which
+natively supports WebSockets), but it's part of ECS instead of a standalone product, so
+it's not going anywhere.
 
-1. **App Runner → Create service → Source: Repository** (or push the image to ECR first,
-   either works — repository is less setup).
-2. Point it at the `sheep-and-wolves` GitHub repo, branch `main`.
-3. Deployment settings: **Dockerfile**, path `apps/server/Dockerfile`. Set the
-   **build context to the repo root** (not `apps/server`) — the Dockerfile needs sibling
-   access to `packages/shared` and the root `package-lock.json` to resolve npm workspaces.
-4. Port: `4000` (matches `EXPOSE 4000` in the Dockerfile; App Runner reads this automatically
-   from the image, or set it explicitly if asked).
-5. Environment variables:
+The one real difference: **Express Mode deploys from a pre-built image in Amazon ECR, not
+directly from a GitHub repo.** `apps/server/Dockerfile` is already validated (builds and
+runs correctly — confirmed locally with `docker build` + `docker run` + a `/health` check).
+
+### Push the image to ECR
+
+Run these from your own terminal (needs AWS CLI configured with your credentials and
+Docker running):
+
+```bash
+# One-time: create the ECR repository
+aws ecr create-repository --repository-name sheep-and-wolves-server --region <your-region>
+
+# Get your account ID and log Docker in to ECR
+ACCOUNT_ID=$(aws sts get-caller-identity --query Account --output text)
+aws ecr get-login-password --region <your-region> | docker login --username AWS --password-stdin $ACCOUNT_ID.dkr.ecr.<your-region>.amazonaws.com
+
+# Build (from the repo root -- context matters, see apps/server/Dockerfile)
+docker build -f apps/server/Dockerfile -t sheep-and-wolves-server .
+
+# Tag and push
+docker tag sheep-and-wolves-server:latest $ACCOUNT_ID.dkr.ecr.<your-region>.amazonaws.com/sheep-and-wolves-server:latest
+docker push $ACCOUNT_ID.dkr.ecr.<your-region>.amazonaws.com/sheep-and-wolves-server:latest
+```
+
+Replace `<your-region>` with the AWS region you want to deploy in (e.g. `us-east-1`).
+
+Repeat the `build` / `tag` / `push` steps whenever `apps/server` or `packages/shared`
+changes — there's no auto-redeploy-on-push the way App Runner or Amplify have, unless you
+later wire up a CI pipeline (e.g. a GitHub Action) to do this automatically.
+
+### Create the Express Mode service
+
+1. **ECS Console → Express mode → Create service**
+2. **Image**: paste the ECR image URI from the push above
+   (`<account-id>.dkr.ecr.<region>.amazonaws.com/sheep-and-wolves-server:latest`)
+3. **Container port**: `4000`
+4. **Health check path**: `/health` (already implemented in `apps/server/src/index.ts`)
+5. **Environment variables**:
    - `CLIENT_ORIGIN` → your Amplify app's URL (e.g. `https://sheepandwolves.app`) — this
      locks down Socket.IO's CORS to only your frontend instead of `*`.
-   - `PORT` → `4000` (only needed if App Runner doesn't infer it from the Dockerfile).
-6. Health check path: `/health` (already implemented in `apps/server/src/index.ts`).
-7. Once deployed, copy the service URL and go back to step 1.4 above to wire it into the
-   frontend's `NEXT_PUBLIC_SERVER_URL`, then trigger a redeploy of the Amplify app.
+6. Deploy. Express Mode gives you a public HTTPS URL when it's done.
+7. Copy that URL and go back to step 1.4 above to wire it into the frontend's
+   `NEXT_PUBLIC_SERVER_URL`, then trigger a new build of the Amplify app (not just a
+   redeploy — `NEXT_PUBLIC_*` values are baked in at build time).
 
-**Alternatives to App Runner**, if you'd rather use something else: ECS Fargate (more
-control, more setup), Lightsail Containers (cheaper, simpler, less scalable), or EC2 with
-Elastic Beanstalk. All of them can use the same `apps/server/Dockerfile`.
+**Alternatives**, if you'd rather not deal with ECR: Lightsail Containers (simpler, still
+takes a Dockerfile-built image, cheaper for small hobby-scale traffic) or EC2 with a plain
+`docker run`. Both work with the same `apps/server/Dockerfile`.
 
 ## 3. After both are live
 
