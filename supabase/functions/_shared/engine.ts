@@ -75,7 +75,10 @@ function alivePlayers(game: Game): Player[] {
 
 function resetVotes(game: Game): void {
   game.votes = {};
-  for (const p of alivePlayers(game)) p.hasVoted = false;
+  for (const p of alivePlayers(game)) {
+    p.hasVoted = false;
+    p.readyToVote = false;
+  }
 }
 
 /**
@@ -216,6 +219,7 @@ export async function createGame(
     isHost: true,
     hasRevealedRole: false,
     hasVoted: false,
+    readyToVote: false,
     joinedAt: Date.now(),
     lastSeenAt: Date.now(),
     eliminatedRound: null,
@@ -274,6 +278,7 @@ export async function joinGame(
     isHost: false,
     hasRevealedRole: false,
     hasVoted: false,
+    readyToVote: false,
     joinedAt: Date.now(),
     lastSeenAt: Date.now(),
     eliminatedRound: null,
@@ -351,6 +356,29 @@ export async function drawQuestionCard(gameCodeRaw: string, requesterId: string)
     }
     game.status = 'DISCUSSION';
     game.phaseEndsAt = Date.now() + game.config.roundTimerSeconds * 1000;
+  });
+  return game;
+}
+
+/**
+ * Lets a player flag themselves ready to skip the rest of discussion. Toggles
+ * on repeat calls so someone can change their mind. Once every alive player
+ * is ready, moves straight to VOTING instead of waiting for phaseEndsAt --
+ * mirrors resolveExpiry's DISCUSSION -> VOTING transition, but skipped while
+ * paused so a host break can't be short-circuited by stale readiness.
+ */
+export async function toggleReadyToVote(gameCodeRaw: string, requesterId: string): Promise<Game> {
+  const { game } = await withGame(gameCodeRaw, (game) => {
+    touchIfStale(game, requesterId);
+    if (game.status !== 'DISCUSSION') throw new GameError('Not in discussion.', 'BAD_STATE');
+    const player = game.players[requesterId];
+    if (!player || !player.isAlive) throw new GameError('You cannot do that.', 'NOT_ALLOWED');
+    player.readyToVote = !player.readyToVote;
+
+    if (!game.paused && alivePlayers(game).every((p) => p.readyToVote)) {
+      game.status = 'VOTING';
+      game.phaseEndsAt = null;
+    }
   });
   return game;
 }

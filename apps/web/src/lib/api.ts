@@ -64,6 +64,7 @@ function authedAction(route: (gameCode: string) => string) {
 export const startGame = authedAction(ApiRoutes.startGame);
 export const revealRoleAck = authedAction(ApiRoutes.revealRoleAck);
 export const drawQuestionCard = authedAction(ApiRoutes.drawQuestionCard);
+export const toggleReadyToVote = authedAction(ApiRoutes.toggleReadyToVote);
 export const showVoteRecord = authedAction(ApiRoutes.showVoteRecord);
 export const hideVoteRecord = authedAction(ApiRoutes.hideVoteRecord);
 export const hostEndGame = authedAction(ApiRoutes.hostEndGame);

@@ -28,6 +28,7 @@ export interface Player {
   isHost: boolean;
   hasRevealedRole: boolean;
   hasVoted: boolean;
+  readyToVote: boolean;
   joinedAt: number;
   lastSeenAt: number;
   eliminatedRound: number | null;
@@ -147,6 +148,9 @@ export interface ClientGameState {
   selfRole: Role | null;
   selfHasVoted: boolean;
   selfIsAlive: boolean;
+  selfReadyToVote: boolean;
+  readyToVoteCount: number;
+  readyToVoteNeeded: number;
   votingOptions: { id: string; name: string }[];
   voteCountsSubmitted: number;
   voteCountsNeeded: number;

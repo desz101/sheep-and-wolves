@@ -25,6 +25,7 @@ export interface Player {
   isHost: boolean;
   hasRevealedRole: boolean;
   hasVoted: boolean;
+  readyToVote: boolean;
   joinedAt: number;
   // Updated on every authenticated request from this player (action or state
   // poll). connectionStatus is derived from this, not stored directly -- there's
@@ -140,6 +141,9 @@ export interface ClientGameState {
   selfRole: Role | null;
   selfHasVoted: boolean;
   selfIsAlive: boolean;
+  selfReadyToVote: boolean;
+  readyToVoteCount: number; // how many alive players are ready to skip discussion (no identities)
+  readyToVoteNeeded: number;
   votingOptions: { id: string; name: string }[];
   voteCountsSubmitted: number; // how many alive players have voted (no identities)
   voteCountsNeeded: number;

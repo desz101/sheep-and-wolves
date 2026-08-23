@@ -19,6 +19,7 @@ import {
   showVoteRecord,
   startGame,
   submitVote,
+  toggleReadyToVote,
 } from '../_shared/engine.ts';
 
 // Ported from apps/server/src/index.ts (Express) -- same routes, same
@@ -154,6 +155,7 @@ mount('get', '/games/:code/state', async (c) => {
 mount('post', '/games/:code/start', action((gameCode, playerId) => startGame(gameCode, playerId)));
 mount('post', '/games/:code/role-reveal-ack', action((gameCode, playerId) => acknowledgeRoleReveal(gameCode, playerId)));
 mount('post', '/games/:code/draw-question-card', action((gameCode, playerId) => drawQuestionCard(gameCode, playerId)));
+mount('post', '/games/:code/ready-to-vote', action((gameCode, playerId) => toggleReadyToVote(gameCode, playerId)));
 mount(
   'post',
   '/games/:code/vote',
