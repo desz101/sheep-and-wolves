@@ -33,7 +33,20 @@ import {
 
 const app = new Hono();
 
-app.use('*', cors({ origin: Deno.env.get('CLIENT_ORIGIN') ?? '*' }));
+// CLIENT_ORIGIN is a comma-separated list (production domain, an Amplify
+// branch-preview URL while testing a feature branch, etc). Hono's cors()
+// takes an array and matches the request's Origin against it exactly --
+// passing '*' as a one-element array would only ever match a literal "*"
+// Origin header, never a real one, so the wildcard has to stay a bare
+// string and only kick in when CLIENT_ORIGIN is unset entirely.
+const clientOrigin = Deno.env.get('CLIENT_ORIGIN');
+const allowedOrigins = clientOrigin
+  ? clientOrigin
+      .split(',')
+      .map((origin) => origin.trim())
+      .filter(Boolean)
+  : [];
+app.use('*', cors({ origin: allowedOrigins.length > 0 ? allowedOrigins : '*' }));
 
 type Handler = (c: Context) => Response | Promise<Response>;
 

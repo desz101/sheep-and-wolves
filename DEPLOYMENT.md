@@ -35,9 +35,12 @@ long-running server.
    ```
 3. Set the one secret the function needs beyond what Supabase already injects
    (`SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` are automatic for every Edge Function —
-   don't set those yourself):
+   don't set those yourself). `CLIENT_ORIGIN` is a **comma-separated list** — include the
+   production domain plus any Amplify branch-preview URL you're actively testing against
+   (each branch Amplify builds gets its own `https://<branch>.<app-id>.amplifyapp.com` URL;
+   an origin not in this list gets silently rejected by CORS with no useful browser error):
    ```bash
-   supabase secrets set CLIENT_ORIGIN=https://sheepandwolves.app
+   supabase secrets set CLIENT_ORIGIN="https://sheepandwolves.app,https://claude-game-server-alternatives-m0cjci.dcrdsi7f3zc7v.amplifyapp.com"
    ```
 4. Deploy:
    ```bash
