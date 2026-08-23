@@ -35,6 +35,7 @@ interface TokenEntry {
 
 interface GameRow {
   state: Game;
+  version: number;
 }
 
 interface TokenRow {
@@ -61,20 +62,41 @@ class GameStore {
     return { gameCode: data.game_code, playerId: data.player_id };
   }
 
-  async get(gameCode: string): Promise<Game | undefined> {
+  /**
+   * Fetches a game together with the row version it was read at. Pair with
+   * `setIfVersion` for any read-modify-write -- see `withGame` in engine.ts,
+   * which is the only caller and handles the retry-on-conflict loop.
+   */
+  async getWithVersion(gameCode: string): Promise<GameRow | undefined> {
     const { data, error } = await supabase
       .from('games')
-      .select('state')
+      .select('state, version')
       .eq('game_code', gameCode)
       .maybeSingle<GameRow>();
     if (error) throw error;
-    return data?.state;
+    return data ?? undefined;
   }
 
-  async set(game: Game): Promise<void> {
-    const { error } = await supabase
+  /**
+   * Writes `game` only if the row's version still matches `expectedVersion`
+   * (i.e. nothing else wrote to this game since it was read), bumping the
+   * version on success. Returns false on a conflict -- the caller re-reads
+   * and retries rather than blindly overwriting a newer write.
+   */
+  async setIfVersion(game: Game, expectedVersion: number): Promise<boolean> {
+    const { data, error } = await supabase
       .from('games')
-      .upsert({ game_code: game.gameCode, state: game, updated_at: new Date().toISOString() });
+      .update({ state: game, version: expectedVersion + 1, updated_at: new Date().toISOString() })
+      .eq('game_code', game.gameCode)
+      .eq('version', expectedVersion)
+      .select('game_code');
+    if (error) throw error;
+    return (data?.length ?? 0) > 0;
+  }
+
+  /** Unconditional insert -- only safe for creating a brand-new game row (see createGame). */
+  async insert(game: Game): Promise<void> {
+    const { error } = await supabase.from('games').insert({ game_code: game.gameCode, state: game, version: 1 });
     if (error) throw error;
   }
 

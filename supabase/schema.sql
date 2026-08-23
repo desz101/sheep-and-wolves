@@ -11,8 +11,21 @@
 create table if not exists games (
   game_code text primary key,
   state jsonb not null,
+  version integer not null default 1,
   updated_at timestamptz not null default now()
 );
+
+-- `version` backs optimistic concurrency control (see gameStore.ts's
+-- getWithVersion/setIfVersion): every write is a conditional
+-- `UPDATE ... WHERE version = $expected`, so a write based on state that's
+-- gone stale (another request updated the row first) fails instead of
+-- silently overwriting the newer write. This matters here specifically
+-- because *every* poll (every open tab, every ~1.5s) does a full
+-- read-modify-write of the same row via touchPlayer, so without a version
+-- check, concurrent requests routinely clobber each other's changes --
+-- e.g. a player join getting silently erased by an unrelated poll's write
+-- landing right after it.
+alter table games add column if not exists version integer not null default 1;
 
 create table if not exists tokens (
   token text primary key,
