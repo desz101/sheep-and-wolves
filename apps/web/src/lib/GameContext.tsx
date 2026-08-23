@@ -15,6 +15,7 @@ interface GameContextValue {
     startGame: () => void;
     revealRoleAck: () => void;
     drawQuestionCard: () => void;
+    toggleReadyToVote: () => void;
     submitVote: (targetPlayerId: string) => void;
     showVoteRecord: () => void;
     hideVoteRecord: () => void;
@@ -95,6 +96,7 @@ export function GameProvider({ gameCode, children }: { gameCode: string; childre
     startGame: () => runAction(api.startGame),
     revealRoleAck: () => runAction(api.revealRoleAck),
     drawQuestionCard: () => runAction(api.drawQuestionCard),
+    toggleReadyToVote: () => runAction(api.toggleReadyToVote),
     submitVote: (targetPlayerId: string) => runAction((gc, pid, tok) => api.submitVote(gc, pid, tok, targetPlayerId)),
     showVoteRecord: () => runAction(api.showVoteRecord),
     hideVoteRecord: () => runAction(api.hideVoteRecord),

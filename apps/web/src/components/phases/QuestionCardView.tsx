@@ -11,6 +11,7 @@ export function QuestionCardView({ state }: { state: ClientGameState }) {
   if (state.isQuestionCardHolder) {
     return (
       <div className="flex flex-col items-center gap-8 text-center">
+        <GameOnBadge />
         <div className="card-flip-scene h-80 w-64 max-w-full">
           <button
             type="button"
@@ -44,11 +45,23 @@ export function QuestionCardView({ state }: { state: ClientGameState }) {
 
   return (
     <div className="flex flex-col items-center gap-6 text-center">
+      <GameOnBadge />
       <span className="text-5xl">🃏</span>
       <p className="text-xl font-bold">
         {state.questionCardHolderName ?? 'Someone'} has the question card
       </p>
       <p className="text-sm text-muted">They&apos;ll read it out loud when your group is ready.</p>
+    </div>
+  );
+}
+
+// Round after round, players land on this waiting screen and don't realize
+// the game is live and it's fine to talk -- a plain "here's who has the
+// card" message alone reads as "nothing is happening yet."
+function GameOnBadge() {
+  return (
+    <div className="flex animate-fade-up items-center gap-2 rounded-full border border-accent-2/30 bg-accent-2/10 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-accent-2">
+      <span>🎉</span> Game on — talk freely while you wait
     </div>
   );
 }

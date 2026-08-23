@@ -2,7 +2,7 @@
 
 import { ClientGameState } from '@sw/shared';
 import { Timer } from '../Timer';
-import { Panel } from '../ui';
+import { BigButton, Panel } from '../ui';
 import { useGame } from '@/lib/GameContext';
 
 export function DiscussionView({ state }: { state: ClientGameState }) {
@@ -30,6 +30,18 @@ export function DiscussionView({ state }: { state: ClientGameState }) {
       <p className="text-sm text-muted">
         {alive} player{alive === 1 ? '' : 's'} remaining · Round {state.currentRound}
       </p>
+
+      {state.selfIsAlive && !state.paused && (
+        <div className="flex w-full flex-col items-center gap-2">
+          <BigButton variant={state.selfReadyToVote ? 'ghost' : 'primary'} onClick={() => actions.toggleReadyToVote()}>
+            {state.selfReadyToVote ? '✅ Ready to vote' : 'Ready to vote'}
+          </BigButton>
+          <p className="text-xs text-muted">
+            {state.readyToVoteCount}/{state.readyToVoteNeeded} ready
+            {state.selfReadyToVote ? ' — tap to cancel' : ' · skips the timer once everyone is'}
+          </p>
+        </div>
+      )}
 
       {isHost && (
         <button
