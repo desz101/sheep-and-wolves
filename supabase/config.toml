@@ -1,0 +1,12 @@
+project_id = "frdjrmowinwbhglatufa"
+
+[functions.api]
+# The game already authenticates every request itself (playerId/playerToken,
+# checked against the tokens table in engine.ts) -- it doesn't use Supabase
+# Auth/JWTs at all. Without this, Supabase's gateway requires an
+# Authorization: Bearer <jwt> header on every call (including the browser's
+# CORS preflight) and rejects anything missing one *before* the request ever
+# reaches our code -- and since that rejection comes from the gateway, not
+# our Hono app, it has no CORS headers, which is what a browser reports as a
+# blocked CORS preflight rather than the 401 it actually is.
+verify_jwt = false
