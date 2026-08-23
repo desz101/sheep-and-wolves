@@ -22,6 +22,12 @@ export const GAME_CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 
 export const RECONNECT_GRACE_MS = 5 * 60 * 1000;
 
+// The client polls GET /games/:code/state on this cadence instead of holding a
+// live connection. A player is only shown as "disconnected" once they've missed
+// several polls in a row (PRESENCE_TIMEOUT_MS), not the instant one is late.
+export const POLL_INTERVAL_MS = 1500;
+export const PRESENCE_TIMEOUT_MS = 4 * POLL_INTERVAL_MS;
+
 export function maxWolvesForPlayers(playerCount: number): number {
   // Wolves must never start >= half the players (sheep must start with a majority),
   // and the game validation additionally requires wolves < sheep at game start.

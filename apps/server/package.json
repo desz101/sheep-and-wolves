@@ -11,8 +11,7 @@
   "dependencies": {
     "@sw/shared": "*",
     "cors": "^2.8.5",
-    "express": "^4.19.2",
-    "socket.io": "^4.7.5"
+    "express": "^4.19.2"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",

@@ -26,7 +26,10 @@ export interface Player {
   hasRevealedRole: boolean;
   hasVoted: boolean;
   joinedAt: number;
-  connectionStatus: ConnectionStatus;
+  // Updated on every authenticated request from this player (action or state
+  // poll). connectionStatus is derived from this, not stored directly -- there's
+  // no socket to tell us the instant someone drops.
+  lastSeenAt: number;
   eliminatedRound: number | null;
 }
 
@@ -164,7 +167,7 @@ export interface FinalSummaryEntry {
   eliminatedRound: number | null; // null = survived
 }
 
-// ---- Socket event payloads ----
+// ---- HTTP payloads ----
 
 export interface CreateGamePayload {
   hostName: string;
@@ -173,26 +176,9 @@ export interface CreateGamePayload {
   roundTimerSeconds: number;
 }
 
-export interface JoinGamePayload {
-  gameCode: string;
-  name: string;
-}
-
-export interface ReconnectPayload {
-  gameCode: string;
-  playerToken: string;
-}
-
-export interface SubmitVotePayload {
-  gameCode: string;
-  targetPlayerId: string;
-}
-
-export interface SimpleGamePayload {
-  gameCode: string;
-}
-
-export interface JoinAckPayload {
+// Returned by POST /games and POST /games/:code/join -- the credentials the
+// client stores and sends with every subsequent request.
+export interface SessionAck {
   gameCode: string;
   playerId: string;
   playerToken: string;

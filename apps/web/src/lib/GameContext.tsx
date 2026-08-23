@@ -1,9 +1,9 @@
 'use client';
 
-import { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { ClientEvents, ClientGameState, ErrorPayload, JoinAckPayload, ServerEvents } from '@sw/shared';
-import { getSocket } from './socket';
-import { loadSession, saveSession } from './session';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { ClientGameState, POLL_INTERVAL_MS } from '@sw/shared';
+import * as api from './api';
+import { loadSession } from './session';
 
 interface GameContextValue {
   state: ClientGameState | null;
@@ -27,89 +27,82 @@ interface GameContextValue {
 
 const GameContext = createContext<GameContextValue | null>(null);
 
+// RTT/2 clock-offset estimate from a single timed request, matching the old
+// ping/pong math -- there's just no dedicated endpoint for it anymore, since
+// every response already carries serverNow.
+function estimateOffset(serverNow: number, sentAt: number, receivedAt: number): number {
+  return serverNow + (receivedAt - sentAt) / 2 - receivedAt;
+}
+
 export function GameProvider({ gameCode, children }: { gameCode: string; children: React.ReactNode }) {
   const [state, setState] = useState<ClientGameState | null>(null);
   const [connected, setConnected] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [clockOffsetMs, setClockOffsetMs] = useState(0);
   const [noSession, setNoSession] = useState(false);
-  const attemptedReconnect = useRef(false);
+
+  const applyTimed = useCallback((timed: { body: ClientGameState; sentAt: number; receivedAt: number }) => {
+    setState(timed.body);
+    setConnected(true);
+    setClockOffsetMs(estimateOffset(timed.body.serverNow, timed.sentAt, timed.receivedAt));
+  }, []);
+
+  const poll = useCallback(async () => {
+    const session = loadSession(gameCode);
+    if (!session) {
+      setNoSession(true);
+      return;
+    }
+    try {
+      const timed = await api.fetchState(gameCode, session.playerId, session.playerToken);
+      applyTimed(timed);
+    } catch (err) {
+      setConnected(false);
+      if (err instanceof api.ApiError && err.code === 'BAD_TOKEN') setNoSession(true);
+    }
+  }, [gameCode, applyTimed]);
 
   useEffect(() => {
-    const socket = getSocket();
-
-    function onGameState(payload: ClientGameState) {
-      setState(payload);
-    }
-    function onError(payload: ErrorPayload) {
-      setError(payload.message);
-    }
-    function onJoinAck(payload: JoinAckPayload) {
-      saveSession(payload);
-    }
-    function onConnect() {
-      setConnected(true);
-      syncClock();
-      const session = loadSession(gameCode);
-      if (session) {
-        socket.emit(ClientEvents.Reconnect, { gameCode, playerToken: session.playerToken });
-      } else {
-        setNoSession(true);
-      }
-    }
-    function onDisconnect() {
-      setConnected(false);
-    }
-    function onPong({ clientSentAt, serverNow }: { clientSentAt: number; serverNow: number }) {
-      const rtt = Date.now() - clientSentAt;
-      const estimatedServerNow = serverNow + rtt / 2;
-      setClockOffsetMs(estimatedServerNow - Date.now());
-    }
-    function syncClock() {
-      socket.emit(ClientEvents.PingClock, Date.now());
-    }
-
-    socket.on(ServerEvents.GameState, onGameState);
-    socket.on(ServerEvents.Error, onError);
-    socket.on(ServerEvents.JoinAck, onJoinAck);
-    socket.on(ServerEvents.PongClock, onPong);
-    socket.on('connect', onConnect);
-    socket.on('disconnect', onDisconnect);
-
-    if (socket.connected && !attemptedReconnect.current) {
-      attemptedReconnect.current = true;
-      onConnect();
-    }
-
-    const clockInterval = setInterval(syncClock, 15000);
-
+    // Deferred rather than called directly: `poll` can set state on its first
+    // synchronous branch (no session yet), and effects shouldn't set state
+    // synchronously during their own body.
+    const kickoff = setTimeout(poll, 0);
+    const interval = setInterval(poll, POLL_INTERVAL_MS);
     return () => {
-      socket.off(ServerEvents.GameState, onGameState);
-      socket.off(ServerEvents.Error, onError);
-      socket.off(ServerEvents.JoinAck, onJoinAck);
-      socket.off(ServerEvents.PongClock, onPong);
-      socket.off('connect', onConnect);
-      socket.off('disconnect', onDisconnect);
-      clearInterval(clockInterval);
+      clearTimeout(kickoff);
+      clearInterval(interval);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gameCode]);
+  }, [poll]);
 
-  const actions = useMemo(
-    () => ({
-      startGame: () => getSocket().emit(ClientEvents.StartGame, { gameCode }),
-      revealRoleAck: () => getSocket().emit(ClientEvents.RevealRoleAck, { gameCode }),
-      drawQuestionCard: () => getSocket().emit(ClientEvents.DrawQuestionCard, { gameCode }),
-      submitVote: (targetPlayerId: string) => getSocket().emit(ClientEvents.SubmitVote, { gameCode, targetPlayerId }),
-      showVoteRecord: () => getSocket().emit(ClientEvents.ShowVoteRecord, { gameCode }),
-      hideVoteRecord: () => getSocket().emit(ClientEvents.HideVoteRecord, { gameCode }),
-      hostEndGame: () => getSocket().emit(ClientEvents.HostEndGame, { gameCode }),
-      hostPauseGame: () => getSocket().emit(ClientEvents.HostPauseGame, { gameCode }),
-      hostResumeGame: () => getSocket().emit(ClientEvents.HostResumeGame, { gameCode }),
-      dismissError: () => setError(null),
-    }),
-    [gameCode]
+  const runAction = useCallback(
+    async (fn: (gameCode: string, playerId: string, playerToken: string) => Promise<{ body: ClientGameState; sentAt: number; receivedAt: number }>) => {
+      const session = loadSession(gameCode);
+      if (!session) {
+        setNoSession(true);
+        return;
+      }
+      try {
+        const timed = await fn(gameCode, session.playerId, session.playerToken);
+        applyTimed(timed);
+      } catch (err) {
+        setError(err instanceof api.ApiError ? err.message : 'Something went wrong.');
+      }
+    },
+    [gameCode, applyTimed]
   );
+
+  const actions: GameContextValue['actions'] = {
+    startGame: () => runAction(api.startGame),
+    revealRoleAck: () => runAction(api.revealRoleAck),
+    drawQuestionCard: () => runAction(api.drawQuestionCard),
+    submitVote: (targetPlayerId: string) => runAction((gc, pid, tok) => api.submitVote(gc, pid, tok, targetPlayerId)),
+    showVoteRecord: () => runAction(api.showVoteRecord),
+    hideVoteRecord: () => runAction(api.hideVoteRecord),
+    hostEndGame: () => runAction(api.hostEndGame),
+    hostPauseGame: () => runAction(api.hostPauseGame),
+    hostResumeGame: () => runAction(api.hostResumeGame),
+    dismissError: () => setError(null),
+  };
 
   return (
     <GameContext.Provider value={{ state, connected, error, clockOffsetMs, noSession, actions }}>

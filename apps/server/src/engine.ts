@@ -29,11 +29,6 @@ const VOTE_REVEAL_DISPLAY_MS = 6000;
 const TIEBREAKER_ANNOUNCE_MS = 4000;
 const ELIMINATION_DISPLAY_MS = 6000;
 
-let notify: (gameCode: string) => void = () => {};
-export function setNotifier(fn: (gameCode: string) => void) {
-  notify = fn;
-}
-
 function newPlayerId(): string {
   return crypto.randomBytes(8).toString('hex');
 }
@@ -47,19 +42,51 @@ function resetVotes(game: Game): void {
   for (const p of alivePlayers(game)) p.hasVoted = false;
 }
 
-function scheduleTimer(gameCode: string, delayMs: number, handler: () => void): void {
-  gameStore.setTimer(
-    gameCode,
-    setTimeout(() => {
-      handler();
-    }, delayMs)
-  );
+/**
+ * Every timed phase transition used to be driven by a server-side setTimeout.
+ * There's no process to hold that timer anymore: instead, each phase records
+ * when it should end (`phaseEndsAt`), and this function -- called at the top
+ * of every request that touches a game -- lazily applies any transition whose
+ * time has passed. A phase advances the moment *any* player next interacts
+ * with the game (an action or a state poll), not at the exact millisecond.
+ */
+function resolveExpiry(game: Game): void {
+  while (game.phaseEndsAt !== null && !game.paused && Date.now() >= game.phaseEndsAt) {
+    switch (game.status) {
+      case 'DISCUSSION':
+        game.status = 'VOTING';
+        game.phaseEndsAt = null;
+        break;
+      case 'TIEBREAKER':
+        resetVotes(game);
+        game.status = 'VOTING';
+        game.phaseEndsAt = null;
+        break;
+      case 'VOTE_REVEAL':
+        applyElimination(game);
+        game.status = 'ELIMINATION';
+        game.phaseEndsAt = Date.now() + ELIMINATION_DISPLAY_MS;
+        break;
+      case 'ELIMINATION':
+        advanceRoundOrEndGame(game);
+        break;
+      default:
+        // No timed transition defined for this status -- stop rather than spin.
+        return;
+    }
+  }
 }
 
 function requireGame(gameCode: string): Game {
   const game = gameStore.get(normalizeGameCode(gameCode));
   if (!game) throw new GameError('Game not found.', 'NOT_FOUND');
+  resolveExpiry(game);
   return game;
+}
+
+/** Fetches a game with any due phase transitions applied -- used by the state poll route. */
+export function getGameState(gameCode: string): Game {
+  return requireGame(gameCode);
 }
 
 function requireHost(game: Game, requesterId: string): void {
@@ -70,6 +97,13 @@ function requireAlive(game: Game, requesterId: string): void {
   if (!game.players[requesterId]?.isAlive) {
     throw new GameError('Eliminated players can only spectate.', 'ELIMINATED');
   }
+}
+
+/** Marks a player as freshly seen. Called on every authenticated request (action or poll). */
+export function touchPlayer(gameCode: string, playerId: string): void {
+  const game = requireGame(gameCode);
+  const player = game.players[playerId];
+  if (player) player.lastSeenAt = Date.now();
 }
 
 // ---------------- Lobby ----------------
@@ -96,7 +130,7 @@ export function createGame(
     hasRevealedRole: false,
     hasVoted: false,
     joinedAt: Date.now(),
-    connectionStatus: 'connected',
+    lastSeenAt: Date.now(),
     eliminatedRound: null,
   };
 
@@ -153,37 +187,15 @@ export function joinGame(gameCodeRaw: string, name: string): { game: Game; playe
     hasRevealedRole: false,
     hasVoted: false,
     joinedAt: Date.now(),
-    connectionStatus: 'connected',
+    lastSeenAt: Date.now(),
     eliminatedRound: null,
   };
   game.players[playerId] = player;
   game.playerOrder.push(playerId);
 
   const playerToken = gameStore.createToken(gameCode, playerId);
-  notify(gameCode);
+  gameStore.set(game);
   return { game, playerId, playerToken };
-}
-
-export function reconnect(gameCodeRaw: string, token: string): { game: Game; playerId: string } {
-  const gameCode = normalizeGameCode(gameCodeRaw);
-  const entry = gameStore.resolveToken(token);
-  if (!entry || entry.gameCode !== gameCode) throw new GameError('Session expired.', 'BAD_TOKEN');
-  const game = gameStore.get(gameCode);
-  if (!game) throw new GameError('Game not found.', 'NOT_FOUND');
-  const player = game.players[entry.playerId];
-  if (!player) throw new GameError('Player not found.', 'NOT_FOUND');
-  player.connectionStatus = 'connected';
-  notify(gameCode);
-  return { game, playerId: entry.playerId };
-}
-
-export function markDisconnected(gameCode: string, playerId: string): void {
-  const game = gameStore.get(gameCode);
-  if (!game) return;
-  const player = game.players[playerId];
-  if (!player) return;
-  player.connectionStatus = 'disconnected';
-  notify(gameCode);
 }
 
 // ---------------- Game start / role reveal ----------------
@@ -201,7 +213,7 @@ export function startGame(gameCodeRaw: string, requesterId: string): void {
     game.players[id].role = roles[id] as Role;
   }
   game.status = 'ROLE_REVEAL';
-  notify(game.gameCode);
+  gameStore.set(game);
 }
 
 export function acknowledgeRoleReveal(gameCode: string, playerId: string): void {
@@ -215,7 +227,7 @@ export function acknowledgeRoleReveal(gameCode: string, playerId: string): void 
   if (allRevealed) {
     beginRound(game, 1);
   }
-  notify(game.gameCode);
+  gameStore.set(game);
 }
 
 // ---------------- Rounds ----------------
@@ -240,16 +252,7 @@ export function drawQuestionCard(gameCodeRaw: string, requesterId: string): void
   }
   game.status = 'DISCUSSION';
   game.phaseEndsAt = Date.now() + game.config.roundTimerSeconds * 1000;
-  scheduleTimer(game.gameCode, game.config.roundTimerSeconds * 1000, () => onDiscussionTimeout(game.gameCode));
-  notify(game.gameCode);
-}
-
-function onDiscussionTimeout(gameCode: string): void {
-  const game = gameStore.get(gameCode);
-  if (!game || game.status !== 'DISCUSSION') return;
-  game.status = 'VOTING';
-  game.phaseEndsAt = null;
-  notify(gameCode);
+  gameStore.set(game);
 }
 
 export function submitVote(gameCodeRaw: string, voterId: string, targetId: string): void {
@@ -267,12 +270,11 @@ export function submitVote(gameCodeRaw: string, voterId: string, targetId: strin
 
   game.votes[voterId] = targetId;
   voter.hasVoted = true;
-  notify(game.gameCode);
 
   if (alivePlayers(game).every((p) => p.hasVoted)) {
     resolveVotes(game);
-    notify(game.gameCode);
   }
+  gameStore.set(game);
 }
 
 function resolveVotes(game: Game): void {
@@ -306,7 +308,6 @@ function resolveVotes(game: Game): void {
     game.tiebreaker = { candidateIds: leaders, attempt: (game.tiebreaker?.attempt ?? 0) + 1 };
     game.status = 'TIEBREAKER';
     game.phaseEndsAt = Date.now() + TIEBREAKER_ANNOUNCE_MS;
-    scheduleTimer(game.gameCode, TIEBREAKER_ANNOUNCE_MS, () => onTiebreakerAnnounceTimeout(game.gameCode));
     return;
   }
 
@@ -324,21 +325,9 @@ function resolveVotes(game: Game): void {
   game.tiebreaker = null;
   game.status = 'VOTE_REVEAL';
   game.phaseEndsAt = Date.now() + VOTE_REVEAL_DISPLAY_MS;
-  scheduleTimer(game.gameCode, VOTE_REVEAL_DISPLAY_MS, () => onVoteRevealTimeout(game.gameCode));
 }
 
-function onTiebreakerAnnounceTimeout(gameCode: string): void {
-  const game = gameStore.get(gameCode);
-  if (!game || game.status !== 'TIEBREAKER') return;
-  resetVotes(game);
-  game.status = 'VOTING';
-  game.phaseEndsAt = null;
-  notify(gameCode);
-}
-
-function onVoteRevealTimeout(gameCode: string): void {
-  const game = gameStore.get(gameCode);
-  if (!game || game.status !== 'VOTE_REVEAL') return;
+function applyElimination(game: Game): void {
   const record = game.voteHistory[game.voteHistory.length - 1];
   if (record?.eliminatedPlayerId) {
     const eliminated = game.players[record.eliminatedPlayerId];
@@ -349,16 +338,9 @@ function onVoteRevealTimeout(gameCode: string): void {
     game.lastEliminatedPlayerId = record.eliminatedPlayerId;
     game.lastEliminationRole = record.eliminatedRole;
   }
-  game.status = 'ELIMINATION';
-  game.phaseEndsAt = Date.now() + ELIMINATION_DISPLAY_MS;
-  scheduleTimer(gameCode, ELIMINATION_DISPLAY_MS, () => onEliminationTimeout(gameCode));
-  notify(gameCode);
 }
 
-function onEliminationTimeout(gameCode: string): void {
-  const game = gameStore.get(gameCode);
-  if (!game || game.status !== 'ELIMINATION') return;
-
+function advanceRoundOrEndGame(game: Game): void {
   const alive = alivePlayers(game);
   const aliveWolves = alive.filter((p) => p.role === 'wolf').length;
   const aliveSheep = alive.filter((p) => p.role === 'sheep').length;
@@ -368,11 +350,9 @@ function onEliminationTimeout(gameCode: string): void {
     game.winner = winner;
     game.status = 'GAME_OVER';
     game.phaseEndsAt = null;
-    gameStore.clearTimer(gameCode);
   } else {
     beginRound(game, game.currentRound + 1);
   }
-  notify(gameCode);
 }
 
 // ---------------- Vote record (paper trail) ----------------
@@ -384,13 +364,13 @@ export function showVoteRecord(gameCodeRaw: string): void {
   if (latest.revealUsed) throw new GameError('The vote record has already been revealed for this round.', 'ALREADY_USED');
   game.voteRecordVisible = true;
   latest.revealUsed = true;
-  notify(game.gameCode);
+  gameStore.set(game);
 }
 
 export function hideVoteRecord(gameCodeRaw: string): void {
   const game = requireGame(gameCodeRaw);
   game.voteRecordVisible = false;
-  notify(game.gameCode);
+  gameStore.set(game);
 }
 
 // ---------------- Host controls ----------------
@@ -401,8 +381,7 @@ export function hostEndGame(gameCodeRaw: string, requesterId: string): void {
   requireAlive(game, requesterId);
   game.status = 'CANCELLED';
   game.phaseEndsAt = null;
-  gameStore.clearTimer(game.gameCode);
-  notify(game.gameCode);
+  gameStore.set(game);
 }
 
 export function hostPauseGame(gameCodeRaw: string, requesterId: string): void {
@@ -414,8 +393,7 @@ export function hostPauseGame(gameCodeRaw: string, requesterId: string): void {
   }
   game.paused = true;
   game.pausedRemainingMs = Math.max(0, game.phaseEndsAt - Date.now());
-  gameStore.clearTimer(game.gameCode);
-  notify(game.gameCode);
+  gameStore.set(game);
 }
 
 export function hostResumeGame(gameCodeRaw: string, requesterId: string): void {
@@ -427,6 +405,5 @@ export function hostResumeGame(gameCodeRaw: string, requesterId: string): void {
   game.paused = false;
   game.pausedRemainingMs = null;
   game.phaseEndsAt = Date.now() + remaining;
-  scheduleTimer(game.gameCode, remaining, () => onDiscussionTimeout(game.gameCode));
-  notify(game.gameCode);
+  gameStore.set(game);
 }

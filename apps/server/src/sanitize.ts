@@ -1,4 +1,4 @@
-import { ClientGameState, ClientPlayer, FinalSummaryEntry, Game, VoteTallyDisplay } from '@sw/shared';
+import { ClientGameState, ClientPlayer, FinalSummaryEntry, Game, PRESENCE_TIMEOUT_MS, VoteTallyDisplay } from '@sw/shared';
 
 /**
  * Builds the per-player view of the game. This is the ONLY place client
@@ -21,7 +21,7 @@ export function buildClientView(game: Game, requestingPlayerId: string): ClientG
       isSelf: p.id === requestingPlayerId,
       hasRevealedRole: p.hasRevealedRole,
       hasVoted: p.hasVoted,
-      connectionStatus: p.connectionStatus,
+      connectionStatus: Date.now() - p.lastSeenAt > PRESENCE_TIMEOUT_MS ? 'disconnected' : 'connected',
       eliminatedRound: p.eliminatedRound,
       revealedRole: p.isAlive ? null : p.role,
     }));

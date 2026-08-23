@@ -2,8 +2,8 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { ClientEvents, ErrorPayload, JoinAckPayload, MAX_PLAYERS, MIN_PLAYERS, ServerEvents, TIMER_PRESETS_SECONDS, maxWolvesForPlayers } from '@sw/shared';
-import { getSocket } from '@/lib/socket';
+import { MAX_PLAYERS, MIN_PLAYERS, TIMER_PRESETS_SECONDS, maxWolvesForPlayers } from '@sw/shared';
+import { ApiError, createGame } from '@/lib/api';
 import { saveSession } from '@/lib/session';
 import { BigButton, Panel, SectionLabel, TextInput } from '@/components/ui';
 
@@ -30,34 +30,17 @@ export default function CreatePage() {
   const wolfCap = maxWolvesForPlayers(maxPlayers);
   const effectiveTimer = useCustomTimer ? Math.max(15, Math.min(3600, Number(customTimer) || 0)) : timerSeconds;
 
-  function handleCreate() {
+  async function handleCreate() {
     setSubmitting(true);
     setError(null);
-    const socket = getSocket();
-
-    const onAck = (payload: JoinAckPayload) => {
-      cleanup();
-      saveSession(payload);
-      router.push(`/game/${payload.gameCode}`);
-    };
-    const onError = (payload: ErrorPayload) => {
-      cleanup();
+    try {
+      const { body } = await createGame({ hostName, maxPlayers, wolfCount, roundTimerSeconds: effectiveTimer });
+      saveSession(body);
+      router.push(`/game/${body.gameCode}`);
+    } catch (err) {
       setSubmitting(false);
-      setError(payload.message);
-    };
-    function cleanup() {
-      socket.off(ServerEvents.JoinAck, onAck);
-      socket.off(ServerEvents.Error, onError);
+      setError(err instanceof ApiError ? err.message : 'Something went wrong.');
     }
-
-    socket.on(ServerEvents.JoinAck, onAck);
-    socket.on(ServerEvents.Error, onError);
-    socket.emit(ClientEvents.CreateGame, {
-      hostName,
-      maxPlayers,
-      wolfCount,
-      roundTimerSeconds: effectiveTimer,
-    });
   }
 
   return (

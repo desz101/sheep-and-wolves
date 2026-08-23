@@ -1,8 +1,6 @@
-import http from 'http';
-import express from 'express';
+import express, { Request, Response } from 'express';
 import cors from 'cors';
-import { Server, Socket } from 'socket.io';
-import { ClientEvents, ServerEvents, normalizeGameCode } from '@sw/shared';
+import { ApiRoutes, normalizeGameCode } from '@sw/shared';
 import { gameStore } from './gameStore';
 import { buildClientView } from './sanitize';
 import {
@@ -10,17 +8,16 @@ import {
   acknowledgeRoleReveal,
   createGame,
   drawQuestionCard,
+  getGameState,
   hideVoteRecord,
   hostEndGame,
   hostPauseGame,
   hostResumeGame,
   joinGame,
-  markDisconnected,
-  reconnect,
-  setNotifier,
   showVoteRecord,
   startGame,
   submitVote,
+  touchPlayer,
 } from './engine';
 
 const PORT = process.env.PORT ? Number(process.env.PORT) : 4000;
@@ -28,160 +25,102 @@ const ORIGIN = process.env.CLIENT_ORIGIN ?? '*';
 
 const app = express();
 app.use(cors({ origin: ORIGIN }));
+app.use(express.json());
+
 app.get('/health', (_req, res) => res.json({ ok: true }));
 
-const httpServer = http.createServer(app);
-const io = new Server(httpServer, {
-  cors: { origin: ORIGIN, methods: ['GET', 'POST'] },
-});
-
-// socket.id -> { gameCode, playerId }
-const socketMembership = new Map<string, { gameCode: string; playerId: string }>();
-
-function broadcast(gameCode: string): void {
-  const game = gameStore.get(gameCode);
-  if (!game) return;
-  const room = io.sockets.adapter.rooms.get(gameCode);
-  if (!room) return;
-  for (const socketId of room) {
-    const membership = socketMembership.get(socketId);
-    if (!membership || membership.gameCode !== gameCode) continue;
-    const socket = io.sockets.sockets.get(socketId);
-    if (!socket) continue;
-    socket.emit(ServerEvents.GameState, buildClientView(game, membership.playerId));
-  }
+function statusForCode(code: string): number {
+  if (code === 'NOT_FOUND') return 404;
+  if (code === 'BAD_TOKEN' || code === 'NOT_HOST' || code === 'NOT_ALLOWED') return 403;
+  return 400;
 }
 
-setNotifier(broadcast);
-
-function sendError(socket: Socket, err: unknown): void {
+function sendError(res: Response, err: unknown): void {
   const message = err instanceof GameError ? err.message : 'Something went wrong.';
   const code = err instanceof GameError ? err.code : 'UNKNOWN';
-  socket.emit(ServerEvents.Error, { message, code });
+  res.status(statusForCode(code)).json({ message, code });
 }
 
-io.on('connection', (socket: Socket) => {
-  socket.on(ClientEvents.PingClock, (clientSentAt: number) => {
-    socket.emit(ServerEvents.PongClock, { clientSentAt, serverNow: Date.now() });
-  });
+/** Validates a request's playerId/playerToken against the token this server minted for that game. */
+function authenticate(gameCode: string, playerId: unknown, playerToken: unknown): void {
+  if (typeof playerId !== 'string' || typeof playerToken !== 'string') {
+    throw new GameError('Missing session.', 'BAD_TOKEN');
+  }
+  const entry = gameStore.resolveToken(playerToken);
+  if (!entry || entry.gameCode !== normalizeGameCode(gameCode) || entry.playerId !== playerId) {
+    throw new GameError('Invalid session.', 'BAD_TOKEN');
+  }
+}
 
-  socket.on(ClientEvents.CreateGame, (payload: { hostName: string; maxPlayers: number; wolfCount: number; roundTimerSeconds: number }) => {
+/**
+ * Wraps an authenticated POST action: checks the caller's token, marks them as
+ * freshly seen, runs the action, then responds with the resulting state -- so
+ * every mutating call doubles as that player's next "poll" for free.
+ */
+function action(fn: (gameCode: string, playerId: string, body: Record<string, unknown>) => void) {
+  return (req: Request, res: Response) => {
     try {
-      const { game, playerId, playerToken } = createGame(payload.hostName, {
-        maxPlayers: Number(payload.maxPlayers),
-        wolfCount: Number(payload.wolfCount),
-        roundTimerSeconds: Number(payload.roundTimerSeconds),
-      });
-      socket.join(game.gameCode);
-      socketMembership.set(socket.id, { gameCode: game.gameCode, playerId });
-      socket.emit(ServerEvents.JoinAck, { gameCode: game.gameCode, playerId, playerToken });
-      broadcast(game.gameCode);
+      const gameCode = req.params.code;
+      const { playerId, playerToken, ...rest } = req.body ?? {};
+      authenticate(gameCode, playerId, playerToken);
+      touchPlayer(gameCode, playerId);
+      fn(gameCode, playerId, rest);
+      res.json(buildClientView(getGameState(gameCode), playerId));
     } catch (err) {
-      sendError(socket, err);
+      sendError(res, err);
     }
-  });
+  };
+}
 
-  socket.on(ClientEvents.JoinGame, (payload: { gameCode: string; name: string }) => {
-    try {
-      const { game, playerId, playerToken } = joinGame(payload.gameCode, payload.name);
-      socket.join(game.gameCode);
-      socketMembership.set(socket.id, { gameCode: game.gameCode, playerId });
-      socket.emit(ServerEvents.JoinAck, { gameCode: game.gameCode, playerId, playerToken });
-      broadcast(game.gameCode);
-    } catch (err) {
-      sendError(socket, err);
-    }
-  });
-
-  socket.on(ClientEvents.Reconnect, (payload: { gameCode: string; playerToken: string }) => {
-    try {
-      const { game, playerId } = reconnect(payload.gameCode, payload.playerToken);
-      socket.join(game.gameCode);
-      socketMembership.set(socket.id, { gameCode: game.gameCode, playerId });
-      socket.emit(ServerEvents.JoinAck, { gameCode: game.gameCode, playerId, playerToken: payload.playerToken });
-      broadcast(game.gameCode);
-    } catch (err) {
-      sendError(socket, err);
-    }
-  });
-
-  socket.on(ClientEvents.StartGame, (payload: { gameCode: string }) => {
-    guard(socket, payload.gameCode, (m) => {
-      startGame(payload.gameCode, m.playerId);
+app.post(ApiRoutes.createGame(), (req: Request, res: Response) => {
+  try {
+    const { hostName, maxPlayers, wolfCount, roundTimerSeconds } = req.body ?? {};
+    const { game, playerId, playerToken } = createGame(hostName ?? '', {
+      maxPlayers: Number(maxPlayers),
+      wolfCount: Number(wolfCount),
+      roundTimerSeconds: Number(roundTimerSeconds),
     });
-  });
-
-  socket.on(ClientEvents.RevealRoleAck, (payload: { gameCode: string }) => {
-    guard(socket, payload.gameCode, (m) => {
-      acknowledgeRoleReveal(payload.gameCode, m.playerId);
-    });
-  });
-
-  socket.on(ClientEvents.DrawQuestionCard, (payload: { gameCode: string }) => {
-    guard(socket, payload.gameCode, (m) => {
-      drawQuestionCard(payload.gameCode, m.playerId);
-    });
-  });
-
-  socket.on(ClientEvents.SubmitVote, (payload: { gameCode: string; targetPlayerId: string }) => {
-    guard(socket, payload.gameCode, (m) => {
-      submitVote(payload.gameCode, m.playerId, payload.targetPlayerId);
-    });
-  });
-
-  socket.on(ClientEvents.ShowVoteRecord, (payload: { gameCode: string }) => {
-    guard(socket, payload.gameCode, () => {
-      showVoteRecord(payload.gameCode);
-    });
-  });
-
-  socket.on(ClientEvents.HideVoteRecord, (payload: { gameCode: string }) => {
-    guard(socket, payload.gameCode, () => {
-      hideVoteRecord(payload.gameCode);
-    });
-  });
-
-  socket.on(ClientEvents.HostEndGame, (payload: { gameCode: string }) => {
-    guard(socket, payload.gameCode, (m) => {
-      hostEndGame(payload.gameCode, m.playerId);
-    });
-  });
-
-  socket.on(ClientEvents.HostPauseGame, (payload: { gameCode: string }) => {
-    guard(socket, payload.gameCode, (m) => {
-      hostPauseGame(payload.gameCode, m.playerId);
-    });
-  });
-
-  socket.on(ClientEvents.HostResumeGame, (payload: { gameCode: string }) => {
-    guard(socket, payload.gameCode, (m) => {
-      hostResumeGame(payload.gameCode, m.playerId);
-    });
-  });
-
-  socket.on('disconnect', () => {
-    const membership = socketMembership.get(socket.id);
-    socketMembership.delete(socket.id);
-    if (membership) {
-      markDisconnected(membership.gameCode, membership.playerId);
-    }
-  });
-
-  function guard(s: Socket, gameCodeRaw: string, fn: (m: { gameCode: string; playerId: string }) => void): void {
-    try {
-      const gameCode = normalizeGameCode(gameCodeRaw);
-      const membership = socketMembership.get(s.id);
-      if (!membership || membership.gameCode !== gameCode) {
-        throw new GameError('Not connected to this game.', 'NOT_JOINED');
-      }
-      fn(membership);
-    } catch (err) {
-      sendError(s, err);
-    }
+    res.json({ gameCode: game.gameCode, playerId, playerToken });
+  } catch (err) {
+    sendError(res, err);
   }
 });
 
-httpServer.listen(PORT, () => {
+app.post(ApiRoutes.joinGame(':code'), (req: Request, res: Response) => {
+  try {
+    const { game, playerId, playerToken } = joinGame(req.params.code, req.body?.name ?? '');
+    res.json({ gameCode: game.gameCode, playerId, playerToken });
+  } catch (err) {
+    sendError(res, err);
+  }
+});
+
+app.get(ApiRoutes.state(':code'), (req: Request, res: Response) => {
+  try {
+    const { playerId, playerToken } = req.query;
+    const gameCode = req.params.code;
+    authenticate(gameCode, playerId, playerToken);
+    touchPlayer(gameCode, playerId as string);
+    res.json(buildClientView(getGameState(gameCode), playerId as string));
+  } catch (err) {
+    sendError(res, err);
+  }
+});
+
+app.post(ApiRoutes.startGame(':code'), action((gameCode, playerId) => startGame(gameCode, playerId)));
+app.post(ApiRoutes.revealRoleAck(':code'), action((gameCode, playerId) => acknowledgeRoleReveal(gameCode, playerId)));
+app.post(ApiRoutes.drawQuestionCard(':code'), action((gameCode, playerId) => drawQuestionCard(gameCode, playerId)));
+app.post(
+  ApiRoutes.submitVote(':code'),
+  action((gameCode, playerId, body) => submitVote(gameCode, playerId, String(body.targetPlayerId ?? '')))
+);
+app.post(ApiRoutes.showVoteRecord(':code'), action((gameCode) => showVoteRecord(gameCode)));
+app.post(ApiRoutes.hideVoteRecord(':code'), action((gameCode) => hideVoteRecord(gameCode)));
+app.post(ApiRoutes.hostEndGame(':code'), action((gameCode, playerId) => hostEndGame(gameCode, playerId)));
+app.post(ApiRoutes.hostPauseGame(':code'), action((gameCode, playerId) => hostPauseGame(gameCode, playerId)));
+app.post(ApiRoutes.hostResumeGame(':code'), action((gameCode, playerId) => hostResumeGame(gameCode, playerId)));
+
+app.listen(PORT, () => {
   // eslint-disable-next-line no-console
   console.log(`Sheep & Wolves server listening on :${PORT}`);
 });

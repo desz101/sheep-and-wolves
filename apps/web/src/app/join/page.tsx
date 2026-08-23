@@ -2,8 +2,7 @@
 
 import { Suspense, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { ClientEvents, ErrorPayload, JoinAckPayload, ServerEvents } from '@sw/shared';
-import { getSocket } from '@/lib/socket';
+import { ApiError, joinGame } from '@/lib/api';
 import { saveSession } from '@/lib/session';
 import { BigButton, Panel, SectionLabel, TextInput } from '@/components/ui';
 
@@ -15,33 +14,21 @@ function JoinForm() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  function handleJoin() {
+  async function handleJoin() {
     if (!gameCode.trim()) {
       setError('Enter a game code.');
       return;
     }
     setSubmitting(true);
     setError(null);
-    const socket = getSocket();
-
-    const onAck = (payload: JoinAckPayload) => {
-      cleanup();
-      saveSession(payload);
-      router.push(`/game/${payload.gameCode}`);
-    };
-    const onError = (payload: ErrorPayload) => {
-      cleanup();
+    try {
+      const { body } = await joinGame(gameCode, name);
+      saveSession(body);
+      router.push(`/game/${body.gameCode}`);
+    } catch (err) {
       setSubmitting(false);
-      setError(payload.message);
-    };
-    function cleanup() {
-      socket.off(ServerEvents.JoinAck, onAck);
-      socket.off(ServerEvents.Error, onError);
+      setError(err instanceof ApiError ? err.message : 'Something went wrong.');
     }
-
-    socket.on(ServerEvents.JoinAck, onAck);
-    socket.on(ServerEvents.Error, onError);
-    socket.emit(ClientEvents.JoinGame, { gameCode, name });
   }
 
   return (

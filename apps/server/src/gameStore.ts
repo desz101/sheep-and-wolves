@@ -3,9 +3,10 @@ import { Game } from '@sw/shared';
 
 // The server process is the single source of truth. Games live in memory for
 // the lifetime of the process; a physical in-room party game is expected to
-// run start-to-finish against one running server instance. Player *sockets*
-// reconnecting (refresh, brief network drop) is handled via playerToken below
-// and does not require the process to have persisted anything to disk.
+// run start-to-finish against one running server instance. Clients don't hold
+// a persistent connection -- they poll with a bearer-style playerToken, so
+// there's no per-connection state to track here beyond the games and tokens
+// themselves.
 
 interface TokenEntry {
   gameCode: string;
@@ -15,7 +16,6 @@ interface TokenEntry {
 class GameStore {
   private games = new Map<string, Game>();
   private tokens = new Map<string, TokenEntry>();
-  private timers = new Map<string, ReturnType<typeof setTimeout>>();
 
   createToken(gameCode: string, playerId: string): string {
     const token = crypto.randomBytes(24).toString('hex');
@@ -37,7 +37,6 @@ class GameStore {
 
   delete(gameCode: string): void {
     this.games.delete(gameCode);
-    this.clearTimer(gameCode);
     for (const [token, entry] of this.tokens.entries()) {
       if (entry.gameCode === gameCode) this.tokens.delete(token);
     }
@@ -45,19 +44,6 @@ class GameStore {
 
   has(gameCode: string): boolean {
     return this.games.has(gameCode);
-  }
-
-  setTimer(gameCode: string, handle: ReturnType<typeof setTimeout>): void {
-    this.clearTimer(gameCode);
-    this.timers.set(gameCode, handle);
-  }
-
-  clearTimer(gameCode: string): void {
-    const existing = this.timers.get(gameCode);
-    if (existing) {
-      clearTimeout(existing);
-      this.timers.delete(gameCode);
-    }
   }
 }
 
