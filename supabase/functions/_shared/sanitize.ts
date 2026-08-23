@@ -1,9 +1,12 @@
-import { ClientGameState, ClientPlayer, FinalSummaryEntry, Game, PRESENCE_TIMEOUT_MS, VoteTallyDisplay } from '@sw/shared';
+// Ported verbatim from apps/server/src/sanitize.ts.
+
+import { ClientGameState, ClientPlayer, FinalSummaryEntry, Game, VoteTallyDisplay } from './types.ts';
+import { PRESENCE_TIMEOUT_MS } from './constants.ts';
 
 /**
  * Builds the per-player view of the game. This is the ONLY place client
  * payloads are constructed, and it is rebuilt fresh for every recipient on
- * every broadcast. A player's own `role` is included; every other living
+ * every request. A player's own `role` is included; every other living
  * player's role is always omitted. An eliminated player's role becomes
  * `revealedRole` (public information) for everyone.
  */
@@ -61,8 +64,6 @@ export function buildClientView(game: Game, requestingPlayerId: string): ClientG
     status: game.status,
     config: game.config,
     currentRound: game.currentRound,
-    // The question is drawn server-side at round start but stays hidden from
-    // everyone -- including the card holder -- until they choose to draw it.
     currentQuestion: game.status === 'QUESTION_SELECTION' ? null : game.currentQuestion,
     questionCardHolderId: game.questionCardHolderId,
     questionCardHolderName: questionCardHolder?.name ?? null,

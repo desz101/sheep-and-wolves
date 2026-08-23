@@ -1,10 +1,12 @@
 -- Run this once in the Supabase SQL editor (Project -> SQL Editor -> New query)
--- for the project at https://frdjrmowinwbhglatufa.supabase.co.
+-- for the project at https://frdjrmowinwbhglatufa.supabase.co. (create table ...
+-- if not exists, so re-running it is harmless if you already ran an earlier
+-- version of this file.)
 --
--- This replaces the server's in-memory Map<gameCode, Game> with two tables.
--- The whole Game object is stored as a single jsonb blob per row -- the server
--- (apps/server/src/gameStore.ts) still owns all reads/writes/authorization
--- exactly as it did in memory; this just makes state survive a restart.
+-- The whole Game object is stored as a single jsonb blob per row -- the "api"
+-- Edge Function (supabase/functions/api, via supabase/functions/_shared/gameStore.ts)
+-- is the only thing that reads or writes these tables, and still owns all
+-- authorization exactly as the old in-memory Map / Express server did.
 
 create table if not exists games (
   game_code text primary key,

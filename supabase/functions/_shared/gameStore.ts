@@ -1,24 +1,27 @@
-import crypto from 'crypto';
-import { createClient } from '@supabase/supabase-js';
-import { Game } from '@sw/shared';
+import { createClient } from 'npm:@supabase/supabase-js@2';
+import { randomHex } from './util.ts';
+import type { Game } from './types.ts';
 
-// Game state now lives in Supabase Postgres instead of an in-memory Map, so it
-// survives a server restart -- but the shape of this module (get/set/has/delete,
-// createToken/resolveToken) is unchanged, and it's still the ONLY thing that
-// talks to the database. engine.ts and index.ts don't know or care that the
-// backing store changed.
+// Same role this module played in apps/server/src/gameStore.ts: the ONLY thing
+// that talks to Postgres. engine.ts doesn't know or care that it's now running
+// inside an Edge Function instead of a long-lived Express process.
 //
-// Uses the service_role key deliberately: this key bypasses Row Level Security,
-// which is fine (and required) here because the Express server is the sole,
-// trusted gatekeeper for every read/write -- the same trust boundary the old
-// in-memory Map had implicitly. It must never be sent to a browser. See
-// supabase/schema.sql for the corresponding RLS setup.
+// SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are NOT secrets you need to set --
+// Supabase injects both into every Edge Function's environment automatically.
+// The service_role key deliberately bypasses Row Level Security, which is safe
+// here because this function is the sole, trusted gatekeeper for every
+// read/write (same trust boundary the old in-memory Map had implicitly). See
+// supabase/schema.sql for the corresponding RLS setup (enabled, no policies --
+// so the publishable/anon key a browser might hold has zero access).
 
-const SUPABASE_URL = process.env.SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL');
+const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
-  throw new Error('SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY must be set (see apps/server/.env.example).');
+  throw new Error(
+    'SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are missing. Supabase sets both automatically for every ' +
+      'Edge Function, so seeing this means something is unusually wrong with the project/runtime.'
+  );
 }
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, {
@@ -41,7 +44,7 @@ interface TokenRow {
 
 class GameStore {
   async createToken(gameCode: string, playerId: string): Promise<string> {
-    const token = crypto.randomBytes(24).toString('hex');
+    const token = randomHex(24);
     const { error } = await supabase.from('tokens').insert({ token, game_code: gameCode, player_id: playerId });
     if (error) throw error;
     return token;
@@ -82,13 +85,6 @@ class GameStore {
       .eq('game_code', gameCode);
     if (error) throw error;
     return (count ?? 0) > 0;
-  }
-
-  async delete(gameCode: string): Promise<void> {
-    const { error: tokenError } = await supabase.from('tokens').delete().eq('game_code', gameCode);
-    if (tokenError) throw tokenError;
-    const { error: gameError } = await supabase.from('games').delete().eq('game_code', gameCode);
-    if (gameError) throw gameError;
   }
 }
 

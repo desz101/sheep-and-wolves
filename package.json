@@ -7,9 +7,9 @@
   ],
   "scripts": {
     "predev": "npm run build -w packages/shared",
-    "dev": "concurrently -n shared,server,web -c yellow,blue,magenta \"npm run watch -w packages/shared\" \"npm run dev -w apps/server\" \"npm run dev -w apps/web\"",
-    "dev:server": "npm run build -w packages/shared && npm run dev -w apps/server",
+    "dev": "concurrently -n shared,web -c yellow,magenta \"npm run watch -w packages/shared\" \"npm run dev -w apps/web\"",
     "dev:web": "npm run build -w packages/shared && npm run dev -w apps/web",
+    "dev:functions": "supabase functions serve",
     "build:shared": "npm run build -w packages/shared"
   },
   "devDependencies": {

@@ -2,7 +2,10 @@
 
 import { ApiRoutes, ClientGameState, ErrorPayload, SessionAck } from '@sw/shared';
 
-const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL ?? 'http://localhost:4000';
+// http://localhost:54321 is the Supabase CLI's default local API gateway port
+// (`supabase start` / `supabase functions serve`), so this "just works" for
+// local dev without a .env.local as long as the local Supabase stack is up.
+const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL ?? 'http://localhost:54321/functions/v1/api';
 
 export class ApiError extends Error {
   code?: string;

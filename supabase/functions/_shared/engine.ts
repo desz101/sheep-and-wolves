@@ -1,21 +1,26 @@
-import crypto from 'crypto';
+// Ported from apps/server/src/engine.ts. Game logic is unchanged from the
+// Express version -- only the runtime (Node -> Deno) and crypto helper changed.
+
 import {
   Game,
   GameConfig,
   Player,
   Role,
+} from './types.ts';
+import {
   assignRoles,
   checkWinner,
   drawQuestion,
   freshQuestionDeck,
   generateGameCode,
-  generateRandomName,
   normalizeGameCode,
   pickRandom,
   tallyVotes,
   validateGameConfig,
-} from '@sw/shared';
-import { gameStore } from './gameStore';
+} from './gameLogic.ts';
+import { generateRandomName } from './randomName.ts';
+import { randomHex } from './util.ts';
+import { gameStore } from './gameStore.ts';
 
 export class GameError extends Error {
   code: string;
@@ -30,7 +35,7 @@ const TIEBREAKER_ANNOUNCE_MS = 4000;
 const ELIMINATION_DISPLAY_MS = 6000;
 
 function newPlayerId(): string {
-  return crypto.randomBytes(8).toString('hex');
+  return randomHex(8);
 }
 
 function alivePlayers(game: Game): Player[] {
@@ -71,7 +76,6 @@ function resolveExpiry(game: Game): void {
         advanceRoundOrEndGame(game);
         break;
       default:
-        // No timed transition defined for this status -- stop rather than spin.
         return;
     }
   }
