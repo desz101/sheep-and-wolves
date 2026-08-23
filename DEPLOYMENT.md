@@ -77,7 +77,13 @@ later wire up a CI pipeline (e.g. a GitHub Action) to do this automatically.
 4. **Health check path**: `/health` (already implemented in `apps/server/src/index.ts`)
 5. **Environment variables**:
    - `CLIENT_ORIGIN` → your Amplify app's URL (e.g. `https://sheepandwolves.app`) — this
-     locks down Socket.IO's CORS to only your frontend instead of `*`.
+     locks down the API's CORS to only your frontend instead of `*`.
+   - `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` → game state now lives in Supabase
+     Postgres instead of the process's memory (see `apps/server/supabase/schema.sql`,
+     which you need to have run once in the Supabase SQL editor before first deploy).
+     Use the **service_role** key here, not the publishable/anon one — the service role
+     key is what's allowed to read/write under this project's RLS setup. Never put it
+     in a `NEXT_PUBLIC_*` variable or anywhere the frontend can see it.
 6. Deploy. Express Mode gives you a public HTTPS URL when it's done.
 7. Copy that URL and go back to step 1.4 above to wire it into the frontend's
    `NEXT_PUBLIC_SERVER_URL`, then trigger a new build of the Amplify app (not just a

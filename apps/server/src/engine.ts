@@ -77,15 +77,15 @@ function resolveExpiry(game: Game): void {
   }
 }
 
-function requireGame(gameCode: string): Game {
-  const game = gameStore.get(normalizeGameCode(gameCode));
+async function requireGame(gameCode: string): Promise<Game> {
+  const game = await gameStore.get(normalizeGameCode(gameCode));
   if (!game) throw new GameError('Game not found.', 'NOT_FOUND');
   resolveExpiry(game);
   return game;
 }
 
 /** Fetches a game with any due phase transitions applied -- used by the state poll route. */
-export function getGameState(gameCode: string): Game {
+export async function getGameState(gameCode: string): Promise<Game> {
   return requireGame(gameCode);
 }
 
@@ -100,25 +100,27 @@ function requireAlive(game: Game, requesterId: string): void {
 }
 
 /** Marks a player as freshly seen. Called on every authenticated request (action or poll). */
-export function touchPlayer(gameCode: string, playerId: string): void {
-  const game = requireGame(gameCode);
+export async function touchPlayer(gameCode: string, playerId: string): Promise<void> {
+  const game = await requireGame(gameCode);
   const player = game.players[playerId];
-  if (player) player.lastSeenAt = Date.now();
+  if (!player) return;
+  player.lastSeenAt = Date.now();
+  await gameStore.set(game);
 }
 
 // ---------------- Lobby ----------------
 
-export function createGame(
+export async function createGame(
   hostName: string,
   config: GameConfig
-): { game: Game; playerId: string; playerToken: string } {
+): Promise<{ game: Game; playerId: string; playerToken: string }> {
   const trimmedName = hostName.trim().slice(0, 24) || generateRandomName();
 
   const validationError = validateGameConfig(config.maxPlayers, config.wolfCount, config.roundTimerSeconds);
   if (validationError) throw new GameError(validationError, 'INVALID_CONFIG');
 
   let gameCode = generateGameCode();
-  while (gameStore.has(gameCode)) gameCode = generateGameCode();
+  while (await gameStore.has(gameCode)) gameCode = generateGameCode();
 
   const hostId = newPlayerId();
   const hostPlayer: Player = {
@@ -162,14 +164,17 @@ export function createGame(
     tieStrategy: 'runoff',
   };
 
-  gameStore.set(game);
-  const playerToken = gameStore.createToken(gameCode, hostId);
+  await gameStore.set(game);
+  const playerToken = await gameStore.createToken(gameCode, hostId);
   return { game, playerId: hostId, playerToken };
 }
 
-export function joinGame(gameCodeRaw: string, name: string): { game: Game; playerId: string; playerToken: string } {
+export async function joinGame(
+  gameCodeRaw: string,
+  name: string
+): Promise<{ game: Game; playerId: string; playerToken: string }> {
   const gameCode = normalizeGameCode(gameCodeRaw);
-  const game = gameStore.get(gameCode);
+  const game = await gameStore.get(gameCode);
   if (!game) throw new GameError('Game code not found.', 'NOT_FOUND');
   if (game.status !== 'LOBBY') throw new GameError('This game has already started.', 'ALREADY_STARTED');
   if (game.playerOrder.length >= game.config.maxPlayers) {
@@ -193,15 +198,15 @@ export function joinGame(gameCodeRaw: string, name: string): { game: Game; playe
   game.players[playerId] = player;
   game.playerOrder.push(playerId);
 
-  const playerToken = gameStore.createToken(gameCode, playerId);
-  gameStore.set(game);
+  const playerToken = await gameStore.createToken(gameCode, playerId);
+  await gameStore.set(game);
   return { game, playerId, playerToken };
 }
 
 // ---------------- Game start / role reveal ----------------
 
-export function startGame(gameCodeRaw: string, requesterId: string): void {
-  const game = requireGame(gameCodeRaw);
+export async function startGame(gameCodeRaw: string, requesterId: string): Promise<void> {
+  const game = await requireGame(gameCodeRaw);
   requireHost(game, requesterId);
   if (game.status !== 'LOBBY') throw new GameError('Game already started.', 'BAD_STATE');
   if (game.playerOrder.length < game.config.maxPlayers) {
@@ -213,11 +218,11 @@ export function startGame(gameCodeRaw: string, requesterId: string): void {
     game.players[id].role = roles[id] as Role;
   }
   game.status = 'ROLE_REVEAL';
-  gameStore.set(game);
+  await gameStore.set(game);
 }
 
-export function acknowledgeRoleReveal(gameCode: string, playerId: string): void {
-  const game = requireGame(gameCode);
+export async function acknowledgeRoleReveal(gameCode: string, playerId: string): Promise<void> {
+  const game = await requireGame(gameCode);
   if (game.status !== 'ROLE_REVEAL') throw new GameError('Not in role reveal.', 'BAD_STATE');
   const player = game.players[playerId];
   if (!player) throw new GameError('Player not found.', 'NOT_FOUND');
@@ -227,7 +232,7 @@ export function acknowledgeRoleReveal(gameCode: string, playerId: string): void 
   if (allRevealed) {
     beginRound(game, 1);
   }
-  gameStore.set(game);
+  await gameStore.set(game);
 }
 
 // ---------------- Rounds ----------------
@@ -244,19 +249,19 @@ function beginRound(game: Game, roundNumber: number): void {
   game.phaseEndsAt = null;
 }
 
-export function drawQuestionCard(gameCodeRaw: string, requesterId: string): void {
-  const game = requireGame(gameCodeRaw);
+export async function drawQuestionCard(gameCodeRaw: string, requesterId: string): Promise<void> {
+  const game = await requireGame(gameCodeRaw);
   if (game.status !== 'QUESTION_SELECTION') throw new GameError('Not waiting on the question card.', 'BAD_STATE');
   if (game.questionCardHolderId !== requesterId) {
     throw new GameError('Only the player holding the question card can draw it.', 'NOT_ALLOWED');
   }
   game.status = 'DISCUSSION';
   game.phaseEndsAt = Date.now() + game.config.roundTimerSeconds * 1000;
-  gameStore.set(game);
+  await gameStore.set(game);
 }
 
-export function submitVote(gameCodeRaw: string, voterId: string, targetId: string): void {
-  const game = requireGame(gameCodeRaw);
+export async function submitVote(gameCodeRaw: string, voterId: string, targetId: string): Promise<void> {
+  const game = await requireGame(gameCodeRaw);
   if (game.status !== 'VOTING') throw new GameError('Voting is not open.', 'BAD_STATE');
   const voter = game.players[voterId];
   if (!voter || !voter.isAlive) throw new GameError('You cannot vote.', 'NOT_ALLOWED');
@@ -274,7 +279,7 @@ export function submitVote(gameCodeRaw: string, voterId: string, targetId: strin
   if (alivePlayers(game).every((p) => p.hasVoted)) {
     resolveVotes(game);
   }
-  gameStore.set(game);
+  await gameStore.set(game);
 }
 
 function resolveVotes(game: Game): void {
@@ -357,35 +362,35 @@ function advanceRoundOrEndGame(game: Game): void {
 
 // ---------------- Vote record (paper trail) ----------------
 
-export function showVoteRecord(gameCodeRaw: string): void {
-  const game = requireGame(gameCodeRaw);
+export async function showVoteRecord(gameCodeRaw: string): Promise<void> {
+  const game = await requireGame(gameCodeRaw);
   const latest = game.voteHistory[game.voteHistory.length - 1];
   if (!latest) throw new GameError('No vote record yet.', 'NOT_FOUND');
   if (latest.revealUsed) throw new GameError('The vote record has already been revealed for this round.', 'ALREADY_USED');
   game.voteRecordVisible = true;
   latest.revealUsed = true;
-  gameStore.set(game);
+  await gameStore.set(game);
 }
 
-export function hideVoteRecord(gameCodeRaw: string): void {
-  const game = requireGame(gameCodeRaw);
+export async function hideVoteRecord(gameCodeRaw: string): Promise<void> {
+  const game = await requireGame(gameCodeRaw);
   game.voteRecordVisible = false;
-  gameStore.set(game);
+  await gameStore.set(game);
 }
 
 // ---------------- Host controls ----------------
 
-export function hostEndGame(gameCodeRaw: string, requesterId: string): void {
-  const game = requireGame(gameCodeRaw);
+export async function hostEndGame(gameCodeRaw: string, requesterId: string): Promise<void> {
+  const game = await requireGame(gameCodeRaw);
   requireHost(game, requesterId);
   requireAlive(game, requesterId);
   game.status = 'CANCELLED';
   game.phaseEndsAt = null;
-  gameStore.set(game);
+  await gameStore.set(game);
 }
 
-export function hostPauseGame(gameCodeRaw: string, requesterId: string): void {
-  const game = requireGame(gameCodeRaw);
+export async function hostPauseGame(gameCodeRaw: string, requesterId: string): Promise<void> {
+  const game = await requireGame(gameCodeRaw);
   requireHost(game, requesterId);
   requireAlive(game, requesterId);
   if (game.status !== 'DISCUSSION' || game.phaseEndsAt === null) {
@@ -393,11 +398,11 @@ export function hostPauseGame(gameCodeRaw: string, requesterId: string): void {
   }
   game.paused = true;
   game.pausedRemainingMs = Math.max(0, game.phaseEndsAt - Date.now());
-  gameStore.set(game);
+  await gameStore.set(game);
 }
 
-export function hostResumeGame(gameCodeRaw: string, requesterId: string): void {
-  const game = requireGame(gameCodeRaw);
+export async function hostResumeGame(gameCodeRaw: string, requesterId: string): Promise<void> {
+  const game = await requireGame(gameCodeRaw);
   requireHost(game, requesterId);
   requireAlive(game, requesterId);
   if (!game.paused || game.pausedRemainingMs === null) throw new GameError('Game is not paused.', 'BAD_STATE');
@@ -405,5 +410,5 @@ export function hostResumeGame(gameCodeRaw: string, requesterId: string): void {
   game.paused = false;
   game.pausedRemainingMs = null;
   game.phaseEndsAt = Date.now() + remaining;
-  gameStore.set(game);
+  await gameStore.set(game);
 }

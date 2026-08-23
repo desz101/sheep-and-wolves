@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import { ApiRoutes, normalizeGameCode } from '@sw/shared';
@@ -42,11 +43,11 @@ function sendError(res: Response, err: unknown): void {
 }
 
 /** Validates a request's playerId/playerToken against the token this server minted for that game. */
-function authenticate(gameCode: string, playerId: unknown, playerToken: unknown): void {
+async function authenticate(gameCode: string, playerId: unknown, playerToken: unknown): Promise<void> {
   if (typeof playerId !== 'string' || typeof playerToken !== 'string') {
     throw new GameError('Missing session.', 'BAD_TOKEN');
   }
-  const entry = gameStore.resolveToken(playerToken);
+  const entry = await gameStore.resolveToken(playerToken);
   if (!entry || entry.gameCode !== normalizeGameCode(gameCode) || entry.playerId !== playerId) {
     throw new GameError('Invalid session.', 'BAD_TOKEN');
   }
@@ -57,25 +58,25 @@ function authenticate(gameCode: string, playerId: unknown, playerToken: unknown)
  * freshly seen, runs the action, then responds with the resulting state -- so
  * every mutating call doubles as that player's next "poll" for free.
  */
-function action(fn: (gameCode: string, playerId: string, body: Record<string, unknown>) => void) {
-  return (req: Request, res: Response) => {
+function action(fn: (gameCode: string, playerId: string, body: Record<string, unknown>) => Promise<void>) {
+  return async (req: Request, res: Response) => {
     try {
       const gameCode = req.params.code;
       const { playerId, playerToken, ...rest } = req.body ?? {};
-      authenticate(gameCode, playerId, playerToken);
-      touchPlayer(gameCode, playerId);
-      fn(gameCode, playerId, rest);
-      res.json(buildClientView(getGameState(gameCode), playerId));
+      await authenticate(gameCode, playerId, playerToken);
+      await touchPlayer(gameCode, playerId);
+      await fn(gameCode, playerId, rest);
+      res.json(buildClientView(await getGameState(gameCode), playerId));
     } catch (err) {
       sendError(res, err);
     }
   };
 }
 
-app.post(ApiRoutes.createGame(), (req: Request, res: Response) => {
+app.post(ApiRoutes.createGame(), async (req: Request, res: Response) => {
   try {
     const { hostName, maxPlayers, wolfCount, roundTimerSeconds } = req.body ?? {};
-    const { game, playerId, playerToken } = createGame(hostName ?? '', {
+    const { game, playerId, playerToken } = await createGame(hostName ?? '', {
       maxPlayers: Number(maxPlayers),
       wolfCount: Number(wolfCount),
       roundTimerSeconds: Number(roundTimerSeconds),
@@ -86,22 +87,22 @@ app.post(ApiRoutes.createGame(), (req: Request, res: Response) => {
   }
 });
 
-app.post(ApiRoutes.joinGame(':code'), (req: Request, res: Response) => {
+app.post(ApiRoutes.joinGame(':code'), async (req: Request, res: Response) => {
   try {
-    const { game, playerId, playerToken } = joinGame(req.params.code, req.body?.name ?? '');
+    const { game, playerId, playerToken } = await joinGame(req.params.code, req.body?.name ?? '');
     res.json({ gameCode: game.gameCode, playerId, playerToken });
   } catch (err) {
     sendError(res, err);
   }
 });
 
-app.get(ApiRoutes.state(':code'), (req: Request, res: Response) => {
+app.get(ApiRoutes.state(':code'), async (req: Request, res: Response) => {
   try {
     const { playerId, playerToken } = req.query;
     const gameCode = req.params.code;
-    authenticate(gameCode, playerId, playerToken);
-    touchPlayer(gameCode, playerId as string);
-    res.json(buildClientView(getGameState(gameCode), playerId as string));
+    await authenticate(gameCode, playerId, playerToken);
+    await touchPlayer(gameCode, playerId as string);
+    res.json(buildClientView(await getGameState(gameCode), playerId as string));
   } catch (err) {
     sendError(res, err);
   }
