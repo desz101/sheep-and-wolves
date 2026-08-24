@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { HomeMusicPlayer } from "@/components/HomeMusicPlayer";
 import "./globals.css";
 
 const GA_MEASUREMENT_ID = "G-W76YFL656N";
@@ -82,6 +83,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)]">
         {children}
+        <HomeMusicPlayer />
       </body>
       {process.env.NODE_ENV === "production" && <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />}
     </html>

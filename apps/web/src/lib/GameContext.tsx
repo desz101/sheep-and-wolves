@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { ClientGameState, POLL_INTERVAL_MS } from '@sw/shared';
 import * as api from './api';
+import { stopHomeMusic } from './homeMusic';
 import { loadSession } from './session';
 
 interface GameContextValue {
@@ -74,6 +75,14 @@ export function GameProvider({ gameCode, children }: { gameCode: string; childre
       clearInterval(interval);
     };
   }, [poll]);
+
+  // Home-screen music (see HomeMusicPlayer) is meant to be a pre-game-only
+  // touch -- fine through setup and the lobby, but not once play is actually
+  // underway. This is the one place that sees every game's status regardless
+  // of which phase view is rendered.
+  useEffect(() => {
+    if (state && state.status !== 'LOBBY') stopHomeMusic();
+  }, [state]);
 
   const runAction = useCallback(
     async (fn: (gameCode: string, playerId: string, playerToken: string) => Promise<{ body: ClientGameState; sentAt: number; receivedAt: number }>) => {
