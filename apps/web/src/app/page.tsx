@@ -7,7 +7,7 @@ const structuredData = {
   applicationCategory: 'GameApplication',
   operatingSystem: 'Any (web browser)',
   description:
-    'Sheep & Wolves is a free real-time social deduction party game for your phone. Host a game, share the code or QR, and find the wolves before they outnumber the sheep. No app download required.',
+    'Free real-time social deduction party game. Host a game, share the code, and find the wolves before they outnumber the sheep. No app download required.',
   url: 'https://sheepandwolves.app',
   offers: {
     '@type': 'Offer',
