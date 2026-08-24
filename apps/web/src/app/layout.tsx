@@ -19,7 +19,7 @@ const geistMono = Geist_Mono({
 const SITE_URL = "https://sheepandwolves.app";
 const SITE_NAME = "Sheep & Wolves";
 const DESCRIPTION =
-  "Sheep & Wolves is a free real-time social deduction party game for your phone. Host a game, share the code or QR, and find the wolves before they outnumber the sheep. No app download required.";
+  "Free real-time social deduction party game. Host a game, share the code, and find the wolves before they outnumber the sheep. No app download required.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
