@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { HomeMusicPlayer } from "@/components/HomeMusicPlayer";
 import "./globals.css";
 
 const GA_MEASUREMENT_ID = "G-W76YFL656N";
@@ -18,7 +19,7 @@ const geistMono = Geist_Mono({
 const SITE_URL = "https://sheepandwolves.app";
 const SITE_NAME = "Sheep & Wolves";
 const DESCRIPTION =
-  "Sheep & Wolves is a free real-time social deduction party game for your phone. Host a game, share the code or QR, and find the wolves before they outnumber the sheep. No app download required.";
+  "Free real-time social deduction party game. Host a game, share the code, and find the wolves before they outnumber the sheep. No app download required.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -82,6 +83,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)]">
         {children}
+        <HomeMusicPlayer />
       </body>
       {process.env.NODE_ENV === "production" && <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />}
     </html>
