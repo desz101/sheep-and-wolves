@@ -67,6 +67,12 @@ export default function Home() {
         <Link href="/how-to-play" className="text-center text-sm font-semibold text-accent underline underline-offset-4">
           Full rules &amp; FAQ
         </Link>
+        <Link
+          href="/party-game-ideas"
+          className="text-center text-sm font-semibold text-accent underline underline-offset-4"
+        >
+          More games for game night
+        </Link>
       </div>
     </main>
   );
