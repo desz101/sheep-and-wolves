@@ -43,16 +43,6 @@ const otherGames = [
     blurb: "Imagine Skribbl.io but team-based — draw and guess against another team instead of everyone for themselves.",
   },
   {
-    name: "Pretend You're Xyzzy",
-    url: 'https://pyx-1.pretendyoure.xyz/zy/',
-    blurb: 'A free browser clone of Cards Against Humanity for groups who want the classic card-matching chaos online.',
-  },
-  {
-    name: 'All Bad Cards',
-    url: 'https://allbad.cards/',
-    blurb: 'Another Cards Against Humanity-style game, with a cleaner interface and custom card packs.',
-  },
-  {
     name: 'Spyfall',
     url: 'https://www.spyfall.app/',
     blurb: "Everyone knows the secret location except the spy, who has to guess it before getting caught — great with a big group.",
