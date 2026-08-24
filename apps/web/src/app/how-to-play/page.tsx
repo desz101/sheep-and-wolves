@@ -158,6 +158,12 @@ export default function HowToPlayPage() {
           Host a Game
         </Link>
         <Link
+          href="/party-game-ideas"
+          className="w-full rounded-2xl border border-panel-border bg-white/5 px-6 py-5 text-center text-lg font-bold text-foreground transition active:scale-[0.98]"
+        >
+          More Games for Game Night
+        </Link>
+        <Link
           href="/"
           className="w-full rounded-2xl border border-panel-border bg-white/5 px-6 py-5 text-center text-lg font-bold text-foreground transition active:scale-[0.98]"
         >
