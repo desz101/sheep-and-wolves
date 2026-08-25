@@ -4,12 +4,14 @@ import { ClientGameState } from '@sw/shared';
 import { RoleCard } from '../RoleCard';
 import { Panel } from '../ui';
 import { useGame } from '@/lib/GameContext';
+import { useLanguage } from '@/lib/i18n';
 
 export function RoleRevealView({ state }: { state: ClientGameState }) {
   const { actions } = useGame();
+  const { t } = useLanguage();
 
   if (!state.selfRole) {
-    return <p className="text-center text-muted">Assigning roles…</p>;
+    return <p className="text-center text-muted">{t.roleReveal.assigningRoles}</p>;
   }
 
   return (
@@ -20,7 +22,7 @@ export function RoleRevealView({ state }: { state: ClientGameState }) {
           <span className="font-bold text-foreground">
             {state.playersRevealedCount} / {state.playersJoinedCount}
           </span>{' '}
-          players have revealed their roles
+          {t.roleReveal.haveRevealed}
         </p>
       </Panel>
     </div>

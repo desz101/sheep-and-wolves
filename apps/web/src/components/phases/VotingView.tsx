@@ -4,19 +4,20 @@ import { useState } from 'react';
 import { ClientGameState } from '@sw/shared';
 import { BigButton, Panel, SectionLabel } from '../ui';
 import { useGame } from '@/lib/GameContext';
+import { useLanguage } from '@/lib/i18n';
 
 export function VotingView({ state }: { state: ClientGameState }) {
   const { actions } = useGame();
+  const { t } = useLanguage();
   const [selected, setSelected] = useState<string | null>(null);
 
   if (!state.selfIsAlive) {
     return (
       <div className="flex flex-col items-center gap-4 text-center">
         <span className="text-4xl">👻</span>
-        <p className="text-lg font-bold">Voting is underway</p>
+        <p className="text-lg font-bold">{t.voting.votingUnderway}</p>
         <p className="text-sm text-muted">
-          You&apos;ve been eliminated and are now spectating.{' '}
-          {state.voteCountsSubmitted}/{state.voteCountsNeeded} votes submitted.
+          {t.voting.eliminatedSpectating(state.voteCountsSubmitted, state.voteCountsNeeded)}
         </p>
       </div>
     );
@@ -26,10 +27,8 @@ export function VotingView({ state }: { state: ClientGameState }) {
     return (
       <div className="flex flex-col items-center gap-4 text-center">
         <span className="text-5xl">✅</span>
-        <p className="text-2xl font-black">Vote submitted</p>
-        <p className="text-sm text-muted">
-          Waiting for the other players… ({state.voteCountsSubmitted}/{state.voteCountsNeeded})
-        </p>
+        <p className="text-2xl font-black">{t.voting.voteSubmitted}</p>
+        <p className="text-sm text-muted">{t.voting.waitingOthers(state.voteCountsSubmitted, state.voteCountsNeeded)}</p>
       </div>
     );
   }
@@ -37,10 +36,10 @@ export function VotingView({ state }: { state: ClientGameState }) {
   return (
     <div className="flex flex-col gap-6">
       <h2 className="text-center text-3xl font-black tracking-tight">
-        {state.tiebreaker ? "IT'S A TIE — VOTE AGAIN" : 'TIME TO VOTE'}
+        {state.tiebreaker ? t.voting.tieVoteAgain : t.voting.timeToVote}
       </h2>
       <Panel className="p-4">
-        <SectionLabel>Who do you suspect?</SectionLabel>
+        <SectionLabel>{t.voting.whoSuspect}</SectionLabel>
         <div className="flex flex-col gap-2">
           {state.votingOptions.map((opt) => (
             <button
@@ -65,7 +64,7 @@ export function VotingView({ state }: { state: ClientGameState }) {
         </div>
       </Panel>
       <BigButton variant="danger" disabled={!selected} onClick={() => selected && actions.submitVote(selected)}>
-        Submit Vote
+        {t.voting.submitVote}
       </BigButton>
     </div>
   );

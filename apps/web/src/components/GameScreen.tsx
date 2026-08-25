@@ -15,16 +15,18 @@ import { GameOverView } from './phases/GameOverView';
 import { VoteRecordModal } from './VoteRecordModal';
 import { PlayerList } from './PlayerList';
 import { BigButton } from './ui';
+import { useLanguage } from '@/lib/i18n';
 
 export function GameScreen() {
   const { state, connected, error, noSession, actions } = useGame();
   const [showPlayers, setShowPlayers] = useState(false);
   const router = useRouter();
+  const { t } = useLanguage();
 
   useEffect(() => {
     if (error) {
-      const t = setTimeout(() => actions.dismissError(), 4000);
-      return () => clearTimeout(t);
+      const timeout = setTimeout(() => actions.dismissError(), 4000);
+      return () => clearTimeout(timeout);
     }
   }, [error, actions]);
 
@@ -38,7 +40,7 @@ export function GameScreen() {
   if (!state) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <p className="animate-pulse text-muted">{noSession ? 'Redirecting…' : 'Connecting…'}</p>
+        <p className="animate-pulse text-muted">{noSession ? t.game.redirecting : t.game.connecting}</p>
       </div>
     );
   }
@@ -47,10 +49,10 @@ export function GameScreen() {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6 text-center">
         <span className="text-5xl">🚫</span>
-        <h1 className="text-2xl font-black">Game Ended</h1>
-        <p className="text-muted">The host has ended this game.</p>
+        <h1 className="text-2xl font-black">{t.game.gameEndedTitle}</h1>
+        <p className="text-muted">{t.game.gameEndedBody}</p>
         <BigButton className="max-w-xs" onClick={() => router.push('/')}>
-          Back to Home
+          {t.game.backToHome}
         </BigButton>
       </div>
     );
@@ -63,7 +65,7 @@ export function GameScreen() {
     <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-6 p-4 pb-10 pt-6">
       {!connected && (
         <div className="rounded-xl bg-yellow-500/20 px-4 py-2 text-center text-sm font-semibold text-yellow-300">
-          Reconnecting…
+          {t.game.reconnecting}
         </div>
       )}
       {error && (
@@ -73,15 +75,15 @@ export function GameScreen() {
       {showRoundHeader && (
         <div className="flex items-center justify-between text-sm font-semibold text-muted">
           <span className="flex items-center gap-2">
-            ROUND {state.currentRound}
+            {t.game.round(state.currentRound)}
             {!state.selfIsAlive && (
               <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-muted">
-                👻 Spectating
+                {t.game.spectating}
               </span>
             )}
           </span>
           <button onClick={() => setShowPlayers((v) => !v)} className="underline underline-offset-4">
-            {alive} Players Remaining
+            {t.game.playersRemaining(alive)}
           </button>
         </div>
       )}
@@ -110,7 +112,7 @@ export function GameScreen() {
         state.status === 'DISCUSSION') &&
         state.voteRecordAvailable && (
           <BigButton variant="ghost" onClick={actions.showVoteRecord}>
-            📜 Reveal Vote Record
+            {t.game.revealVoteRecord}
           </BigButton>
         )}
 
@@ -123,10 +125,10 @@ export function GameScreen() {
         state.status !== 'GAME_OVER' &&
         state.status !== 'LOBBY' && (
         <button
-          onClick={() => confirm('End this game for everyone?') && actions.hostEndGame()}
+          onClick={() => confirm(t.game.endGameConfirm) && actions.hostEndGame()}
           className="mt-2 text-center text-xs font-semibold uppercase tracking-widest text-muted underline underline-offset-4"
         >
-          End Game
+          {t.game.endGame}
         </button>
       )}
     </div>
