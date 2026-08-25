@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import Script from "next/script";
 import { HomeMusicPlayer } from "@/components/HomeMusicPlayer";
 import "./globals.css";
 
 const GA_MEASUREMENT_ID = "G-W76YFL656N";
+const ADSENSE_CLIENT_ID = "ca-pub-4757381719550518";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -85,7 +87,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         {children}
         <HomeMusicPlayer />
       </body>
-      {process.env.NODE_ENV === "production" && <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />}
+      {process.env.NODE_ENV === "production" && (
+        <>
+          <GoogleAnalytics gaId={GA_MEASUREMENT_ID} />
+          <Script
+            async
+            src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT_ID}`}
+            crossOrigin="anonymous"
+            strategy="afterInteractive"
+          />
+        </>
+      )}
     </html>
   );
 }
