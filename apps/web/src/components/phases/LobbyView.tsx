@@ -12,7 +12,13 @@ export function LobbyView({ state }: { state: ClientGameState }) {
   const joined = state.players.length;
   const needed = state.config.maxPlayers;
   const canStart = joined >= needed;
-  const joinUrl = typeof window !== 'undefined' ? `${window.location.origin}/join?code=${state.gameCode}` : '';
+  // UTM-tagged so GA can tell "someone scanned the lobby QR code" apart from
+  // generic Direct traffic -- referrer-based attribution can't see this at
+  // all, since scanning a QR code carries no HTTP referrer.
+  const joinUrl =
+    typeof window !== 'undefined'
+      ? `${window.location.origin}/join?code=${state.gameCode}&utm_source=qr_code&utm_medium=in_person&utm_campaign=lobby_join`
+      : '';
 
   return (
     <div className="flex flex-col gap-6">
