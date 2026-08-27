@@ -2,8 +2,10 @@
 
 import { ClientGameState } from '@sw/shared';
 import { Panel } from '../ui';
+import { useLanguage } from '@/lib/i18n';
 
 export function GameOverView({ state }: { state: ClientGameState }) {
+  const { t } = useLanguage();
   const winner = state.winner;
   if (!winner) return null;
   const sheepWin = winner.team === 'sheep';
@@ -20,12 +22,11 @@ export function GameOverView({ state }: { state: ClientGameState }) {
       <div className="flex flex-col items-center gap-3 text-center">
         <span className="text-7xl">{sheepWin ? '🐑' : '🐺'}</span>
         <h1 className={`text-4xl font-black tracking-tight ${sheepWin ? 'text-sheep' : 'text-wolf'}`}>
-          {sheepWin ? 'THE SHEEP WIN!' : 'THE WOLVES WIN!'}
+          {sheepWin ? t.gameOver.sheepWin : t.gameOver.wolvesWin}
         </h1>
-        <p className="text-muted">{winner.reason}</p>
+        <p className="text-muted">{t.gameOver.reasons[winner.reason] ?? winner.reason}</p>
         <p className="text-sm text-muted">
-          {state.currentRound} Round{state.currentRound === 1 ? '' : 's'} · {state.finalSummary?.length ?? 0} Players ·{' '}
-          {state.config.wolfCount} Wolves
+          {t.gameOver.summary(state.currentRound, state.finalSummary?.length ?? 0, state.config.wolfCount)}
         </p>
       </div>
 
@@ -36,9 +37,11 @@ export function GameOverView({ state }: { state: ClientGameState }) {
               <span className="font-semibold">{p.name}</span>
               <div className="flex items-center gap-2 text-sm">
                 <span className={p.role === 'wolf' ? 'font-bold text-wolf' : 'font-bold text-sheep'}>
-                  {p.role === 'wolf' ? '🐺 Wolf' : '🐑 Sheep'}
+                  {p.role === 'wolf' ? t.gameOver.wolfLabel : t.gameOver.sheepLabel}
                 </span>
-                <span className="text-muted">{p.eliminatedRound ? `· Eliminated R${p.eliminatedRound}` : '· Survived'}</span>
+                <span className="text-muted">
+                  {p.eliminatedRound ? t.gameOver.eliminatedRound(p.eliminatedRound) : t.gameOver.survived}
+                </span>
               </div>
             </li>
           ))}
