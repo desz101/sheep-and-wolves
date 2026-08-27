@@ -47,8 +47,22 @@ long-running server.
    supabase functions deploy api
    ```
    This gives you a stable URL: `https://frdjrmowinwbhglatufa.supabase.co/functions/v1/api`.
-5. Re-run `supabase functions deploy api` whenever `supabase/functions/` changes — there's
-   no auto-deploy-on-push unless you wire up a CI pipeline (e.g. a GitHub Action) for it.
+5. Re-run `supabase functions deploy api` whenever `supabase/functions/` changes — or use
+   the GitHub Action below, which does this for you.
+
+### Deploying without the CLI (e.g. from a phone)
+
+`.github/workflows/deploy-functions.yml` deploys the function automatically on every push
+to `main` that touches `supabase/functions/`, and can also be triggered by hand for any
+branch — no local Supabase CLI needed:
+
+1. One-time setup: generate a Supabase personal access token at
+   [supabase.com/dashboard/account/tokens](https://supabase.com/dashboard/account/tokens),
+   then add it as a GitHub Actions secret named `SUPABASE_ACCESS_TOKEN`
+   (repo → **Settings → Secrets and variables → Actions → New repository secret**).
+2. To deploy a branch that isn't `main` yet: repo → **Actions** tab → **Deploy Supabase
+   Edge Functions** → **Run workflow** → pick the branch → **Run workflow**. Works fine
+   from GitHub's mobile web UI.
 
 ## 3. Voice chat — LiveKit
 
@@ -60,14 +74,16 @@ the app hides itself (see `NEXT_PUBLIC_LIVEKIT_URL` below).
 1. Create a free [LiveKit Cloud](https://cloud.livekit.io) project. Note its **WebSocket URL**
    (`wss://<your-project>.livekit.cloud`) and generate an **API key/secret** pair.
 2. Set the key/secret as Supabase secrets (never expose the secret to the browser — only the
-   Edge Function needs it, to mint short-lived per-player tokens):
+   Edge Function needs it, to mint short-lived per-player tokens). Either via the CLI:
    ```bash
    supabase secrets set LIVEKIT_API_KEY="..." LIVEKIT_API_SECRET="..."
    ```
-3. Re-deploy the function so it picks up the new secrets:
-   ```bash
-   supabase functions deploy api
-   ```
+   or, with no CLI (e.g. from a phone), via the dashboard: your project at
+   [supabase.com/dashboard](https://supabase.com/dashboard) → **Edge Functions → Secrets**
+   → **Add new secret**, once for each of `LIVEKIT_API_KEY` and `LIVEKIT_API_SECRET`.
+3. Secrets take effect immediately, no redeploy needed for those alone — but the function
+   also needs to actually contain the `/voice-token` route code, so deploy at least once
+   (CLI `supabase functions deploy api`, or the GitHub Action above) if you haven't yet.
 
 ## 4. Frontend — AWS Amplify Hosting
 
