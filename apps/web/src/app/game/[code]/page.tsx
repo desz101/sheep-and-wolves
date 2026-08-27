@@ -2,6 +2,7 @@
 
 import { useParams } from 'next/navigation';
 import { GameProvider } from '@/lib/GameContext';
+import { VoiceProvider } from '@/lib/VoiceContext';
 import { GameScreen } from '@/components/GameScreen';
 
 export default function GamePage() {
@@ -10,7 +11,9 @@ export default function GamePage() {
 
   return (
     <GameProvider gameCode={gameCode}>
-      <GameScreen />
+      <VoiceProvider gameCode={gameCode}>
+        <GameScreen />
+      </VoiceProvider>
     </GameProvider>
   );
 }

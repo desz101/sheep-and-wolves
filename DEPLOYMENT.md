@@ -50,7 +50,26 @@ long-running server.
 5. Re-run `supabase functions deploy api` whenever `supabase/functions/` changes — there's
    no auto-deploy-on-push unless you wire up a CI pipeline (e.g. a GitHub Action) for it.
 
-## 3. Frontend — AWS Amplify Hosting
+## 3. Voice chat — LiveKit
+
+Voice chat runs on [LiveKit](https://livekit.io) — one room per game (named off the game
+code), so games never share a room. This is optional: if `LIVEKIT_API_KEY`/`LIVEKIT_API_SECRET`
+aren't set, `POST /games/:code/voice-token` fails cleanly and the "Join Voice Chat" button in
+the app hides itself (see `NEXT_PUBLIC_LIVEKIT_URL` below).
+
+1. Create a free [LiveKit Cloud](https://cloud.livekit.io) project. Note its **WebSocket URL**
+   (`wss://<your-project>.livekit.cloud`) and generate an **API key/secret** pair.
+2. Set the key/secret as Supabase secrets (never expose the secret to the browser — only the
+   Edge Function needs it, to mint short-lived per-player tokens):
+   ```bash
+   supabase secrets set LIVEKIT_API_KEY="..." LIVEKIT_API_SECRET="..."
+   ```
+3. Re-deploy the function so it picks up the new secrets:
+   ```bash
+   supabase functions deploy api
+   ```
+
+## 4. Frontend — AWS Amplify Hosting
 
 `amplify.yml` at the repo root already configures the npm-workspaces monorepo build.
 In the Amplify Console:
@@ -62,16 +81,20 @@ In the Amplify Console:
 3. Amplify should auto-detect the Next.js SSR compute platform (`WEB_COMPUTE`) since the
    app has a dynamic route (`/game/[code]`). Leave build settings as detected — `amplify.yml`
    takes precedence over anything in the console anyway.
-4. Add an environment variable:
+4. Add environment variables:
    - `NEXT_PUBLIC_SERVER_URL` → `https://frdjrmowinwbhglatufa.supabase.co/functions/v1/api`
-     (the Edge Function URL from step 2 above). Trigger a **new build** after setting this,
-     not just a redeploy — `NEXT_PUBLIC_*` values are baked into the JS bundle at build
-     time, so an existing build won't pick up a change to this variable.
+     (the Edge Function URL from step 2 above).
+   - `NEXT_PUBLIC_LIVEKIT_URL` → `wss://<your-project>.livekit.cloud` (from step 3 above).
+     Safe to expose — it's just the endpoint the browser opens a WebRTC connection to, not
+     a credential. Omit it (or leave it unset) to ship without voice chat; the "Join Voice
+     Chat" button won't render.
+   Trigger a **new build** after setting either, not just a redeploy — `NEXT_PUBLIC_*` values
+   are baked into the JS bundle at build time, so an existing build won't pick up a change.
 5. Add your custom domain (`sheepandwolves.app`) under **Hosting → Custom domains**, and
    make sure `CLIENT_ORIGIN` (step 2.3 above) matches it — a mismatch here shows up as CORS
    errors in the browser console, not a clear error message.
 
-## 4. After both are live
+## 5. After both are live
 
 - Confirm the frontend's `NEXT_PUBLIC_SERVER_URL` points at the real Edge Function URL, not
   the `http://localhost:54321/...` local dev default (see below) — pointing at "localhost"
@@ -85,7 +108,10 @@ In the Amplify Console:
 - `npm run dev` — runs `packages/shared`'s watcher and the Next.js dev server. It talks to
   whatever `NEXT_PUBLIC_SERVER_URL` in `apps/web/.env.local` points at, defaulting to
   `http://localhost:54321/functions/v1/api` (the Supabase CLI's local API gateway) if unset.
+  Add `NEXT_PUBLIC_LIVEKIT_URL=wss://<your-project>.livekit.cloud` to the same `.env.local`
+  to test voice chat locally (a free LiveKit Cloud project works fine against `localhost`).
 - `npm run dev:functions` (`supabase functions serve`) — runs the Edge Functions locally
   via the Supabase CLI. Needs Docker running, and either `supabase start` (a full local
   Supabase stack) or `--env-file` pointed at your remote project's credentials if you'd
-  rather develop against real data.
+  rather develop against real data. Pass `LIVEKIT_API_KEY`/`LIVEKIT_API_SECRET` through the
+  same `--env-file` (or `supabase secrets set`, see above) for the voice-token route to work.
