@@ -1,0 +1,29 @@
+name: Deploy Supabase Edge Functions
+
+# Auto-deploys on push to main (so the production API never drifts from
+# supabase/functions/). Also runnable by hand for any other branch via
+# workflow_dispatch -- from GitHub's mobile web UI: Actions tab -> this
+# workflow -> Run workflow -> pick the branch -> Run. That's the only way
+# to deploy without a machine that has the Supabase CLI installed.
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/**'
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      # --project-ref lets this run non-interactively (no `supabase link`,
+      # no DB password prompt) -- SUPABASE_ACCESS_TOKEN is the only secret
+      # this needs, generated at supabase.com/dashboard/account/tokens and
+      # stored as a repo secret (Settings -> Secrets and variables -> Actions).
+      - run: supabase functions deploy api --project-ref frdjrmowinwbhglatufa
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
