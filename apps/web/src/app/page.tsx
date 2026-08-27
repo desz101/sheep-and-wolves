@@ -1,4 +1,7 @@
+'use client';
+
 import Link from 'next/link';
+import { useLanguage } from '@/lib/i18n';
 
 const structuredData = {
   '@context': 'https://schema.org',
@@ -17,6 +20,8 @@ const structuredData = {
 };
 
 export default function Home() {
+  const { t } = useLanguage();
+
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center gap-12 p-6 text-center">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
@@ -27,10 +32,7 @@ export default function Home() {
           <span>🐺</span>
         </div>
         <h1 className="text-4xl font-black tracking-tight">Sheep &amp; Wolves</h1>
-        <p className="max-w-xs text-muted">
-          A real-time social deduction party game. Gather your group, grab your phones, and find the wolves before
-          it&apos;s too late.
-        </p>
+        <p className="max-w-xs text-muted">{t.home.tagline}</p>
       </div>
 
       <div className="flex w-full flex-col gap-4">
@@ -38,34 +40,37 @@ export default function Home() {
           href="/create"
           className="w-full rounded-2xl bg-accent px-6 py-5 text-lg font-bold text-white shadow-lg shadow-accent/30 transition active:scale-[0.98]"
         >
-          Host a Game
+          {t.home.hostGame}
         </Link>
         <Link
           href="/join"
           className="w-full rounded-2xl border border-panel-border bg-white/5 px-6 py-5 text-lg font-bold text-foreground transition active:scale-[0.98]"
         >
-          Join a Game
+          {t.home.joinGame}
         </Link>
       </div>
 
       <div className="flex w-full flex-col gap-3 text-left text-sm text-muted">
-        <h2 className="text-center text-xs font-semibold uppercase tracking-[0.2em] text-muted">How it works</h2>
+        <h2 className="text-center text-xs font-semibold uppercase tracking-[0.2em] text-muted">{t.home.howItWorks}</h2>
         <ol className="flex flex-col gap-2">
           <li>
-            <span className="font-bold text-foreground">1. Host sets up the round.</span> Pick a player count, wolf
-            count, and discussion timer, then share the code or QR.
+            <span className="font-bold text-foreground">{t.home.step1Title}</span> {t.home.step1Body}
           </li>
           <li>
-            <span className="font-bold text-foreground">2. Everyone gets a secret role.</span> Most players are
-            sheep; a hidden few are wolves.
+            <span className="font-bold text-foreground">{t.home.step2Title}</span> {t.home.step2Body}
           </li>
           <li>
-            <span className="font-bold text-foreground">3. Discuss, then vote.</span> Talk it out in person, then
-            vote out who you think is a wolf before they outnumber the sheep.
+            <span className="font-bold text-foreground">{t.home.step3Title}</span> {t.home.step3Body}
           </li>
         </ol>
         <Link href="/how-to-play" className="text-center text-sm font-semibold text-accent underline underline-offset-4">
-          Full rules &amp; FAQ
+          {t.home.fullRules}
+        </Link>
+        <Link
+          href="/party-game-ideas"
+          className="text-center text-sm font-semibold text-accent underline underline-offset-4"
+        >
+          {t.home.moreGames}
         </Link>
       </div>
     </main>

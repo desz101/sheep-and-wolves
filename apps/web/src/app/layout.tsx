@@ -4,6 +4,8 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import Script from "next/script";
 import { FooterAd } from "@/components/FooterAd";
 import { HomeMusicPlayer } from "@/components/HomeMusicPlayer";
+import { LanguageToggle } from "@/components/LanguageToggle";
+import { LanguageProvider } from "@/lib/i18n";
 import "./globals.css";
 
 const GA_MEASUREMENT_ID = "G-W76YFL656N";
@@ -85,9 +87,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)]">
-        {children}
-        {process.env.NODE_ENV === "production" && <FooterAd />}
-        <HomeMusicPlayer />
+        <LanguageProvider>
+          <LanguageToggle />
+          {children}
+          {process.env.NODE_ENV === "production" && <FooterAd />}
+          <HomeMusicPlayer />
+        </LanguageProvider>
       </body>
       {process.env.NODE_ENV === "production" && (
         <>
