@@ -2,9 +2,11 @@
 
 import { ClientPlayer } from '@sw/shared';
 import { useLanguage } from '@/lib/i18n';
+import { useVoice } from '@/lib/VoiceContext';
 
 export function PlayerList({ players, showVoted = false }: { players: ClientPlayer[]; showVoted?: boolean }) {
   const { t } = useLanguage();
+  const { activeSpeakerIds } = useVoice();
   return (
     <ul className="flex flex-col divide-y divide-panel-border">
       {players.map((p) => (
@@ -13,7 +15,7 @@ export function PlayerList({ players, showVoted = false }: { players: ClientPlay
             <span
               className={`h-2.5 w-2.5 shrink-0 rounded-full ${
                 !p.isAlive ? 'bg-transparent' : p.connectionStatus === 'connected' ? 'bg-accent-2' : 'bg-yellow-500'
-              }`}
+              } ${activeSpeakerIds.has(p.id) ? 'ring-2 ring-offset-2 ring-offset-panel ring-accent-2 animate-pulse' : ''}`}
               title={p.connectionStatus}
             />
             <span className={`truncate font-semibold ${p.isAlive ? '' : 'text-muted line-through'}`}>

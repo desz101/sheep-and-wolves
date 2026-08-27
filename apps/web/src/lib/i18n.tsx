@@ -91,6 +91,15 @@ export interface Translations {
     endGameConfirm: string;
     waitingHostStart: string;
   };
+  voice: {
+    join: string;
+    connecting: string;
+    live: string;
+    muted: string;
+    mute: string;
+    unmute: string;
+    leave: string;
+  };
   roleReveal: {
     assigningRoles: string;
     haveRevealed: string;
@@ -283,6 +292,15 @@ const en: Translations = {
     endGame: 'End Game',
     endGameConfirm: 'End this game for everyone?',
     waitingHostStart: 'Waiting for the host to start the game…',
+  },
+  voice: {
+    join: 'Join Voice Chat',
+    connecting: 'Connecting…',
+    live: 'Voice chat live',
+    muted: 'Muted',
+    mute: 'Mute',
+    unmute: 'Unmute',
+    leave: 'Leave',
   },
   roleReveal: {
     assigningRoles: 'Assigning roles…',
@@ -563,6 +581,15 @@ const es: Translations = {
     endGame: 'Terminar Partida',
     endGameConfirm: '¿Terminar esta partida para todos?',
     waitingHostStart: 'Esperando a que el anfitrión comience la partida…',
+  },
+  voice: {
+    join: 'Unirse al Chat de Voz',
+    connecting: 'Conectando…',
+    live: 'Chat de voz activo',
+    muted: 'Silenciado',
+    mute: 'Silenciar',
+    unmute: 'Activar Micrófono',
+    leave: 'Salir',
   },
   roleReveal: {
     assigningRoles: 'Asignando roles…',

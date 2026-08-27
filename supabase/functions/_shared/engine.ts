@@ -186,6 +186,20 @@ export async function pollGameState(gameCode: string, playerId: string): Promise
   return withGameMaybeWrite(gameCode, (game) => touchIfStale(game, playerId));
 }
 
+/**
+ * Plain read, no write -- used to look up a player's display name for
+ * contexts (like minting a voice-chat token) that need it but aren't
+ * otherwise touching game state.
+ */
+export async function getPlayerName(gameCodeRaw: string, playerId: string): Promise<string> {
+  const gameCode = normalizeGameCode(gameCodeRaw);
+  const row = await gameStore.getWithVersion(gameCode);
+  if (!row) throw new GameError('Game not found.', 'NOT_FOUND');
+  const player = row.state.players[playerId];
+  if (!player) throw new GameError('Invalid session.', 'BAD_TOKEN');
+  return player.name;
+}
+
 function requireHost(game: Game, requesterId: string): void {
   if (game.hostPlayerId !== requesterId) throw new GameError('Only the host can do that.', 'NOT_HOST');
 }

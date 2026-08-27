@@ -10,6 +10,7 @@ import {
   acknowledgeRoleReveal,
   createGame,
   drawQuestionCard,
+  getPlayerName,
   hideVoteRecord,
   hostEndGame,
   hostPauseGame,
@@ -21,6 +22,7 @@ import {
   submitVote,
   toggleReadyToVote,
 } from '../_shared/engine.ts';
+import { mintVoiceToken } from '../_shared/livekit.ts';
 
 // Ported from apps/server/src/index.ts (Express) -- same routes, same
 // request/response shapes, same game logic. Only the transport changed.
@@ -147,6 +149,19 @@ mount('get', '/games/:code/state', async (c) => {
     await authenticate(gameCode, playerId, playerToken);
     const game = await pollGameState(gameCode, playerId as string);
     return c.json(buildClientView(game, playerId as string));
+  } catch (err) {
+    return errorResponse(c, err);
+  }
+});
+
+mount('post', '/games/:code/voice-token', async (c) => {
+  try {
+    const gameCode = c.req.param('code');
+    const { playerId, playerToken } = await parseBody(c);
+    await authenticate(gameCode, playerId, playerToken);
+    const name = await getPlayerName(gameCode, playerId as string);
+    const token = await mintVoiceToken(gameCode, playerId as string, name);
+    return c.json({ token });
   } catch (err) {
     return errorResponse(c, err);
   }
