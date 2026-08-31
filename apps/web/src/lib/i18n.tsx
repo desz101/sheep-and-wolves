@@ -99,6 +99,7 @@ export interface Translations {
     mute: string;
     unmute: string;
     leave: string;
+    audioBlocked: string;
   };
   roleReveal: {
     assigningRoles: string;
@@ -301,6 +302,7 @@ const en: Translations = {
     mute: 'Mute',
     unmute: 'Unmute',
     leave: 'Leave',
+    audioBlocked: 'Tap to enable audio',
   },
   roleReveal: {
     assigningRoles: 'Assigning roles…',
@@ -590,6 +592,7 @@ const es: Translations = {
     mute: 'Silenciar',
     unmute: 'Activar Micrófono',
     leave: 'Salir',
+    audioBlocked: 'Toca para activar el audio',
   },
   roleReveal: {
     assigningRoles: 'Asignando roles…',
