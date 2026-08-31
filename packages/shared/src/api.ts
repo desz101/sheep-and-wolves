@@ -16,4 +16,5 @@ export const ApiRoutes = {
   hostEndGame: (gameCode: string) => `/games/${gameCode}/end`,
   hostPauseGame: (gameCode: string) => `/games/${gameCode}/pause`,
   hostResumeGame: (gameCode: string) => `/games/${gameCode}/resume`,
+  voiceToken: (gameCode: string) => `/games/${gameCode}/voice-token`,
 } as const;

@@ -192,3 +192,9 @@ export interface ErrorPayload {
   message: string;
   code?: string;
 }
+
+// Returned by POST /games/:code/voice-token -- a short-lived LiveKit room
+// token scoped to this game's voice room and this player's identity.
+export interface VoiceTokenAck {
+  token: string;
+}

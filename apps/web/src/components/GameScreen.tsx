@@ -14,6 +14,8 @@ import { EliminationView } from './phases/EliminationView';
 import { GameOverView } from './phases/GameOverView';
 import { VoteRecordModal } from './VoteRecordModal';
 import { PlayerList } from './PlayerList';
+import { VoiceChatBar } from './VoiceChatBar';
+import { SpeakerRow } from './SpeakerRow';
 import { BigButton } from './ui';
 import { useLanguage } from '@/lib/i18n';
 
@@ -71,6 +73,9 @@ export function GameScreen() {
       {error && (
         <div className="rounded-xl bg-wolf/20 px-4 py-2 text-center text-sm font-semibold text-wolf">{error}</div>
       )}
+
+      <VoiceChatBar />
+      <SpeakerRow players={state.players} />
 
       {showRoundHeader && (
         <div className="flex items-center justify-between text-sm font-semibold text-muted">

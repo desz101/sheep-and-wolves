@@ -2,19 +2,24 @@
 
 import { ClientPlayer } from '@sw/shared';
 import { useLanguage } from '@/lib/i18n';
+import { useVoice } from '@/lib/VoiceContext';
+import { Avatar } from './Avatar';
 
 export function PlayerList({ players, showVoted = false }: { players: ClientPlayer[]; showVoted?: boolean }) {
   const { t } = useLanguage();
+  const { activeSpeakerIds } = useVoice();
   return (
     <ul className="flex flex-col divide-y divide-panel-border">
       {players.map((p) => (
         <li key={p.id} className="flex items-center justify-between gap-3 py-3">
           <div className="flex items-center gap-3 min-w-0">
-            <span
-              className={`h-2.5 w-2.5 shrink-0 rounded-full ${
-                !p.isAlive ? 'bg-transparent' : p.connectionStatus === 'connected' ? 'bg-accent-2' : 'bg-yellow-500'
-              }`}
-              title={p.connectionStatus}
+            <Avatar
+              id={p.id}
+              name={p.name}
+              size="sm"
+              dim={!p.isAlive}
+              speaking={activeSpeakerIds.has(p.id)}
+              status={p.isAlive ? p.connectionStatus : undefined}
             />
             <span className={`truncate font-semibold ${p.isAlive ? '' : 'text-muted line-through'}`}>
               {p.name}
