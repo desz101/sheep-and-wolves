@@ -80,6 +80,8 @@ export interface Translations {
     sheepBody: string;
     seenRole: string;
     waitingOthers: string;
+    otherWolves: string;
+    wolfTag: string;
   };
   lobby: {
     yourGameCode: string;
@@ -189,6 +191,8 @@ export interface Translations {
     round6Body: string;
     round7Title: string;
     round7Body: string;
+    round8Title: string;
+    round8Body: string;
     faqHeading: string;
     faqs: { question: string; answer: string }[];
     hostGame: string;
@@ -261,7 +265,7 @@ const en: Translations = {
     round: (n) => `ROUND ${n}`,
     spectating: '👻 Spectating',
     playersRemaining: (n) => `${n} Players Remaining`,
-    revealVoteRecord: '📜 Reveal Vote Record',
+    revealVoteRecord: '📜 Reveal Vote Record (only you see this)',
     endGame: 'End Game',
     endGameConfirm: 'End this game for everyone?',
   },
@@ -283,6 +287,8 @@ const en: Translations = {
     sheepBody: 'Find and vote out all of the wolves.',
     seenRole: "I've Seen My Role",
     waitingOthers: 'Waiting for the other players…',
+    otherWolves: 'The other wolves',
+    wolfTag: 'Wolf',
   },
   lobby: {
     yourGameCode: 'Your Game Code',
@@ -389,7 +395,8 @@ const en: Translations = {
     setup2Title: '2. Everyone joins from their phone.',
     setup2Body: "Players scan the QR code or enter the game code and a name — no app download or account needed.",
     setup3Title: '3. Roles are dealt secretly.',
-    setup3Body: 'Most players are dealt sheep and a hidden few are dealt wolves. Only you can see your own role.',
+    setup3Body:
+      "Most players are dealt sheep and a hidden few are dealt wolves. Only you can see your own role — but once a wolf taps to reveal their card, their screen also shows the names of the other wolves so the pack knows who's on their team.",
     roundHeading: 'Playing a round',
     round4Title: '4. Draw a question card.',
     round4Body: 'One player draws a discussion prompt and reads it aloud — that starts the timer.',
@@ -399,8 +406,11 @@ const en: Translations = {
     round6Title: '6. Vote.',
     round6Body:
       'Everyone votes for who they suspect is a wolf. The player with the most votes is eliminated and their role is revealed. Ties go to a quick tiebreaker vote.',
-    round7Title: '7. Repeat until someone wins.',
-    round7Body: 'Sheep win once every wolf is voted out. Wolves win if they ever equal or outnumber the remaining sheep.',
+    round7Title: '7. The question-asker checks the record.',
+    round7Body:
+      "Only the player who drew this round's question card gets a private, one-time look at who voted for whom. Nobody else sees it — so it's up to them whether to report it honestly.",
+    round8Title: '8. Repeat until someone wins.',
+    round8Body: 'Sheep win once every wolf is voted out. Wolves win if they ever equal or outnumber the remaining sheep.',
     faqHeading: 'Frequently asked questions',
     faqs: [
       {
@@ -427,6 +437,16 @@ const en: Translations = {
         question: 'How does a round work?',
         answer:
           "Each round, one player draws a question card and reads it aloud (things like \"who's being unusually quiet?\"). That starts the discussion timer, which the host sets when creating the game. When time is up, everyone votes for who they think is a wolf, and the player with the most votes is eliminated and their role is revealed.",
+      },
+      {
+        question: 'Do the wolves know who each other are?',
+        answer:
+          "Yes. As soon as a wolf taps to reveal their role card, their screen also shows the names of the other wolves, each on a matching mini wolf card. Sheep never see this — their card just shows that they're a sheep.",
+      },
+      {
+        question: 'Can players see who voted for whom?',
+        answer:
+          "Only one player each round can: whoever drew that round's question card. After the vote they get a single private look at the full record of who voted for whom. Nobody else can see it, and they don't have to share what they saw — or share it truthfully — so the record is as much a bluffing tool as an information one.",
       },
       {
         question: 'What happens if a vote ties?',
@@ -551,7 +571,7 @@ const es: Translations = {
     round: (n) => `RONDA ${n}`,
     spectating: '👻 Observando',
     playersRemaining: (n) => `${n} Jugadores Restantes`,
-    revealVoteRecord: '📜 Revelar Registro de Votos',
+    revealVoteRecord: '📜 Revelar Registro de Votos (solo tú lo ves)',
     endGame: 'Terminar Partida',
     endGameConfirm: '¿Terminar esta partida para todos?',
   },
@@ -573,6 +593,8 @@ const es: Translations = {
     sheepBody: 'Encuentra y vota para eliminar a todos los lobos.',
     seenRole: 'Ya Vi Mi Rol',
     waitingOthers: 'Esperando a los demás jugadores…',
+    otherWolves: 'Los otros lobos',
+    wolfTag: 'Lobo',
   },
   lobby: {
     yourGameCode: 'Tu Código de Partida',
@@ -680,7 +702,8 @@ const es: Translations = {
     setup2Title: '2. Todos se unen desde su teléfono.',
     setup2Body: 'Los jugadores escanean el código QR o ingresan el código de partida y un nombre — no se necesita descargar ninguna app ni crear una cuenta.',
     setup3Title: '3. Los roles se reparten en secreto.',
-    setup3Body: 'La mayoría de los jugadores reciben el rol de oveja y unos pocos ocultos reciben el de lobo. Solo tú puedes ver tu propio rol.',
+    setup3Body:
+      'La mayoría de los jugadores reciben el rol de oveja y unos pocos ocultos reciben el de lobo. Solo tú puedes ver tu propio rol — pero en cuanto un lobo toca para revelar su carta, su pantalla también muestra los nombres de los otros lobos para que la manada sepa quiénes están en su equipo.',
     roundHeading: 'Jugando una ronda',
     round4Title: '4. Saca una carta de pregunta.',
     round4Body: 'Un jugador saca una pregunta de discusión y la lee en voz alta — eso inicia el temporizador.',
@@ -690,8 +713,11 @@ const es: Translations = {
     round6Title: '6. Voten.',
     round6Body:
       'Todos votan por a quién sospechan que es un lobo. El jugador con más votos es eliminado y se revela su rol. Los empates van a una votación rápida de desempate.',
-    round7Title: '7. Repitan hasta que alguien gane.',
-    round7Body: 'Las ovejas ganan cuando todos los lobos han sido votados fuera. Los lobos ganan si alguna vez igualan o superan en número a las ovejas restantes.',
+    round7Title: '7. Quien hizo la pregunta revisa el registro.',
+    round7Body:
+      'Solo el jugador que sacó la carta de pregunta de esta ronda obtiene una mirada privada, de una sola vez, a quién votó por quién. Nadie más lo ve — así que depende de esa persona si lo cuenta con honestidad.',
+    round8Title: '8. Repitan hasta que alguien gane.',
+    round8Body: 'Las ovejas ganan cuando todos los lobos han sido votados fuera. Los lobos ganan si alguna vez igualan o superan en número a las ovejas restantes.',
     faqHeading: 'Preguntas frecuentes',
     faqs: [
       {
@@ -718,6 +744,16 @@ const es: Translations = {
         question: '¿Cómo funciona una ronda?',
         answer:
           'En cada ronda, un jugador saca una carta de pregunta y la lee en voz alta (cosas como "¿quién está inusualmente callado?"). Eso inicia el temporizador de discusión, que el anfitrión configura al crear la partida. Cuando se acaba el tiempo, todos votan por quién creen que es un lobo, y el jugador con más votos es eliminado y se revela su rol.',
+      },
+      {
+        question: '¿Los lobos saben quiénes son los demás lobos?',
+        answer:
+          'Sí. En cuanto un lobo toca para revelar su carta de rol, su pantalla también muestra los nombres de los otros lobos, cada uno en una mini carta de lobo a juego. Las ovejas nunca ven esto — su carta solo muestra que son una oveja.',
+      },
+      {
+        question: '¿Los jugadores pueden ver quién votó por quién?',
+        answer:
+          'Solo uno por ronda puede: quien sacó la carta de pregunta de esa ronda. Después de la votación obtiene una única mirada privada al registro completo de quién votó por quién. Nadie más puede verlo, y no está obligado a compartir lo que vio — ni a compartirlo con honestidad — así que el registro es tanto una herramienta de engaño como de información.',
       },
       {
         question: '¿Qué pasa si hay un empate en la votación?',

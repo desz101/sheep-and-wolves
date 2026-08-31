@@ -142,6 +142,9 @@ export interface ClientGameState {
   selfHasVoted: boolean;
   selfIsAlive: boolean;
   selfReadyToVote: boolean;
+  // Populated only for a player who is a wolf AND has acknowledged their role
+  // reveal. Lists every OTHER wolf (id + name) so the pack knows each other.
+  wolfTeammates: { id: string; name: string }[];
   readyToVoteCount: number; // how many alive players are ready to skip discussion (no identities)
   readyToVoteNeeded: number;
   votingOptions: { id: string; name: string }[];
