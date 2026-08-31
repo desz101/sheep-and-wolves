@@ -15,6 +15,7 @@ import { GameOverView } from './phases/GameOverView';
 import { VoteRecordModal } from './VoteRecordModal';
 import { PlayerList } from './PlayerList';
 import { VoiceChatBar } from './VoiceChatBar';
+import { SpeakerRow } from './SpeakerRow';
 import { BigButton } from './ui';
 import { useLanguage } from '@/lib/i18n';
 
@@ -74,6 +75,7 @@ export function GameScreen() {
       )}
 
       <VoiceChatBar />
+      <SpeakerRow players={state.players} />
 
       {showRoundHeader && (
         <div className="flex items-center justify-between text-sm font-semibold text-muted">
