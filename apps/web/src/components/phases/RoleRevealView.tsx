@@ -16,7 +16,7 @@ export function RoleRevealView({ state }: { state: ClientGameState }) {
 
   return (
     <div className="flex flex-col items-center gap-8">
-      <RoleCard role={state.selfRole} onConfirm={actions.revealRoleAck} />
+      <RoleCard role={state.selfRole} teammates={state.wolfTeammates} onConfirm={actions.revealRoleAck} />
       <Panel className="w-full max-w-xs p-4 text-center">
         <p className="text-sm text-muted">
           <span className="font-bold text-foreground">

@@ -356,6 +356,9 @@ function beginRound(game: Game, roundNumber: number): void {
   game.questionDeck = remainingDeck;
   game.questionHistory.push(question);
   resetVotes(game);
+  // Don't carry a still-open vote record into the next round -- the new
+  // question-asker should have to choose to reveal it themselves.
+  game.voteRecordVisible = false;
   game.questionCardHolderId = pickRandom(alivePlayers(game)).id;
   game.status = 'QUESTION_SELECTION';
   game.phaseEndsAt = null;
@@ -504,6 +507,9 @@ function advanceRoundOrEndGame(game: Game): void {
 export async function showVoteRecord(gameCodeRaw: string, requesterId: string): Promise<Game> {
   const { game } = await withGame(gameCodeRaw, (game) => {
     touchIfStale(game, requesterId);
+    if (game.questionCardHolderId !== requesterId) {
+      throw new GameError('Only the player who asked the question can view the vote record.', 'NOT_ALLOWED');
+    }
     const latest = game.voteHistory[game.voteHistory.length - 1];
     if (!latest) throw new GameError('No vote record yet.', 'NOT_FOUND');
     if (latest.revealUsed) throw new GameError('The vote record has already been revealed for this round.', 'ALREADY_USED');
@@ -516,6 +522,9 @@ export async function showVoteRecord(gameCodeRaw: string, requesterId: string): 
 export async function hideVoteRecord(gameCodeRaw: string, requesterId: string): Promise<Game> {
   const { game } = await withGame(gameCodeRaw, (game) => {
     touchIfStale(game, requesterId);
+    if (game.questionCardHolderId !== requesterId) {
+      throw new GameError('Only the player who asked the question can view the vote record.', 'NOT_ALLOWED');
+    }
     game.voteRecordVisible = false;
   });
   return game;

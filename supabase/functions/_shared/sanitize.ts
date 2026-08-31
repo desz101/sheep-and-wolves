@@ -31,6 +31,17 @@ export function buildClientView(game: Game, requestingPlayerId: string): ClientG
 
   const alivePlayers = game.playerOrder.map((id) => game.players[id]).filter((p) => p && p.isAlive);
 
+  // A wolf who has seen their card gets to know the rest of the pack. Every
+  // other player -- and a wolf who hasn't acknowledged their reveal yet --
+  // gets an empty list.
+  const wolfTeammates =
+    self?.role === 'wolf' && self?.hasRevealedRole
+      ? game.playerOrder
+          .map((id) => game.players[id])
+          .filter((p) => p && p.id !== requestingPlayerId && p.role === 'wolf')
+          .map((p) => ({ id: p.id, name: p.name }))
+      : [];
+
   const votingOptions =
     game.status === 'VOTING' && self?.isAlive
       ? alivePlayers
@@ -41,8 +52,14 @@ export function buildClientView(game: Game, requestingPlayerId: string): ClientG
 
   const voteTally = buildVoteTally(game);
 
+  // The vote record (the individual paper trail) is a secret kept by whoever
+  // asked this round's question. Only they can reveal it, only they ever see
+  // it -- so they're free to lie to the table about what it said.
+  const isCardHolder = !!game.questionCardHolderId && game.questionCardHolderId === requestingPlayerId;
+
   const latestRecord = game.voteHistory[game.voteHistory.length - 1] ?? null;
-  const voteRecordAvailable = !!latestRecord && !latestRecord.revealUsed;
+  const voteRecordAvailable = isCardHolder && !!latestRecord && !latestRecord.revealUsed;
+  const voteRecordVisible = isCardHolder && game.voteRecordVisible;
 
   const finalSummary: FinalSummaryEntry[] | null =
     game.status === 'GAME_OVER'
@@ -67,7 +84,7 @@ export function buildClientView(game: Game, requestingPlayerId: string): ClientG
     currentQuestion: game.status === 'QUESTION_SELECTION' ? null : game.currentQuestion,
     questionCardHolderId: game.questionCardHolderId,
     questionCardHolderName: questionCardHolder?.name ?? null,
-    isQuestionCardHolder: !!game.questionCardHolderId && game.questionCardHolderId === requestingPlayerId,
+    isQuestionCardHolder: isCardHolder,
     players,
     hostPlayerId: game.hostPlayerId,
     selfPlayerId: requestingPlayerId,
@@ -75,13 +92,14 @@ export function buildClientView(game: Game, requestingPlayerId: string): ClientG
     selfHasVoted: self?.hasVoted ?? false,
     selfIsAlive: self?.isAlive ?? false,
     selfReadyToVote: self?.readyToVote ?? false,
+    wolfTeammates,
     readyToVoteCount: alivePlayers.filter((p) => p.readyToVote).length,
     readyToVoteNeeded: alivePlayers.length,
     votingOptions,
     voteCountsSubmitted: alivePlayers.filter((p) => p.hasVoted).length,
     voteCountsNeeded: alivePlayers.length,
     voteTally,
-    latestVoteRecord: game.voteRecordVisible && latestRecord
+    latestVoteRecord: voteRecordVisible && latestRecord
       ? {
           round: latestRecord.round,
           isTiebreaker: latestRecord.isTiebreaker,
@@ -92,7 +110,7 @@ export function buildClientView(game: Game, requestingPlayerId: string): ClientG
           tiedPlayerIds: latestRecord.tiedPlayerIds,
         }
       : null,
-    voteRecordVisible: game.voteRecordVisible,
+    voteRecordVisible,
     voteRecordAvailable,
     tiebreaker: game.tiebreaker,
     winner: game.winner,

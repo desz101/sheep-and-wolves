@@ -60,6 +60,9 @@ export function HowToPlayContent() {
           <p>
             <span className="font-bold text-foreground">{t.howToPlay.round7Title}</span> {t.howToPlay.round7Body}
           </p>
+          <p>
+            <span className="font-bold text-foreground">{t.howToPlay.round8Title}</span> {t.howToPlay.round8Body}
+          </p>
         </Panel>
       </section>
 

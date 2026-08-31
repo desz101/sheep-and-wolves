@@ -7,7 +7,7 @@ Sheep & Wolves is a browser-based party game for 3 to 30 players, in the same tr
 ## Pages
 
 - [Home](https://sheepandwolves.app/): Overview and entry point to host or join a game.
-- [How to Play](https://sheepandwolves.app/how-to-play): Full rules, round-by-round walkthrough, and FAQ (setup, player counts, tiebreakers, win conditions).
+- [How to Play](https://sheepandwolves.app/how-to-play): Full rules, round-by-round walkthrough, and FAQ (setup, player counts, wolves knowing their teammates, the question-asker's private vote record, tiebreakers, win conditions).
 - [Host a Game](https://sheepandwolves.app/create): Create a new game and configure player count, wolf count, and discussion timer.
 - [Join a Game](https://sheepandwolves.app/join): Join an existing game using a code or QR code.
 

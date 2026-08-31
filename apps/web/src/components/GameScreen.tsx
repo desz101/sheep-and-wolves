@@ -111,10 +111,14 @@ export function GameScreen() {
         {state.status === 'GAME_OVER' && <GameOverView state={state} />}
       </div>
 
+      {/* The vote record is the question-asker's secret -- only they get the
+          button, and only they ever see it, so they can spin it how they like.
+          Server scopes voteRecordAvailable to the holder too; this is belt-and-braces. */}
       {(state.status === 'VOTE_REVEAL' ||
         state.status === 'ELIMINATION' ||
         state.status === 'QUESTION_SELECTION' ||
         state.status === 'DISCUSSION') &&
+        state.isQuestionCardHolder &&
         state.voteRecordAvailable && (
           <BigButton variant="ghost" onClick={actions.showVoteRecord}>
             {t.game.revealVoteRecord}
