@@ -9,6 +9,7 @@ export const ApiRoutes = {
   startGame: (gameCode: string) => `/games/${gameCode}/start`,
   revealRoleAck: (gameCode: string) => `/games/${gameCode}/role-reveal-ack`,
   drawQuestionCard: (gameCode: string) => `/games/${gameCode}/draw-question-card`,
+  setAvatar: (gameCode: string) => `/games/${gameCode}/avatar`,
   toggleReadyToVote: (gameCode: string) => `/games/${gameCode}/ready-to-vote`,
   submitVote: (gameCode: string) => `/games/${gameCode}/vote`,
   showVoteRecord: (gameCode: string) => `/games/${gameCode}/vote-record/show`,

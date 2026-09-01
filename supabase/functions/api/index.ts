@@ -17,6 +17,7 @@ import {
   hostResumeGame,
   joinGame,
   pollGameState,
+  setAvatar,
   showVoteRecord,
   startGame,
   submitVote,
@@ -170,6 +171,7 @@ mount('post', '/games/:code/voice-token', async (c) => {
 mount('post', '/games/:code/start', action((gameCode, playerId) => startGame(gameCode, playerId)));
 mount('post', '/games/:code/role-reveal-ack', action((gameCode, playerId) => acknowledgeRoleReveal(gameCode, playerId)));
 mount('post', '/games/:code/draw-question-card', action((gameCode, playerId) => drawQuestionCard(gameCode, playerId)));
+mount('post', '/games/:code/avatar', action((gameCode, playerId, body) => setAvatar(gameCode, playerId, body.avatar)));
 mount('post', '/games/:code/ready-to-vote', action((gameCode, playerId) => toggleReadyToVote(gameCode, playerId)));
 mount(
   'post',

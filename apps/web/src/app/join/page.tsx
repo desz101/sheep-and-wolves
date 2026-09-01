@@ -26,7 +26,7 @@ function JoinForm() {
     try {
       const { body } = await joinGame(gameCode, name);
       saveSession(body);
-      router.push(`/game/${body.gameCode}`);
+      router.push(`/avatar/${body.gameCode}`);
     } catch (err) {
       setSubmitting(false);
       setError(err instanceof ApiError ? err.message : 'Something went wrong.');

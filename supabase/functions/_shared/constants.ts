@@ -19,3 +19,27 @@ export const GAME_CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 
 export const POLL_INTERVAL_MS = 1500;
 export const PRESENCE_TIMEOUT_MS = 4 * POLL_INTERVAL_MS;
+
+// Cosmetic player avatars -- keep in sync with packages/shared/src/constants.ts.
+export const AVATAR_KEYS = [
+  'chill',
+  'cool',
+  'curious',
+  'inquisitive',
+  'savvy',
+  'witty',
+  'silly',
+  'energized',
+  'emotional',
+  'tired',
+  'annoyed',
+  'suspect',
+] as const;
+
+export function randomAvatar(): string {
+  return AVATAR_KEYS[Math.floor(Math.random() * AVATAR_KEYS.length)];
+}
+
+export function isAvatarKey(value: unknown): value is string {
+  return typeof value === 'string' && (AVATAR_KEYS as readonly string[]).includes(value);
+}

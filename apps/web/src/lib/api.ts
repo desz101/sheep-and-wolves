@@ -62,6 +62,15 @@ function authedAction(route: (gameCode: string) => string) {
 }
 
 export const startGame = authedAction(ApiRoutes.startGame);
+
+export function setAvatar(
+  gameCode: string,
+  playerId: string,
+  playerToken: string,
+  avatar: string
+): Promise<Timed<ClientGameState>> {
+  return authedAction(ApiRoutes.setAvatar)(gameCode, playerId, playerToken, { avatar });
+}
 export const revealRoleAck = authedAction(ApiRoutes.revealRoleAck);
 export const drawQuestionCard = authedAction(ApiRoutes.drawQuestionCard);
 export const toggleReadyToVote = authedAction(ApiRoutes.toggleReadyToVote);

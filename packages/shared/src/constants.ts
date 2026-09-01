@@ -37,3 +37,31 @@ export function maxWolvesForPlayers(playerCount: number): number {
 export function minWolves(): number {
   return 1;
 }
+
+// Player avatars: one PNG-derived webp per key lives at
+// apps/web/public/avatars/<key>.webp. Order is the cycle order in the picker.
+// Purely cosmetic -- no key hints at a role.
+export const AVATAR_KEYS = [
+  'chill',
+  'cool',
+  'curious',
+  'inquisitive',
+  'savvy',
+  'witty',
+  'silly',
+  'energized',
+  'emotional',
+  'tired',
+  'annoyed',
+  'suspect',
+] as const;
+
+export type AvatarKey = (typeof AVATAR_KEYS)[number];
+
+export function randomAvatar(): AvatarKey {
+  return AVATAR_KEYS[Math.floor(Math.random() * AVATAR_KEYS.length)];
+}
+
+export function isAvatarKey(value: unknown): value is AvatarKey {
+  return typeof value === 'string' && (AVATAR_KEYS as readonly string[]).includes(value);
+}

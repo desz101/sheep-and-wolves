@@ -19,6 +19,7 @@ import {
   validateGameConfig,
 } from './gameLogic.ts';
 import { generateRandomName } from './randomName.ts';
+import { isAvatarKey, randomAvatar } from './constants.ts';
 import { randomHex } from './util.ts';
 import { gameStore } from './gameStore.ts';
 
@@ -228,6 +229,7 @@ export async function createGame(
   const hostPlayer: Player = {
     id: hostId,
     name: trimmedName,
+    avatar: randomAvatar(),
     role: null,
     isAlive: true,
     isHost: true,
@@ -284,9 +286,13 @@ export async function joinGame(
   // Generated once, outside the retry loop: withGame's mutator can run more
   // than once on a version conflict, and re-running it must be idempotent.
   const playerId = newPlayerId();
+  // Generated once here (not inside the mutator) for the same idempotency
+  // reason as playerId -- a version-conflict retry must not reshuffle it.
+  const avatar = randomAvatar();
   const player: Player = {
     id: playerId,
     name: trimmedName,
+    avatar,
     role: null,
     isAlive: true,
     isHost: false,
@@ -309,6 +315,20 @@ export async function joinGame(
 
   const playerToken = await gameStore.createToken(gameCode, playerId);
   return { game, playerId, playerToken };
+}
+
+export async function setAvatar(gameCodeRaw: string, requesterId: string, avatar: unknown): Promise<Game> {
+  if (!isAvatarKey(avatar)) throw new GameError('Unknown avatar.', 'INVALID_AVATAR');
+  const { game } = await withGame(gameCodeRaw, (game) => {
+    touchIfStale(game, requesterId);
+    const player = game.players[requesterId];
+    if (!player) throw new GameError('Player not found.', 'NOT_FOUND');
+    // Avatars lock in once the game leaves the lobby -- no changing your face
+    // mid-round.
+    if (game.status !== 'LOBBY') throw new GameError('The game has already started.', 'BAD_STATE');
+    player.avatar = avatar;
+  });
+  return game;
 }
 
 // ---------------- Game start / role reveal ----------------

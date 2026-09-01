@@ -23,6 +23,7 @@ export type GameStatus =
 export interface Player {
   id: string;
   name: string;
+  avatar: string; // cosmetic sheep avatar key (see AVATAR_KEYS)
   role: Role | null;
   isAlive: boolean;
   isHost: boolean;
@@ -99,6 +100,7 @@ export interface Game {
 export interface ClientPlayer {
   id: string;
   name: string;
+  avatar: string; // cosmetic sheep avatar key (see AVATAR_KEYS)
   isAlive: boolean;
   isHost: boolean;
   isSelf: boolean;

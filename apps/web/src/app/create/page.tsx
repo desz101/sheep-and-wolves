@@ -29,7 +29,7 @@ export default function CreatePage() {
     try {
       const { body } = await createGame({ hostName, maxPlayers, wolfCount, roundTimerSeconds: effectiveTimer });
       saveSession(body);
-      router.push(`/game/${body.gameCode}`);
+      router.push(`/avatar/${body.gameCode}`);
     } catch (err) {
       setSubmitting(false);
       setError(err instanceof ApiError ? err.message : 'Something went wrong.');

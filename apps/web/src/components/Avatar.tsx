@@ -2,23 +2,21 @@
 
 import type { CSSProperties } from 'react';
 import type { ConnectionStatus } from '@sw/shared';
+import { avatarSrc, resolveAvatarKey } from '@/lib/avatars';
 
-// A small fixed palette (not per-app theme colors like accent/wolf/sheep,
-// which already mean something else) so every player gets a consistent,
-// visually distinct bubble color for the life of the game -- hashed off
-// their (stable) player id, not their name, so a name change or duplicate
-// name never reshuffles anyone's color.
-const PALETTE = ['#7c5cff', '#22d3a8', '#ff8a5c', '#5cc8ff', '#ffce54', '#ff6ec7', '#63e6be', '#a78bfa'];
+const SIZES = {
+  sm: 'h-8 w-8',
+  md: 'h-11 w-11',
+  lg: 'h-14 w-14',
+  xl: 'h-20 w-20',
+} as const;
 
-function colorForId(id: string): string {
-  let hash = 0;
-  for (let i = 0; i < id.length; i++) hash = (hash * 31 + id.charCodeAt(i)) >>> 0;
-  return PALETTE[hash % PALETTE.length];
-}
-
+// A player's sheep avatar in a circle. The ring pulses (accent glow) while
+// `speaking` is true -- driven by LiveKit active-speaker events upstream.
 export function Avatar({
   id,
   name,
+  avatar,
   speaking = false,
   dim = false,
   size = 'md',
@@ -26,25 +24,24 @@ export function Avatar({
 }: {
   id: string;
   name: string;
+  avatar?: string;
   speaking?: boolean;
   dim?: boolean;
-  size?: 'sm' | 'md';
+  size?: keyof typeof SIZES;
   status?: ConnectionStatus;
 }) {
-  const initial = name.trim().charAt(0).toUpperCase() || '?';
-  const color = colorForId(id);
-  const dimension = size === 'sm' ? 'h-8 w-8 text-xs' : 'h-10 w-10 text-sm';
+  const key = resolveAvatarKey(avatar, id);
 
   return (
     <div className="relative shrink-0">
       <div
-        className={`flex ${dimension} items-center justify-center rounded-full font-black text-white transition-opacity ${
+        className={`${SIZES[size]} overflow-hidden rounded-full bg-black/30 ring-2 transition-opacity ${
           dim ? 'opacity-40' : ''
-        } ${speaking ? 'animate-attention-pulse' : ''}`}
-        style={{ backgroundColor: color, '--pulse-color': color } as CSSProperties}
+        } ${speaking ? 'ring-accent animate-attention-pulse' : 'ring-white/15'}`}
+        style={{ '--pulse-color': 'var(--accent)' } as CSSProperties}
         title={name}
       >
-        {initial}
+        <img src={avatarSrc(key)} alt={name} className="h-full w-full object-cover" draggable={false} />
       </div>
       {status && (
         <span
