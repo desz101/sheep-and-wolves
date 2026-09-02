@@ -45,3 +45,24 @@ create index if not exists tokens_game_code_idx on tokens(game_code);
 -- engine.ts (host-only actions, vote validation, hidden roles, etc).
 alter table games enable row level security;
 alter table tokens enable row level security;
+
+-- ---------------------------------------------------------------------------
+-- Retention purge (recommended — the privacy policy at /privacy promises game
+-- records, including the host IP/user-agent stored in games.state, are deleted
+-- "on a rolling basis"). Nothing in the app deletes game rows, so without this
+-- they — and the IPs in them — accumulate forever.
+--
+-- Run once in the SQL editor to enable a nightly cleanup. Deleting a games row
+-- cascades to its tokens. Tune the intervals to your needs.
+--
+--   create extension if not exists pg_cron;
+--
+--   create or replace function purge_stale_games() returns void language sql as $$
+--     delete from games
+--     where updated_at < now() - interval '30 days'
+--        or (state->>'status' in ('GAME_OVER', 'CANCELLED')
+--            and updated_at < now() - interval '2 days');
+--   $$;
+--
+--   select cron.schedule('purge-stale-games', '17 4 * * *', 'select purge_stale_games()');
+-- ---------------------------------------------------------------------------
