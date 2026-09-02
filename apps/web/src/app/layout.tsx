@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { GoogleAnalytics } from "@next/third-parties/google";
-import Link from "next/link";
 import Script from "next/script";
 import { FooterAd } from "@/components/FooterAd";
 import { HomeMusicPlayer } from "@/components/HomeMusicPlayer";
 import { LanguageToggle } from "@/components/LanguageToggle";
+import { SiteFooter } from "@/components/SiteFooter";
 import { LanguageProvider } from "@/lib/i18n";
 import "./globals.css";
 
@@ -91,15 +91,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <LanguageProvider>
           <LanguageToggle />
           {children}
-          <footer className="mt-auto px-4 py-4 text-center text-[11px] text-muted">
-            <Link href="/how-to-play" className="hover:text-foreground">
-              How to Play
-            </Link>
-            <span className="mx-2 opacity-40">·</span>
-            <Link href="/privacy" className="hover:text-foreground">
-              Privacy
-            </Link>
-          </footer>
+          <SiteFooter />
           {process.env.NODE_ENV === "production" && <FooterAd />}
           <HomeMusicPlayer />
         </LanguageProvider>

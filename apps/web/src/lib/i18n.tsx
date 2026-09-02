@@ -222,6 +222,22 @@ export interface Translations {
     backToHome: string;
     games: { name: string; blurb: string }[];
   };
+  footer: {
+    howToPlay: string;
+    privacy: string;
+  };
+  privacy: {
+    title: string;
+    updatedLabel: string;
+    date: string;
+    intro: string;
+    sections: { heading: string; paragraphs: string[] }[];
+    resourcesHeading: string;
+    livekitLink: string;
+    googlePrivacyLink: string;
+    adSettingsLink: string;
+    backToHome: string;
+  };
 }
 
 const en: Translations = {
@@ -538,6 +554,95 @@ const en: Translations = {
         blurb: 'Drop into a random Street View location and guess where in the world you are — plays great solo or as a group.',
       },
     ],
+  },
+  footer: {
+    howToPlay: 'How to Play',
+    privacy: 'Privacy',
+  },
+  privacy: {
+    title: 'Privacy Policy',
+    updatedLabel: 'Last updated',
+    date: 'September 2, 2026',
+    intro:
+      'Sheep & Wolves is a free, browser-based party game. You do not create an account, and we do not ask for your email address, phone number, or any other identifier. This page explains the limited information the game does handle, why, and how long it is kept.',
+    sections: [
+      {
+        heading: '1. Information collected automatically',
+        paragraphs: [
+          'When you host (create) a game, our server records the IP address and browser user-agent string of that request. We use this only to protect the service — investigating abuse, spam, and automated game creation, and enforcing rate limits.',
+          'Joining a game as a player does not record your IP address. Our hosting providers may keep short-lived operational request logs of their own, as is standard for any website.',
+        ],
+      },
+      {
+        heading: '2. Information you provide',
+        paragraphs: [
+          "The display name you enter (or a random one we generate if you leave it blank) is shown to the other players in your game and stored with that game's data. It is not linked to any account or to you as an individual. Names are cleaned of hidden and control characters and screened against a short list of slurs before being stored.",
+        ],
+      },
+      {
+        heading: '3. Storage on your device',
+        paragraphs: [
+          "Your game session is kept in your browser's sessionStorage so a refresh doesn't remove you from the game; it is scoped to that browser tab and cleared when the tab closes. Your language and background-music preferences are kept in localStorage on your device. Neither is sent anywhere beyond what is needed to run the game.",
+        ],
+      },
+      {
+        heading: '4. Voice chat (optional)',
+        paragraphs: [
+          'If you choose to join voice chat, your audio is carried in real time through LiveKit, our voice infrastructure provider (see Resources below). The conversation is not recorded or stored by us.',
+        ],
+      },
+      {
+        heading: '5. Analytics and advertising',
+        paragraphs: [
+          "On the public site we use Google Analytics to understand aggregate usage and Google AdSense to show ads. These services may set cookies or similar identifiers and collect device and usage data under Google's policies (see Resources below). You can manage ad personalization through Google Ad Settings.",
+        ],
+      },
+      {
+        heading: '6. How we use information',
+        paragraphs: [
+          'To run games and keep players connected; to prevent abuse, spam, and automated misuse; to understand how the game is used in aggregate; and to display ads that keep the game free.',
+        ],
+      },
+      {
+        heading: '7. Sharing',
+        paragraphs: [
+          'We do not sell your information. We share it only with the infrastructure providers that run the service on our behalf — Supabase (database and game API hosting), AWS Amplify (web hosting), LiveKit (voice), and Google (analytics and ads) — and where we are legally required to.',
+        ],
+      },
+      {
+        heading: '8. Retention',
+        paragraphs: [
+          'Game records, including the host IP address and user-agent, are kept no longer than needed for the security and abuse-prevention purposes above, and are deleted on a rolling basis once a game is over. On-device storage (section 3) stays until you clear it or your browser does.',
+        ],
+      },
+      {
+        heading: '9. Your choices',
+        paragraphs: [
+          "If you would rather your IP address not be recorded, join a game someone else hosts instead of hosting one yourself. You can clear this site's on-device storage at any time through your browser settings, and control cookies and ad personalization through your browser and the Google links below.",
+        ],
+      },
+      {
+        heading: '10. Children',
+        paragraphs: [
+          'Sheep & Wolves is not directed at children under 13, and we do not knowingly collect information from them. If you believe a child has provided information to us, contact us and we will remove it.',
+        ],
+      },
+      {
+        heading: '11. Changes to this policy',
+        paragraphs: [
+          'If this policy changes, we will update the date at the top of this page. Continued use of the game after a change means you accept the updated policy.',
+        ],
+      },
+      {
+        heading: '12. Contact',
+        paragraphs: ['Questions about this policy or your information: privacy@sheepandwolves.app'],
+      },
+    ],
+    resourcesHeading: 'Resources',
+    livekitLink: 'LiveKit privacy policy',
+    googlePrivacyLink: 'Google Privacy Policy',
+    adSettingsLink: 'Google Ad Settings',
+    backToHome: 'Back to Home',
   },
 };
 
@@ -856,6 +961,95 @@ const es: Translations = {
         blurb: 'Cae en una ubicación aleatoria de Street View y adivina en qué parte del mundo estás — se juega genial solo o en grupo.',
       },
     ],
+  },
+  footer: {
+    howToPlay: 'Cómo Jugar',
+    privacy: 'Privacidad',
+  },
+  privacy: {
+    title: 'Política de Privacidad',
+    updatedLabel: 'Última actualización',
+    date: '2 de septiembre de 2026',
+    intro:
+      'Sheep & Wolves es un juego de fiesta gratuito que funciona en el navegador. No creas ninguna cuenta y no te pedimos tu correo electrónico, número de teléfono ni ningún otro identificador. Esta página explica la información limitada que el juego sí maneja, por qué y durante cuánto tiempo se conserva.',
+    sections: [
+      {
+        heading: '1. Información recopilada automáticamente',
+        paragraphs: [
+          'Cuando organizas (creas) una partida, nuestro servidor registra la dirección IP y la cadena de user-agent del navegador de esa solicitud. Usamos esto únicamente para proteger el servicio: investigar abusos, spam y la creación automatizada de partidas, y aplicar límites de uso.',
+          'Unirse a una partida como jugador no registra tu dirección IP. Nuestros proveedores de alojamiento pueden mantener sus propios registros operativos de solicitudes de corta duración, como es habitual en cualquier sitio web.',
+        ],
+      },
+      {
+        heading: '2. Información que proporcionas',
+        paragraphs: [
+          'El nombre que escribes (o uno aleatorio que generamos si lo dejas en blanco) se muestra a los demás jugadores de tu partida y se guarda con los datos de esa partida. No está vinculado a ninguna cuenta ni a ti como individuo. Los nombres se limpian de caracteres ocultos y de control y se comprueban contra una lista breve de insultos antes de guardarse.',
+        ],
+      },
+      {
+        heading: '3. Almacenamiento en tu dispositivo',
+        paragraphs: [
+          'Tu sesión de juego se guarda en el sessionStorage de tu navegador para que una recarga no te saque de la partida; está limitada a esa pestaña del navegador y se borra al cerrarla. Tus preferencias de idioma y de música de fondo se guardan en el localStorage de tu dispositivo. Ninguno de los dos se envía a ningún sitio más allá de lo necesario para que el juego funcione.',
+        ],
+      },
+      {
+        heading: '4. Chat de voz (opcional)',
+        paragraphs: [
+          'Si eliges unirte al chat de voz, tu audio se transmite en tiempo real a través de LiveKit, nuestro proveedor de infraestructura de voz (consulta Recursos más abajo). Nosotros no grabamos ni almacenamos la conversación.',
+        ],
+      },
+      {
+        heading: '5. Analítica y publicidad',
+        paragraphs: [
+          'En el sitio público usamos Google Analytics para entender el uso agregado y Google AdSense para mostrar anuncios. Estos servicios pueden establecer cookies o identificadores similares y recopilar datos de dispositivo y de uso según las políticas de Google (consulta Recursos más abajo). Puedes gestionar la personalización de anuncios desde la Configuración de anuncios de Google.',
+        ],
+      },
+      {
+        heading: '6. Cómo usamos la información',
+        paragraphs: [
+          'Para ejecutar las partidas y mantener conectados a los jugadores; para prevenir abusos, spam y uso automatizado indebido; para entender de forma agregada cómo se usa el juego; y para mostrar anuncios que mantienen el juego gratuito.',
+        ],
+      },
+      {
+        heading: '7. Con quién compartimos',
+        paragraphs: [
+          'No vendemos tu información. Solo la compartimos con los proveedores de infraestructura que operan el servicio en nuestro nombre — Supabase (base de datos y alojamiento de la API del juego), AWS Amplify (alojamiento web), LiveKit (voz) y Google (analítica y anuncios) — y cuando la ley nos obliga a ello.',
+        ],
+      },
+      {
+        heading: '8. Conservación',
+        paragraphs: [
+          'Los registros de las partidas, incluida la dirección IP y el user-agent del anfitrión, se conservan solo el tiempo necesario para los fines de seguridad y prevención de abusos indicados arriba, y se eliminan de forma periódica una vez que termina la partida. El almacenamiento en el dispositivo (sección 3) permanece hasta que lo borres tú o tu navegador.',
+        ],
+      },
+      {
+        heading: '9. Tus opciones',
+        paragraphs: [
+          'Si prefieres que no se registre tu dirección IP, únete a una partida organizada por otra persona en lugar de organizar una tú. Puedes borrar el almacenamiento de este sitio en tu dispositivo en cualquier momento desde la configuración de tu navegador, y controlar las cookies y la personalización de anuncios desde tu navegador y los enlaces de Google de abajo.',
+        ],
+      },
+      {
+        heading: '10. Menores',
+        paragraphs: [
+          'Sheep & Wolves no está dirigido a menores de 13 años y no recopilamos información de ellos a sabiendas. Si crees que un menor nos ha proporcionado información, contáctanos y la eliminaremos.',
+        ],
+      },
+      {
+        heading: '11. Cambios en esta política',
+        paragraphs: [
+          'Si esta política cambia, actualizaremos la fecha en la parte superior de esta página. Seguir usando el juego después de un cambio implica que aceptas la política actualizada.',
+        ],
+      },
+      {
+        heading: '12. Contacto',
+        paragraphs: ['Preguntas sobre esta política o tu información: privacy@sheepandwolves.app'],
+      },
+    ],
+    resourcesHeading: 'Recursos',
+    livekitLink: 'Política de privacidad de LiveKit',
+    googlePrivacyLink: 'Política de Privacidad de Google',
+    adSettingsLink: 'Configuración de anuncios de Google',
+    backToHome: 'Volver al Inicio',
   },
 };
 
