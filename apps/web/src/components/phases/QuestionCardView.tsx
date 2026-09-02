@@ -12,6 +12,9 @@ export function QuestionCardView({ state }: { state: ClientGameState }) {
   const [selected, setSelected] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  // Tolerate an older API response that predates the shortlist field.
+  const choices = state.questionChoices ?? [];
+
   if (state.isQuestionCardHolder) {
     return (
       <div className="flex w-full flex-col items-center gap-5 text-center">
@@ -19,11 +22,11 @@ export function QuestionCardView({ state }: { state: ClientGameState }) {
         <h2 className="text-2xl font-black tracking-tight">{t.questionCard.holderTitle}</h2>
         <p className="max-w-xs text-sm text-muted">{t.questionCard.pickPrompt}</p>
 
-        {state.questionChoices.length === 0 ? (
+        {choices.length === 0 ? (
           <p className="animate-pulse text-sm text-muted">…</p>
         ) : (
           <div className="flex w-full flex-col gap-3">
-            {state.questionChoices.map((q) => (
+            {choices.map((q) => (
               <button
                 key={q}
                 type="button"
