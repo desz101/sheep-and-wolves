@@ -213,9 +213,15 @@ function requireAlive(game: Game, requesterId: string): void {
 
 // ---------------- Lobby ----------------
 
+export interface HostRequestMeta {
+  ip: string | null;
+  userAgent: string | null;
+}
+
 export async function createGame(
   hostName: string,
-  config: GameConfig
+  config: GameConfig,
+  hostMeta: HostRequestMeta = { ip: null, userAgent: null }
 ): Promise<{ game: Game; playerId: string; playerToken: string }> {
   const trimmedName = hostName.trim().slice(0, 24) || generateRandomName();
 
@@ -268,6 +274,8 @@ export async function createGame(
     pausedRemainingMs: null,
     createdAt: Date.now(),
     tieStrategy: 'runoff',
+    hostIp: hostMeta.ip,
+    hostUserAgent: hostMeta.userAgent ? hostMeta.userAgent.slice(0, 512) : null,
   };
 
   // A fresh insert on a code we just confirmed doesn't exist -- no concurrent
