@@ -5,6 +5,7 @@ import {
   Game,
   GameConfig,
   Player,
+  PublicGameSummary,
   Role,
 } from './types.ts';
 import {
@@ -19,6 +20,7 @@ import {
   validateGameConfig,
 } from './gameLogic.ts';
 import { generateRandomName } from './randomName.ts';
+import { sanitizeName } from './sanitizeName.ts';
 import { isAvatarKey, QUESTION_CHOICE_COUNT, randomAvatar } from './constants.ts';
 import { randomHex } from './util.ts';
 import { gameStore } from './gameStore.ts';
@@ -201,6 +203,30 @@ export async function getPlayerName(gameCodeRaw: string, playerId: string): Prom
   return player.name;
 }
 
+// Most public games a homepage visitor should ever be offered at once --
+// keeps the response small and avoids the list being dominated by a handful
+// of long-idle lobbies.
+const PUBLIC_GAMES_LIMIT = 30;
+
+/**
+ * Games open for anyone to join right now: publicly listed, still in the
+ * lobby, and not full. `listPublicLobbyGames` already filters to public +
+ * LOBBY via indexed columns; the "not full" check happens here since
+ * maxPlayers lives inside the jsonb `state` blob, not a queryable column.
+ */
+export async function listPublicGames(): Promise<PublicGameSummary[]> {
+  const games = await gameStore.listPublicLobbyGames(PUBLIC_GAMES_LIMIT);
+  return games
+    .filter((game) => game.playerOrder.length < game.config.maxPlayers)
+    .map((game) => ({
+      gameCode: game.gameCode,
+      hostName: game.players[game.hostPlayerId]?.name ?? '?',
+      playerCount: game.playerOrder.length,
+      maxPlayers: game.config.maxPlayers,
+      wolfCount: game.config.wolfCount,
+    }));
+}
+
 function requireHost(game: Game, requesterId: string): void {
   if (game.hostPlayerId !== requesterId) throw new GameError('Only the host can do that.', 'NOT_HOST');
 }
@@ -223,7 +249,7 @@ export async function createGame(
   config: GameConfig,
   hostMeta: HostRequestMeta = { ip: null, userAgent: null }
 ): Promise<{ game: Game; playerId: string; playerToken: string }> {
-  const trimmedName = hostName.trim().slice(0, 24) || generateRandomName();
+  const trimmedName = sanitizeName(hostName) || generateRandomName();
 
   const validationError = validateGameConfig(config.maxPlayers, config.wolfCount, config.roundTimerSeconds);
   if (validationError) throw new GameError(validationError, 'INVALID_CONFIG');
@@ -290,7 +316,7 @@ export async function joinGame(
   name: string
 ): Promise<{ game: Game; playerId: string; playerToken: string }> {
   const gameCode = normalizeGameCode(gameCodeRaw);
-  const trimmedName = name.trim().slice(0, 24) || generateRandomName();
+  const trimmedName = sanitizeName(name) || generateRandomName();
 
   // Generated once, outside the retry loop: withGame's mutator can run more
   // than once on a version conflict, and re-running it must be idempotent.

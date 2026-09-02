@@ -17,6 +17,7 @@ export default function CreatePage() {
   const [timerSeconds, setTimerSeconds] = useState(180);
   const [customTimer, setCustomTimer] = useState('');
   const [useCustomTimer, setUseCustomTimer] = useState(false);
+  const [isPublic, setIsPublic] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,7 +28,7 @@ export default function CreatePage() {
     setSubmitting(true);
     setError(null);
     try {
-      const { body } = await createGame({ hostName, maxPlayers, wolfCount, roundTimerSeconds: effectiveTimer });
+      const { body } = await createGame({ hostName, maxPlayers, wolfCount, roundTimerSeconds: effectiveTimer, isPublic });
       saveSession(body);
       router.push(`/avatar/${body.gameCode}`);
     } catch (err) {
@@ -110,6 +111,29 @@ export default function CreatePage() {
               />
             </div>
           )}
+        </div>
+
+        <div>
+          <SectionLabel>{t.create.visibility}</SectionLabel>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => setIsPublic(false)}
+              className={`rounded-xl border px-3 py-3 text-sm font-bold transition ${
+                !isPublic ? 'border-accent bg-accent/20 text-foreground' : 'border-panel-border bg-black/20 text-muted'
+              }`}
+            >
+              {t.create.private}
+            </button>
+            <button
+              onClick={() => setIsPublic(true)}
+              className={`rounded-xl border px-3 py-3 text-sm font-bold transition ${
+                isPublic ? 'border-accent bg-accent/20 text-foreground' : 'border-panel-border bg-black/20 text-muted'
+              }`}
+            >
+              {t.create.public}
+            </button>
+          </div>
+          <p className="mt-1 text-center text-xs text-muted">{isPublic ? t.create.publicHint : t.create.privateHint}</p>
         </div>
       </Panel>
 

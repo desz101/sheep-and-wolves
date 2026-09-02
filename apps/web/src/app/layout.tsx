@@ -5,6 +5,7 @@ import Script from "next/script";
 import { FooterAd } from "@/components/FooterAd";
 import { HomeMusicPlayer } from "@/components/HomeMusicPlayer";
 import { LanguageToggle } from "@/components/LanguageToggle";
+import { SiteFooter } from "@/components/SiteFooter";
 import { LanguageProvider } from "@/lib/i18n";
 import "./globals.css";
 
@@ -90,6 +91,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <LanguageProvider>
           <LanguageToggle />
           {children}
+          <SiteFooter />
           {process.env.NODE_ENV === "production" && <FooterAd />}
           <HomeMusicPlayer />
         </LanguageProvider>

@@ -4,6 +4,7 @@
 
 export const ApiRoutes = {
   createGame: () => `/games`,
+  publicGames: () => `/games/public`,
   joinGame: (gameCode: string) => `/games/${gameCode}/join`,
   state: (gameCode: string) => `/games/${gameCode}/state`,
   startGame: (gameCode: string) => `/games/${gameCode}/start`,

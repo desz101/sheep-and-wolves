@@ -16,6 +16,7 @@ import {
   hostPauseGame,
   hostResumeGame,
   joinGame,
+  listPublicGames,
   pollGameState,
   setAvatar,
   showVoteRecord,
@@ -132,17 +133,26 @@ mount('get', '/health', (c) => c.json({ ok: true }));
 
 mount('post', '/games', async (c) => {
   try {
-    const { hostName, maxPlayers, wolfCount, roundTimerSeconds } = await parseBody(c);
+    const { hostName, maxPlayers, wolfCount, roundTimerSeconds, isPublic } = await parseBody(c);
     const { game, playerId, playerToken } = await createGame(
       (hostName as string) ?? '',
       {
         maxPlayers: Number(maxPlayers),
         wolfCount: Number(wolfCount),
         roundTimerSeconds: Number(roundTimerSeconds),
+        isPublic: Boolean(isPublic),
       },
       { ip: clientIp(c), userAgent: c.req.header('user-agent') ?? null }
     );
     return c.json({ gameCode: game.gameCode, playerId, playerToken });
+  } catch (err) {
+    return errorResponse(c, err);
+  }
+});
+
+mount('get', '/games/public', async (c) => {
+  try {
+    return c.json(await listPublicGames());
   } catch (err) {
     return errorResponse(c, err);
   }
