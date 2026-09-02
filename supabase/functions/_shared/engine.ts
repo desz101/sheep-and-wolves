@@ -19,6 +19,7 @@ import {
   validateGameConfig,
 } from './gameLogic.ts';
 import { generateRandomName } from './randomName.ts';
+import { sanitizeName } from './sanitizeName.ts';
 import { isAvatarKey, QUESTION_CHOICE_COUNT, randomAvatar } from './constants.ts';
 import { randomHex } from './util.ts';
 import { gameStore } from './gameStore.ts';
@@ -223,7 +224,7 @@ export async function createGame(
   config: GameConfig,
   hostMeta: HostRequestMeta = { ip: null, userAgent: null }
 ): Promise<{ game: Game; playerId: string; playerToken: string }> {
-  const trimmedName = hostName.trim().slice(0, 24) || generateRandomName();
+  const trimmedName = sanitizeName(hostName) || generateRandomName();
 
   const validationError = validateGameConfig(config.maxPlayers, config.wolfCount, config.roundTimerSeconds);
   if (validationError) throw new GameError(validationError, 'INVALID_CONFIG');
@@ -290,7 +291,7 @@ export async function joinGame(
   name: string
 ): Promise<{ game: Game; playerId: string; playerToken: string }> {
   const gameCode = normalizeGameCode(gameCodeRaw);
-  const trimmedName = name.trim().slice(0, 24) || generateRandomName();
+  const trimmedName = sanitizeName(name) || generateRandomName();
 
   // Generated once, outside the retry loop: withGame's mutator can run more
   // than once on a version conflict, and re-running it must be idempotent.
