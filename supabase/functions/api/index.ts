@@ -68,6 +68,18 @@ function statusForCode(code: string): 400 | 403 | 404 {
   return 400;
 }
 
+// Best-effort real client IP. Requests reach this function through Supabase's
+// gateway (and Cloudflare in front of it), so the socket peer address is a
+// proxy -- cf-connecting-ip is the origin client, with x-forwarded-for's first
+// hop as the fallback.
+function clientIp(c: Context): string | null {
+  const cf = c.req.header('cf-connecting-ip');
+  if (cf) return cf.trim();
+  const xff = c.req.header('x-forwarded-for');
+  if (xff) return xff.split(',')[0]?.trim() || null;
+  return c.req.header('x-real-ip')?.trim() ?? null;
+}
+
 function errorResponse(c: Context, err: unknown) {
   const message = err instanceof GameError ? err.message : 'Something went wrong.';
   const code = err instanceof GameError ? err.code : 'UNKNOWN';
@@ -121,11 +133,15 @@ mount('get', '/health', (c) => c.json({ ok: true }));
 mount('post', '/games', async (c) => {
   try {
     const { hostName, maxPlayers, wolfCount, roundTimerSeconds } = await parseBody(c);
-    const { game, playerId, playerToken } = await createGame((hostName as string) ?? '', {
-      maxPlayers: Number(maxPlayers),
-      wolfCount: Number(wolfCount),
-      roundTimerSeconds: Number(roundTimerSeconds),
-    });
+    const { game, playerId, playerToken } = await createGame(
+      (hostName as string) ?? '',
+      {
+        maxPlayers: Number(maxPlayers),
+        wolfCount: Number(wolfCount),
+        roundTimerSeconds: Number(roundTimerSeconds),
+      },
+      { ip: clientIp(c), userAgent: c.req.header('user-agent') ?? null }
+    );
     return c.json({ gameCode: game.gameCode, playerId, playerToken });
   } catch (err) {
     return errorResponse(c, err);

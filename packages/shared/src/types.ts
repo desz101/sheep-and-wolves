@@ -96,6 +96,10 @@ export interface Game {
   pausedRemainingMs: number | null;
   createdAt: number;
   tieStrategy: TieStrategy;
+  // Request metadata for the host's POST /games call, captured server-side for
+  // abuse handling / analytics. Never included in any client-facing view.
+  hostIp: string | null;
+  hostUserAgent: string | null;
 }
 
 // ---- Client-facing sanitized view ----
