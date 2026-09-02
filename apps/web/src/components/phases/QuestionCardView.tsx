@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { PartyPopper, PlayingCard } from 'lucide-react';
 import { ClientGameState } from '@sw/shared';
 import { BigButton } from '../ui';
 import { useGame } from '@/lib/GameContext';
@@ -62,7 +63,7 @@ export function QuestionCardView({ state }: { state: ClientGameState }) {
   return (
     <div className="flex flex-col items-center gap-6 text-center">
       <GameOnBadge label={t.questionCard.gameOnBadge} />
-      <span className="text-5xl">🃏</span>
+      <PlayingCard className="h-14 w-14 text-muted" strokeWidth={1.25} />
       <p className="text-xl font-bold">
         {t.questionCard.someoneHasCard(state.questionCardHolderName ?? t.questionCard.someoneFallback)}
       </p>
@@ -77,6 +78,7 @@ export function QuestionCardView({ state }: { state: ClientGameState }) {
 function GameOnBadge({ label }: { label: string }) {
   return (
     <div className="flex animate-fade-up items-center gap-2 rounded-full border border-accent-2/30 bg-accent-2/10 px-4 py-2 text-xs font-semibold uppercase tracking-widest text-accent-2">
+      <PartyPopper className="h-4 w-4" strokeWidth={2} />
       {label}
     </div>
   );

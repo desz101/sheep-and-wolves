@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { CircleCheckBig, Ghost } from 'lucide-react';
 import { ClientGameState } from '@sw/shared';
 import { BigButton, Panel, SectionLabel } from '../ui';
 import { useGame } from '@/lib/GameContext';
@@ -14,7 +15,7 @@ export function VotingView({ state }: { state: ClientGameState }) {
   if (!state.selfIsAlive) {
     return (
       <div className="flex flex-col items-center gap-4 text-center">
-        <span className="text-4xl">👻</span>
+        <Ghost className="h-10 w-10 text-muted" strokeWidth={1.5} />
         <p className="text-lg font-bold">{t.voting.votingUnderway}</p>
         <p className="text-sm text-muted">
           {t.voting.eliminatedSpectating(state.voteCountsSubmitted, state.voteCountsNeeded)}
@@ -26,7 +27,7 @@ export function VotingView({ state }: { state: ClientGameState }) {
   if (state.selfHasVoted) {
     return (
       <div className="flex flex-col items-center gap-4 text-center">
-        <span className="text-5xl">✅</span>
+        <CircleCheckBig className="h-12 w-12 text-accent-2" strokeWidth={1.5} />
         <p className="text-2xl font-black">{t.voting.voteSubmitted}</p>
         <p className="text-sm text-muted">{t.voting.waitingOthers(state.voteCountsSubmitted, state.voteCountsNeeded)}</p>
       </div>
