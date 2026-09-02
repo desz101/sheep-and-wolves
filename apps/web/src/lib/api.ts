@@ -1,6 +1,6 @@
 'use client';
 
-import { ApiRoutes, ClientGameState, ErrorPayload, SessionAck, VoiceTokenAck } from '@sw/shared';
+import { ApiRoutes, ClientGameState, ErrorPayload, PublicGameSummary, SessionAck, VoiceTokenAck } from '@sw/shared';
 
 // http://localhost:54321 is the Supabase CLI's default local API gateway port
 // (`supabase start` / `supabase functions serve`), so this "just works" for
@@ -40,12 +40,17 @@ export function createGame(payload: {
   maxPlayers: number;
   wolfCount: number;
   roundTimerSeconds: number;
+  isPublic: boolean;
 }): Promise<Timed<SessionAck>> {
   return request(ApiRoutes.createGame(), { method: 'POST', body: JSON.stringify(payload) });
 }
 
 export function joinGame(gameCode: string, name: string): Promise<Timed<SessionAck>> {
   return request(ApiRoutes.joinGame(gameCode), { method: 'POST', body: JSON.stringify({ name }) });
+}
+
+export function fetchPublicGames(): Promise<Timed<PublicGameSummary[]>> {
+  return request(ApiRoutes.publicGames());
 }
 
 export function fetchState(gameCode: string, playerId: string, playerToken: string): Promise<Timed<ClientGameState>> {

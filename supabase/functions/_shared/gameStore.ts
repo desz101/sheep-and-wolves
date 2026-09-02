@@ -108,6 +108,24 @@ class GameStore {
     if (error) throw error;
     return (count ?? 0) > 0;
   }
+
+  /**
+   * Games with config.isPublic true and status LOBBY, newest-updated first.
+   * `is_public`/`status` are generated columns mirroring `state` (see
+   * schema.sql) backing `games_public_lobby_idx`, so this is an index scan
+   * rather than a full-table jsonb scan.
+   */
+  async listPublicLobbyGames(limit: number): Promise<Game[]> {
+    const { data, error } = await supabase
+      .from('games')
+      .select('state')
+      .eq('is_public', true)
+      .eq('status', 'LOBBY')
+      .order('updated_at', { ascending: false })
+      .limit(limit);
+    if (error) throw error;
+    return (data ?? []).map((row) => (row as { state: Game }).state);
+  }
 }
 
 export const gameStore = new GameStore();

@@ -35,6 +35,17 @@ create table if not exists tokens (
 
 create index if not exists tokens_game_code_idx on tokens(game_code);
 
+-- Generated columns for the homepage's public-games list (GET /games/public,
+-- see gameStore.listPublicLobbyGames). Derived from `state` by Postgres on
+-- every write, so they can never drift from it the way a hand-maintained
+-- mirror column could -- callers never write these directly.
+alter table games add column if not exists is_public boolean generated always as (((state->'config'->>'isPublic')::boolean)) stored;
+alter table games add column if not exists status text generated always as (state->>'status') stored;
+
+-- Partial index: only public lobby-status games are ever queried by
+-- listPublicLobbyGames, so there's no reason to index anything else.
+create index if not exists games_public_lobby_idx on games (updated_at desc) where is_public and status = 'LOBBY';
+
 -- RLS is enabled with NO policies added on purpose: the anon/publishable key
 -- (the one safe to ship in a browser) gets zero access to these tables. Only
 -- the service_role key -- a server-only secret that bypasses RLS entirely --
