@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { Volume2, VolumeX } from 'lucide-react';
 import { onHomeMusicStop } from '@/lib/homeMusic';
 
 const TRACKS = ['/audio/sneaky.mp3', '/audio/sneaky-snitch.mp3'];
@@ -67,9 +68,9 @@ export function HomeMusicPlayer() {
       type="button"
       onClick={toggleMute}
       aria-label={muted ? 'Unmute background music' : 'Mute background music'}
-      className="fixed bottom-4 right-4 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-panel-border bg-panel/80 text-lg backdrop-blur-sm shadow-lg transition active:scale-95"
+      className="fixed bottom-4 right-4 z-10 flex h-11 w-11 items-center justify-center rounded-full border border-panel-border bg-panel/80 backdrop-blur-sm shadow-lg transition active:scale-95"
     >
-      {muted ? '🔇' : '🔊'}
+      {muted ? <VolumeX className="h-5 w-5" strokeWidth={1.75} /> : <Volume2 className="h-5 w-5" strokeWidth={1.75} />}
     </button>
   );
 }

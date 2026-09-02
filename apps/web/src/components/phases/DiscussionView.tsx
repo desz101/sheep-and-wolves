@@ -1,5 +1,6 @@
 'use client';
 
+import { CircleCheckBig, MessagesSquare, Pause } from 'lucide-react';
 import { ClientGameState } from '@sw/shared';
 import { Timer } from '../Timer';
 import { BigButton, Panel } from '../ui';
@@ -15,7 +16,7 @@ export function DiscussionView({ state }: { state: ClientGameState }) {
   return (
     <div className="flex flex-col items-center gap-8 text-center">
       <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-[0.3em] text-accent-2">
-        <span>🗣️</span> {t.discussion.label}
+        <MessagesSquare className="h-4 w-4" strokeWidth={2} /> {t.discussion.label}
       </div>
 
       <Panel className="w-full p-6">
@@ -24,7 +25,10 @@ export function DiscussionView({ state }: { state: ClientGameState }) {
       </Panel>
 
       {state.paused ? (
-        <div className="animate-pulse text-2xl font-black text-yellow-400">{t.discussion.paused}</div>
+        <div className="flex animate-pulse items-center gap-2 text-2xl font-black text-yellow-400">
+          <Pause className="h-6 w-6" strokeWidth={2.5} fill="currentColor" />
+          {t.discussion.paused}
+        </div>
       ) : (
         <Timer phaseEndsAt={state.phaseEndsAt} clockOffsetMs={clockOffsetMs} />
       )}
@@ -33,7 +37,12 @@ export function DiscussionView({ state }: { state: ClientGameState }) {
 
       {state.selfIsAlive && !state.paused && (
         <div className="flex w-full flex-col items-center gap-2">
-          <BigButton variant={state.selfReadyToVote ? 'ghost' : 'primary'} onClick={() => actions.toggleReadyToVote()}>
+          <BigButton
+            variant={state.selfReadyToVote ? 'ghost' : 'primary'}
+            className="flex items-center justify-center gap-2"
+            onClick={() => actions.toggleReadyToVote()}
+          >
+            {state.selfReadyToVote && <CircleCheckBig className="h-5 w-5" strokeWidth={2} />}
             {state.selfReadyToVote ? t.discussion.readyChecked : t.discussion.readyToVote}
           </BigButton>
           <p className="text-xs text-muted">

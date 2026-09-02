@@ -1,5 +1,6 @@
 'use client';
 
+import { Check, X } from 'lucide-react';
 import { ClientPlayer } from '@sw/shared';
 import { useLanguage } from '@/lib/i18n';
 import { useVoice } from '@/lib/VoiceContext';
@@ -34,10 +35,14 @@ export function PlayerList({ players, showVoted = false }: { players: ClientPlay
           <div className="flex shrink-0 items-center gap-2 text-sm">
             {!p.isAlive ? (
               <span className="flex items-center gap-1 font-bold text-wolf">
-                ❌ {p.revealedRole === 'wolf' ? t.playerList.wolf : p.revealedRole === 'sheep' ? t.playerList.sheep : ''}
+                <X className="h-4 w-4" strokeWidth={2.5} />
+                {p.revealedRole === 'wolf' ? t.playerList.wolf : p.revealedRole === 'sheep' ? t.playerList.sheep : ''}
               </span>
             ) : showVoted && p.hasVoted ? (
-              <span className="font-semibold text-accent-2">{t.playerList.voted}</span>
+              <span className="flex items-center gap-1 font-semibold text-accent-2">
+                <Check className="h-4 w-4" strokeWidth={2.5} />
+                {t.playerList.voted}
+              </span>
             ) : null}
           </div>
         </li>

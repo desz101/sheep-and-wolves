@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { PlayingCard } from 'lucide-react';
 import { Role } from '@sw/shared';
 import { BigButton } from './ui';
 import { useLanguage } from '@/lib/i18n';
@@ -68,7 +69,7 @@ export function RoleCard({
           >
             {/* Front */}
             <div className="card-face absolute inset-0 flex flex-col items-center justify-center gap-6 rounded-3xl border border-panel-border bg-gradient-to-br from-[#1c2140] to-[#0f1226] shadow-2xl">
-              <span className="text-7xl">🃏</span>
+              <PlayingCard className="h-20 w-20 text-muted" strokeWidth={1.25} />
               <span className="text-sm font-semibold uppercase tracking-[0.3em] text-muted">{t.roleCard.yourRole}</span>
               <span className="animate-pulse text-lg font-bold text-accent">{t.roleCard.tapToReveal}</span>
             </div>

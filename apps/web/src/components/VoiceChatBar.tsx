@@ -1,5 +1,6 @@
 'use client';
 
+import { Mic, Volume2 } from 'lucide-react';
 import { useVoice } from '@/lib/VoiceContext';
 import { useLanguage } from '@/lib/i18n';
 
@@ -14,9 +15,10 @@ export function VoiceChatBar() {
       <div className="flex flex-col gap-1">
         <button
           onClick={join}
-          className="w-full rounded-xl border border-panel-border bg-white/5 px-4 py-2.5 text-sm font-bold active:scale-[0.99]"
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-panel-border bg-white/5 px-4 py-2.5 text-sm font-bold active:scale-[0.99]"
         >
-          🎙️ {t.voice.join}
+          <Mic className="h-4 w-4" strokeWidth={2} />
+          {t.voice.join}
         </button>
         {status === 'error' && errorMessage && <p className="text-center text-xs text-wolf">{errorMessage}</p>}
       </div>
@@ -50,9 +52,10 @@ export function VoiceChatBar() {
       {status === 'connected' && audioBlocked && (
         <button
           onClick={enableAudio}
-          className="w-full rounded-xl border border-yellow-500/40 bg-yellow-500/10 px-4 py-2 text-sm font-bold text-yellow-300 active:scale-[0.99]"
+          className="flex w-full items-center justify-center gap-2 rounded-xl border border-yellow-500/40 bg-yellow-500/10 px-4 py-2 text-sm font-bold text-yellow-300 active:scale-[0.99]"
         >
-          🔊 {t.voice.audioBlocked}
+          <Volume2 className="h-4 w-4" strokeWidth={2} />
+          {t.voice.audioBlocked}
         </button>
       )}
     </div>
