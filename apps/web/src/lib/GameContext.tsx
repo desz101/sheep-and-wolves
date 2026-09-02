@@ -15,7 +15,7 @@ interface GameContextValue {
   actions: {
     startGame: () => void;
     revealRoleAck: () => void;
-    drawQuestionCard: () => void;
+    chooseQuestion: (question: string) => void;
     toggleReadyToVote: () => void;
     submitVote: (targetPlayerId: string) => void;
     showVoteRecord: () => void;
@@ -104,7 +104,7 @@ export function GameProvider({ gameCode, children }: { gameCode: string; childre
   const actions: GameContextValue['actions'] = {
     startGame: () => runAction(api.startGame),
     revealRoleAck: () => runAction(api.revealRoleAck),
-    drawQuestionCard: () => runAction(api.drawQuestionCard),
+    chooseQuestion: (question: string) => runAction((gc, pid, tok) => api.chooseQuestion(gc, pid, tok, question)),
     toggleReadyToVote: () => runAction(api.toggleReadyToVote),
     submitVote: (targetPlayerId: string) => runAction((gc, pid, tok) => api.submitVote(gc, pid, tok, targetPlayerId)),
     showVoteRecord: () => runAction(api.showVoteRecord),

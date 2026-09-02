@@ -77,6 +77,7 @@ export interface Game {
   config: GameConfig;
   currentRound: number;
   currentQuestion: string | null;
+  questionChoices: string[]; // the 3 options offered to the asker during QUESTION_SELECTION
   questionHistory: string[];
   questionDeck: string[]; // remaining shuffled deck
   players: Record<string, Player>;
@@ -139,6 +140,7 @@ export interface ClientGameState {
   config: GameConfig;
   currentRound: number;
   currentQuestion: string | null;
+  questionChoices: string[]; // only populated for the asker during QUESTION_SELECTION; [] for everyone else
   players: ClientPlayer[];
   hostPlayerId: string;
   selfPlayerId: string;

@@ -14,6 +14,9 @@ export const QUESTION_DECK: string[] = [
   "If you had to make the final vote right now, who goes?",
 ];
 
+// How many questions the question-asker is offered to pick from each round.
+export const QUESTION_CHOICE_COUNT = 3;
+
 export const GAME_CODE_LENGTH = 6;
 export const GAME_CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
 

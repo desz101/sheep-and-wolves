@@ -16,6 +16,9 @@ export const TIMER_PRESETS_SECONDS = [60, 120, 180, 300, 420, 600] as const;
 export const MIN_PLAYERS = 3;
 export const MAX_PLAYERS = 30;
 
+// How many questions the question-asker is offered to pick from each round.
+export const QUESTION_CHOICE_COUNT = 3;
+
 export const GAME_CODE_LENGTH = 6;
 // Avoid ambiguous characters: 0/O, 1/I/L
 export const GAME_CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';

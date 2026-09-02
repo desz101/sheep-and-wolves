@@ -10,7 +10,7 @@ import {
 import {
   assignRoles,
   checkWinner,
-  drawQuestion,
+  drawQuestions,
   freshQuestionDeck,
   generateGameCode,
   normalizeGameCode,
@@ -19,7 +19,7 @@ import {
   validateGameConfig,
 } from './gameLogic.ts';
 import { generateRandomName } from './randomName.ts';
-import { isAvatarKey, randomAvatar } from './constants.ts';
+import { isAvatarKey, QUESTION_CHOICE_COUNT, randomAvatar } from './constants.ts';
 import { randomHex } from './util.ts';
 import { gameStore } from './gameStore.ts';
 
@@ -249,6 +249,7 @@ export async function createGame(
     config,
     currentRound: 0,
     currentQuestion: null,
+    questionChoices: [],
     questionHistory: [],
     questionDeck: freshQuestionDeck(),
     players: { [hostId]: hostPlayer },
@@ -371,10 +372,13 @@ export async function acknowledgeRoleReveal(gameCode: string, playerId: string):
 
 function beginRound(game: Game, roundNumber: number): void {
   game.currentRound = roundNumber;
-  const { question, remainingDeck } = drawQuestion(game.questionDeck, game.currentQuestion);
-  game.currentQuestion = question;
+  // Offer the asker a few questions to pick from rather than dealing one --
+  // lets them nudge the discussion. The chosen one becomes currentQuestion in
+  // chooseQuestion(); the others are simply not carried forward.
+  const { questions, remainingDeck } = drawQuestions(game.questionDeck, game.currentQuestion, QUESTION_CHOICE_COUNT);
+  game.questionChoices = questions;
+  game.currentQuestion = null;
   game.questionDeck = remainingDeck;
-  game.questionHistory.push(question);
   resetVotes(game);
   // Don't carry a still-open vote record into the next round -- the new
   // question-asker should have to choose to reveal it themselves.
@@ -384,13 +388,19 @@ function beginRound(game: Game, roundNumber: number): void {
   game.phaseEndsAt = null;
 }
 
-export async function drawQuestionCard(gameCodeRaw: string, requesterId: string): Promise<Game> {
+export async function chooseQuestion(gameCodeRaw: string, requesterId: string, question: unknown): Promise<Game> {
   const { game } = await withGame(gameCodeRaw, (game) => {
     touchIfStale(game, requesterId);
     if (game.status !== 'QUESTION_SELECTION') throw new GameError('Not waiting on the question card.', 'BAD_STATE');
     if (game.questionCardHolderId !== requesterId) {
-      throw new GameError('Only the player holding the question card can draw it.', 'NOT_ALLOWED');
+      throw new GameError('Only the player holding the question card can pick it.', 'NOT_ALLOWED');
     }
+    if (typeof question !== 'string' || !(game.questionChoices ?? []).includes(question)) {
+      throw new GameError('That question is not on offer.', 'INVALID_QUESTION');
+    }
+    game.currentQuestion = question;
+    game.questionHistory.push(question);
+    game.questionChoices = [];
     game.status = 'DISCUSSION';
     game.phaseEndsAt = Date.now() + game.config.roundTimerSeconds * 1000;
   });

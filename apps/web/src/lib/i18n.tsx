@@ -120,10 +120,9 @@ export interface Translations {
   };
   questionCard: {
     gameOnBadge: string;
-    ariaTap: string;
     holderTitle: string;
-    tapWhenReady: string;
-    revealing: string;
+    pickPrompt: string;
+    askThis: string;
     readAloud: string;
     someoneFallback: string;
     someoneHasCard: (name: string) => string;
@@ -338,11 +337,10 @@ const en: Translations = {
   },
   questionCard: {
     gameOnBadge: '🎉 Game on — talk freely while you wait',
-    ariaTap: 'Tap when your group is ready to draw the question',
     holderTitle: 'You have the question card',
-    tapWhenReady: 'Tap when your group is ready to hear it',
-    revealing: 'Revealing…',
-    readAloud: "Read it out loud once everyone's ready — the timer starts the moment you draw it.",
+    pickPrompt: 'Pick the question you want to ask the group.',
+    askThis: 'Ask this question',
+    readAloud: "Read it out loud once everyone's ready — the timer starts the moment you pick it.",
     someoneFallback: 'Someone',
     someoneHasCard: (name) => `${name} has the question card`,
     theyWillRead: "They'll read it out loud when your group is ready.",
@@ -420,8 +418,9 @@ const en: Translations = {
     setup3Body:
       "Most players are dealt sheep and a hidden few are dealt wolves. Only you can see your own role — but once a wolf taps to reveal their card, their screen also shows the names of the other wolves so the pack knows who's on their team.",
     roundHeading: 'Playing a round',
-    round4Title: '4. Draw a question card.',
-    round4Body: 'One player draws a discussion prompt and reads it aloud — that starts the timer.',
+    round4Title: '4. Pick a question.',
+    round4Body:
+      'One player is dealt three discussion prompts, picks the one they want to ask the group, and reads it aloud — that starts the timer.',
     round5Title: '5. Discuss out loud.',
     round5Body:
       "Talk it out as a group in person until the timer runs out. Wolves try to blend in; sheep try to spot who's lying.",
@@ -458,7 +457,7 @@ const en: Translations = {
       {
         question: 'How does a round work?',
         answer:
-          "Each round, one player draws a question card and reads it aloud (things like \"who's being unusually quiet?\"). That starts the discussion timer, which the host sets when creating the game. When time is up, everyone votes for who they think is a wolf, and the player with the most votes is eliminated and their role is revealed.",
+          "Each round, one player is dealt three question cards, picks the one they want to ask (things like \"who's being unusually quiet?\"), and reads it aloud. That starts the discussion timer, which the host sets when creating the game. When time is up, everyone votes for who they think is a wolf, and the player with the most votes is eliminated and their role is revealed.",
       },
       {
         question: 'Do the wolves know who each other are?',
@@ -655,11 +654,10 @@ const es: Translations = {
   },
   questionCard: {
     gameOnBadge: '🎉 El juego ya empezó — hablen libremente mientras esperan',
-    ariaTap: 'Toca cuando tu grupo esté listo para sacar la pregunta',
     holderTitle: 'Tienes la carta de pregunta',
-    tapWhenReady: 'Toca cuando tu grupo esté listo para escucharla',
-    revealing: 'Revelando…',
-    readAloud: 'Léela en voz alta cuando todos estén listos — el temporizador comienza en cuanto la saques.',
+    pickPrompt: 'Elige la pregunta que quieres hacerle al grupo.',
+    askThis: 'Hacer esta pregunta',
+    readAloud: 'Léela en voz alta cuando todos estén listos — el temporizador comienza en cuanto la elijas.',
     someoneFallback: 'Alguien',
     someoneHasCard: (name) => `${name} tiene la carta de pregunta`,
     theyWillRead: 'La leerá en voz alta cuando tu grupo esté listo.',
@@ -738,8 +736,9 @@ const es: Translations = {
     setup3Body:
       'La mayoría de los jugadores reciben el rol de oveja y unos pocos ocultos reciben el de lobo. Solo tú puedes ver tu propio rol — pero en cuanto un lobo toca para revelar su carta, su pantalla también muestra los nombres de los otros lobos para que la manada sepa quiénes están en su equipo.',
     roundHeading: 'Jugando una ronda',
-    round4Title: '4. Saca una carta de pregunta.',
-    round4Body: 'Un jugador saca una pregunta de discusión y la lee en voz alta — eso inicia el temporizador.',
+    round4Title: '4. Elige una pregunta.',
+    round4Body:
+      'Un jugador recibe tres preguntas de discusión, elige la que quiere hacerle al grupo y la lee en voz alta — eso inicia el temporizador.',
     round5Title: '5. Discutan en voz alta.',
     round5Body:
       'Hablen como grupo en persona hasta que se acabe el tiempo. Los lobos intentan pasar desapercibidos; las ovejas intentan detectar quién miente.',
@@ -776,7 +775,7 @@ const es: Translations = {
       {
         question: '¿Cómo funciona una ronda?',
         answer:
-          'En cada ronda, un jugador saca una carta de pregunta y la lee en voz alta (cosas como "¿quién está inusualmente callado?"). Eso inicia el temporizador de discusión, que el anfitrión configura al crear la partida. Cuando se acaba el tiempo, todos votan por quién creen que es un lobo, y el jugador con más votos es eliminado y se revela su rol.',
+          'En cada ronda, un jugador recibe tres cartas de pregunta, elige la que quiere hacer (cosas como "¿quién está inusualmente callado?") y la lee en voz alta. Eso inicia el temporizador de discusión, que el anfitrión configura al crear la partida. Cuando se acaba el tiempo, todos votan por quién creen que es un lobo, y el jugador con más votos es eliminado y se revela su rol.',
       },
       {
         question: '¿Los lobos saben quiénes son los demás lobos?',
