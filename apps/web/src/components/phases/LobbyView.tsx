@@ -24,6 +24,19 @@ export function LobbyView({ state }: { state: ClientGameState }) {
 
   return (
     <div className="flex flex-col gap-6">
+      {isHost ? (
+        <div className="flex flex-col gap-3">
+          <BigButton variant="primary" disabled={!canStart} onClick={actions.startGame}>
+            {canStart ? t.lobby.startGame : t.lobby.waitingForMore(needed - joined)}
+          </BigButton>
+          <BigButton variant="ghost" onClick={() => confirm(t.lobby.endGameConfirm) && actions.hostEndGame()}>
+            {t.lobby.endGame}
+          </BigButton>
+        </div>
+      ) : (
+        <p className="text-center text-sm text-muted">{t.lobby.waitingHostStart}</p>
+      )}
+
       <Panel className="flex flex-col items-center gap-4 p-6 text-center">
         <SectionLabel>{t.lobby.yourGameCode}</SectionLabel>
         <div className="text-5xl font-black tracking-[0.15em] text-accent">{state.gameCode}</div>
@@ -40,19 +53,6 @@ export function LobbyView({ state }: { state: ClientGameState }) {
         </div>
         <PlayerList players={state.players} />
       </Panel>
-
-      {isHost ? (
-        <div className="flex flex-col gap-3">
-          <BigButton variant="primary" disabled={!canStart} onClick={actions.startGame}>
-            {canStart ? t.lobby.startGame : t.lobby.waitingForMore(needed - joined)}
-          </BigButton>
-          <BigButton variant="ghost" onClick={() => confirm(t.lobby.endGameConfirm) && actions.hostEndGame()}>
-            {t.lobby.endGame}
-          </BigButton>
-        </div>
-      ) : (
-        <p className="text-center text-sm text-muted">{t.lobby.waitingHostStart}</p>
-      )}
     </div>
   );
 }
