@@ -48,6 +48,15 @@ export interface Translations {
     joining: string;
     joinGame: string;
   };
+  avatarPicker: {
+    title: string;
+    skip: string;
+    tapToChoose: string;
+    saving: string;
+    choose: string;
+    prev: string;
+    next: string;
+  };
   game: {
     connecting: string;
     redirecting: string;
@@ -59,6 +68,8 @@ export interface Translations {
     spectating: string;
     playersRemaining: (n: number) => string;
     revealVoteRecord: string;
+    ringRevealed: string;
+    ringAlive: string;
     endGame: string;
     endGameConfirm: string;
   };
@@ -255,6 +266,15 @@ const en: Translations = {
     joining: 'Joining…',
     joinGame: 'Join Game',
   },
+  avatarPicker: {
+    title: 'How are you feeling?',
+    skip: 'skip',
+    tapToChoose: 'Tap to choose',
+    saving: 'Saving…',
+    choose: 'Choose this sheep',
+    prev: 'Previous sheep',
+    next: 'Next sheep',
+  },
   game: {
     connecting: 'Connecting…',
     redirecting: 'Redirecting…',
@@ -266,6 +286,8 @@ const en: Translations = {
     spectating: '👻 Spectating',
     playersRemaining: (n) => `${n} Players Remaining`,
     revealVoteRecord: '📜 Reveal Vote Record (only you see this)',
+    ringRevealed: 'ready',
+    ringAlive: 'left',
     endGame: 'End Game',
     endGameConfirm: 'End this game for everyone?',
   },
@@ -561,6 +583,15 @@ const es: Translations = {
     joining: 'Uniéndose…',
     joinGame: 'Unirse a la Partida',
   },
+  avatarPicker: {
+    title: '¿Cómo te sientes?',
+    skip: 'omitir',
+    tapToChoose: 'Toca para elegir',
+    saving: 'Guardando…',
+    choose: 'Elegir esta oveja',
+    prev: 'Oveja anterior',
+    next: 'Oveja siguiente',
+  },
   game: {
     connecting: 'Conectando…',
     redirecting: 'Redirigiendo…',
@@ -572,6 +603,8 @@ const es: Translations = {
     spectating: '👻 Observando',
     playersRemaining: (n) => `${n} Jugadores Restantes`,
     revealVoteRecord: '📜 Revelar Registro de Votos (solo tú lo ves)',
+    ringRevealed: 'listos',
+    ringAlive: 'quedan',
     endGame: 'Terminar Partida',
     endGameConfirm: '¿Terminar esta partida para todos?',
   },

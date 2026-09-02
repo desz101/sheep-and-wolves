@@ -20,6 +20,5 @@ export function QrCode({ value, size = 200 }: { value: string; size?: number }) 
     return <div className="animate-pulse rounded-2xl bg-white/10" style={{ width: size, height: size }} />;
   }
 
-  // eslint-disable-next-line @next/next/no-img-element
   return <img src={dataUrl} alt="QR code to join the game" width={size} height={size} className="rounded-2xl" />;
 }

@@ -19,6 +19,7 @@ export function buildClientView(game: Game, requestingPlayerId: string): ClientG
     .map((p) => ({
       id: p.id,
       name: p.name,
+      avatar: p.avatar,
       isAlive: p.isAlive,
       isHost: p.isHost,
       isSelf: p.id === requestingPlayerId,

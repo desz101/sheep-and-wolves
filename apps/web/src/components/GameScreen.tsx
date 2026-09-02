@@ -14,8 +14,8 @@ import { EliminationView } from './phases/EliminationView';
 import { GameOverView } from './phases/GameOverView';
 import { VoteRecordModal } from './VoteRecordModal';
 import { PlayerList } from './PlayerList';
+import { PlayerRing } from './PlayerRing';
 import { VoiceChatBar } from './VoiceChatBar';
-import { SpeakerRow } from './SpeakerRow';
 import { BigButton } from './ui';
 import { useLanguage } from '@/lib/i18n';
 
@@ -62,6 +62,20 @@ export function GameScreen() {
 
   const alive = state.players.filter((p) => p.isAlive).length;
   const showRoundHeader = !['LOBBY', 'ROLE_REVEAL', 'GAME_OVER'].includes(state.status);
+  const showRing = state.status !== 'GAME_OVER';
+
+  let ringTop: string;
+  let ringBottom: string | undefined;
+  if (state.status === 'LOBBY') {
+    ringTop = `${state.players.length}/${state.config.maxPlayers}`;
+    ringBottom = state.gameCode;
+  } else if (state.status === 'ROLE_REVEAL') {
+    ringTop = `${state.playersRevealedCount}/${state.playersJoinedCount}`;
+    ringBottom = t.game.ringRevealed;
+  } else {
+    ringTop = `R${state.currentRound}`;
+    ringBottom = `${alive} ${t.game.ringAlive}`;
+  }
 
   return (
     <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-6 p-4 pb-10 pt-6">
@@ -75,7 +89,7 @@ export function GameScreen() {
       )}
 
       <VoiceChatBar />
-      <SpeakerRow players={state.players} />
+      {showRing && <PlayerRing players={state.players} centerTop={ringTop} centerBottom={ringBottom} />}
 
       {showRoundHeader && (
         <div className="flex items-center justify-between text-sm font-semibold text-muted">

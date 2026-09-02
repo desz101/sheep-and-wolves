@@ -20,6 +20,9 @@ export type GameStatus =
 export interface Player {
   id: string;
   name: string;
+  // Cosmetic sheep avatar key (see AVATAR_KEYS). Assigned a random one on
+  // join; the picker screen lets a player swap it before the game starts.
+  avatar: string;
   role: Role | null;
   isAlive: boolean;
   isHost: boolean;
@@ -99,6 +102,7 @@ export interface Game {
 export interface ClientPlayer {
   id: string;
   name: string;
+  avatar: string; // cosmetic sheep avatar key (see AVATAR_KEYS)
   isAlive: boolean;
   isHost: boolean;
   isSelf: boolean;

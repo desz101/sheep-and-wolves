@@ -7,13 +7,14 @@ import { useLanguage } from '@/lib/i18n';
 
 type Teammate = { id: string; name: string };
 
-/** A shrunk-down echo of the wolf card back, badged with a fellow wolf's name. */
+/** A shrunk-down echo of the wolf card back, badged with a fellow wolf's name.
+    Width grows to fit the name (wrapping only for very long ones). */
 function WolfTeammateCard({ name, label }: { name: string; label: string }) {
   return (
-    <div className="flex w-24 flex-col items-center justify-center gap-1.5 rounded-2xl border border-wolf/50 bg-gradient-to-br from-red-950 to-black p-3 shadow-xl sm:w-28">
+    <div className="flex w-auto min-w-[6rem] max-w-[13rem] flex-col items-center justify-center gap-1.5 rounded-2xl border border-wolf/50 bg-gradient-to-br from-red-950 to-black px-4 py-3 shadow-xl">
       <span className="text-3xl sm:text-4xl">🐺</span>
-      <span className="text-[10px] font-black uppercase tracking-[0.2em] text-wolf">{label}</span>
-      <span className="w-full truncate text-center text-sm font-bold text-foreground" title={name}>
+      <span className="text-[10px] font-black uppercase tracking-[0.15em] text-wolf">{label}</span>
+      <span className="text-center text-sm font-bold leading-tight text-foreground [overflow-wrap:anywhere]">
         {name}
       </span>
     </div>
