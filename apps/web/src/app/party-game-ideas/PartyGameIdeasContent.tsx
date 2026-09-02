@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { ArrowUpRight } from 'lucide-react';
 import { Panel } from '@/components/ui';
 import { useLanguage } from '@/lib/i18n';
 
@@ -85,9 +86,10 @@ export function PartyGameIdeasContent() {
                 href={GAME_URLS[game.name]}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm font-bold text-foreground underline decoration-panel-border underline-offset-4 hover:text-accent"
+                className="inline-flex items-center gap-1 text-sm font-bold text-foreground underline decoration-panel-border underline-offset-4 hover:text-accent"
               >
-                {game.name} ↗
+                {game.name}
+                <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={2.5} />
               </a>
               <p className="text-sm text-muted">{game.blurb}</p>
             </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import { Scale } from 'lucide-react';
 import { ClientGameState } from '@sw/shared';
 import { useLanguage } from '@/lib/i18n';
 
@@ -9,7 +10,7 @@ export function TiebreakerView({ state }: { state: ClientGameState }) {
 
   return (
     <div className="flex flex-col items-center gap-6 text-center animate-fade-up">
-      <span className="text-6xl">⚖️</span>
+      <Scale className="h-16 w-16 text-yellow-400" strokeWidth={1.5} />
       <h2 className="text-4xl font-black tracking-tight text-yellow-400">{t.tiebreaker.title}</h2>
       <p className="text-muted">{t.tiebreaker.subtitle}</p>
       <div className="flex flex-wrap justify-center gap-2">

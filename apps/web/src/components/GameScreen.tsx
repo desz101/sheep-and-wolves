@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Ban, Ghost, ScrollText } from 'lucide-react';
 import { useGame } from '@/lib/GameContext';
 import { LobbyView } from './phases/LobbyView';
 import { RoleRevealView } from './phases/RoleRevealView';
@@ -50,7 +51,7 @@ export function GameScreen() {
   if (state.status === 'CANCELLED') {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-4 p-6 text-center">
-        <span className="text-5xl">🚫</span>
+        <Ban className="h-12 w-12 text-wolf" strokeWidth={1.75} />
         <h1 className="text-2xl font-black">{t.game.gameEndedTitle}</h1>
         <p className="text-muted">{t.game.gameEndedBody}</p>
         <BigButton className="max-w-xs" onClick={() => router.push('/')}>
@@ -96,7 +97,8 @@ export function GameScreen() {
           <span className="flex items-center gap-2">
             {t.game.round(state.currentRound)}
             {!state.selfIsAlive && (
-              <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-muted">
+              <span className="flex items-center gap-1 rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-muted">
+                <Ghost className="h-3 w-3" strokeWidth={2} />
                 {t.game.spectating}
               </span>
             )}
@@ -134,7 +136,8 @@ export function GameScreen() {
         state.status === 'DISCUSSION') &&
         state.isQuestionCardHolder &&
         state.voteRecordAvailable && (
-          <BigButton variant="ghost" onClick={actions.showVoteRecord}>
+          <BigButton variant="ghost" onClick={actions.showVoteRecord} className="flex items-center justify-center gap-2">
+            <ScrollText className="h-5 w-5" strokeWidth={1.75} />
             {t.game.revealVoteRecord}
           </BigButton>
         )}
