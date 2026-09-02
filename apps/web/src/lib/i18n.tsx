@@ -23,6 +23,11 @@ export interface Translations {
     step3Body: string;
     fullRules: string;
     moreGames: string;
+    publicGames: string;
+    noPublicGames: string;
+    hostedBy: (name: string) => string;
+    playerCount: (count: number, max: number) => string;
+    joinCard: string;
   };
   create: {
     pageTitle: string;
@@ -34,6 +39,11 @@ export interface Translations {
     discussionTimer: string;
     custom: string;
     secondsPlaceholder: string;
+    visibility: string;
+    public: string;
+    private: string;
+    publicHint: string;
+    privateHint: string;
     adjustSettings: string;
     creating: string;
     createGame: string;
@@ -256,6 +266,11 @@ const en: Translations = {
     step3Body: 'Talk it out in person, then vote out who you think is a wolf before they outnumber the sheep.',
     fullRules: 'Full rules & FAQ',
     moreGames: 'More games for game night',
+    publicGames: 'Public games looking for players',
+    noPublicGames: 'No public games right now — host one and make it public!',
+    hostedBy: (name) => `Hosted by ${name}`,
+    playerCount: (count, max) => `${count}/${max} players`,
+    joinCard: 'Join',
   },
   create: {
     pageTitle: 'Host a Game',
@@ -267,6 +282,11 @@ const en: Translations = {
     discussionTimer: 'Discussion Timer',
     custom: 'Custom',
     secondsPlaceholder: 'Seconds',
+    visibility: 'Game Visibility',
+    public: 'Public',
+    private: 'Private',
+    publicHint: 'Listed on the homepage for anyone to find and join.',
+    privateHint: 'Only joinable by sharing the game code or QR.',
     adjustSettings: 'Adjust your settings above before creating the game.',
     creating: 'Creating…',
     createGame: 'Create Game',
@@ -662,6 +682,11 @@ const es: Translations = {
     step3Body: 'Hablen en persona y luego voten para eliminar a quien crean que es un lobo antes de que superen en número a las ovejas.',
     fullRules: 'Reglas completas y preguntas frecuentes',
     moreGames: 'Más juegos para la noche de juegos',
+    publicGames: 'Partidas públicas buscando jugadores',
+    noPublicGames: 'No hay partidas públicas ahora mismo — ¡crea una y hazla pública!',
+    hostedBy: (name) => `Organizado por ${name}`,
+    playerCount: (count, max) => `${count}/${max} jugadores`,
+    joinCard: 'Unirse',
   },
   create: {
     pageTitle: 'Crear una Partida',
@@ -673,6 +698,11 @@ const es: Translations = {
     discussionTimer: 'Temporizador de Discusión',
     custom: 'Personalizado',
     secondsPlaceholder: 'Segundos',
+    visibility: 'Visibilidad de la Partida',
+    public: 'Pública',
+    private: 'Privada',
+    publicHint: 'Aparece en la página de inicio para que cualquiera la encuentre y se una.',
+    privateHint: 'Solo se puede unir compartiendo el código o el QR.',
     adjustSettings: 'Ajusta la configuración de arriba antes de crear la partida.',
     creating: 'Creando…',
     createGame: 'Crear Partida',

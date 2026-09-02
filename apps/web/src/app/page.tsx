@@ -1,7 +1,16 @@
 'use client';
 
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
+import { PublicGameSummary } from '@sw/shared';
+import { fetchPublicGames } from '@/lib/api';
+import { Panel } from '@/components/ui';
 import { useLanguage } from '@/lib/i18n';
+
+// Refetch interval for the public games list. Not a live game screen, so no
+// need for the ~1.5s cadence a game-in-progress polls at -- this only needs
+// to be fresh enough that a stale "still open" card is rare.
+const PUBLIC_GAMES_POLL_MS = 5000;
 
 const structuredData = {
   '@context': 'https://schema.org',
@@ -21,6 +30,27 @@ const structuredData = {
 
 export default function Home() {
   const { t } = useLanguage();
+  const [publicGames, setPublicGames] = useState<PublicGameSummary[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      try {
+        const { body } = await fetchPublicGames();
+        if (!cancelled) setPublicGames(body);
+      } catch {
+        // Best-effort -- a failed refresh just leaves the last known list showing.
+      }
+    }
+
+    load();
+    const interval = setInterval(load, PUBLIC_GAMES_POLL_MS);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, []);
 
   return (
     <main className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center gap-12 p-6 text-center">
@@ -48,6 +78,30 @@ export default function Home() {
         >
           {t.home.joinGame}
         </Link>
+      </div>
+
+      <div className="flex w-full flex-col gap-3 text-left">
+        <h2 className="text-center text-xs font-semibold uppercase tracking-[0.2em] text-muted">{t.home.publicGames}</h2>
+        {publicGames.length === 0 ? (
+          <p className="text-center text-sm text-muted">{t.home.noPublicGames}</p>
+        ) : (
+          <div className="flex flex-col gap-2">
+            {publicGames.map((game) => (
+              <Panel key={game.gameCode} className="flex items-center justify-between gap-3 p-4">
+                <div className="flex flex-col gap-0.5 overflow-hidden">
+                  <span className="truncate font-bold text-foreground">{t.home.hostedBy(game.hostName)}</span>
+                  <span className="text-xs text-muted">{t.home.playerCount(game.playerCount, game.maxPlayers)}</span>
+                </div>
+                <Link
+                  href={`/join?code=${game.gameCode}`}
+                  className="shrink-0 rounded-xl bg-accent px-4 py-2 text-sm font-bold text-white transition active:scale-[0.98]"
+                >
+                  {t.home.joinCard}
+                </Link>
+              </Panel>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="flex w-full flex-col gap-3 text-left text-sm text-muted">

@@ -57,6 +57,10 @@ export interface GameConfig {
   maxPlayers: number;
   wolfCount: number;
   roundTimerSeconds: number;
+  // When true, the game is listed on the homepage's public games list
+  // (GET /games/public) for anyone to find and join, instead of only
+  // being joinable by sharing the game code.
+  isPublic: boolean;
 }
 
 export type TieStrategy = 'runoff';
@@ -141,6 +145,18 @@ export interface FinalSummaryEntry {
   name: string;
   role: Role;
   eliminatedRound: number | null;
+}
+
+// Returned by GET /games/public -- one entry per public game still in its
+// lobby (not yet started, not full). Deliberately a small summary, not a
+// ClientGameState: this is visible to anyone browsing the homepage, not just
+// players who've joined.
+export interface PublicGameSummary {
+  gameCode: string;
+  hostName: string;
+  playerCount: number;
+  maxPlayers: number;
+  wolfCount: number;
 }
 
 export interface ClientGameState {

@@ -5,6 +5,7 @@ import {
   Game,
   GameConfig,
   Player,
+  PublicGameSummary,
   Role,
 } from './types.ts';
 import {
@@ -200,6 +201,30 @@ export async function getPlayerName(gameCodeRaw: string, playerId: string): Prom
   const player = row.state.players[playerId];
   if (!player) throw new GameError('Invalid session.', 'BAD_TOKEN');
   return player.name;
+}
+
+// Most public games a homepage visitor should ever be offered at once --
+// keeps the response small and avoids the list being dominated by a handful
+// of long-idle lobbies.
+const PUBLIC_GAMES_LIMIT = 30;
+
+/**
+ * Games open for anyone to join right now: publicly listed, still in the
+ * lobby, and not full. `listPublicLobbyGames` already filters to public +
+ * LOBBY via indexed columns; the "not full" check happens here since
+ * maxPlayers lives inside the jsonb `state` blob, not a queryable column.
+ */
+export async function listPublicGames(): Promise<PublicGameSummary[]> {
+  const games = await gameStore.listPublicLobbyGames(PUBLIC_GAMES_LIMIT);
+  return games
+    .filter((game) => game.playerOrder.length < game.config.maxPlayers)
+    .map((game) => ({
+      gameCode: game.gameCode,
+      hostName: game.players[game.hostPlayerId]?.name ?? '?',
+      playerCount: game.playerOrder.length,
+      maxPlayers: game.config.maxPlayers,
+      wolfCount: game.config.wolfCount,
+    }));
 }
 
 function requireHost(game: Game, requesterId: string): void {
