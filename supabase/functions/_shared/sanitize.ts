@@ -83,6 +83,9 @@ export function buildClientView(game: Game, requestingPlayerId: string): ClientG
     config: game.config,
     currentRound: game.currentRound,
     currentQuestion: game.status === 'QUESTION_SELECTION' ? null : game.currentQuestion,
+    // Only the asker sees the shortlist -- everyone else just knows they're choosing.
+    questionChoices:
+      isCardHolder && game.status === 'QUESTION_SELECTION' ? game.questionChoices ?? [] : [],
     questionCardHolderId: game.questionCardHolderId,
     questionCardHolderName: questionCardHolder?.name ?? null,
     isQuestionCardHolder: isCardHolder,

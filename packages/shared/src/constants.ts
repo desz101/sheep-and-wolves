@@ -9,12 +9,23 @@ export const QUESTION_DECK: string[] = [
   "Which two people could secretly be working together?",
   "If you're eliminated and you're a sheep, who should we look at next?",
   "If you had to make the final vote right now, who goes?",
+  "What is the strongest piece of evidence you have that someone is a wolf?",
+  "What has someone said that doesn't add up to you?",
+  "Whose explanation do you believe the least?",
+  "Who has been the most consistent so far?",
+  "Who has changed their position the most? Why?",
+  "Who is making accusations without giving good reasons?",
+  "Who is agreeing with the group too easily?",
+  "Who seems to be avoiding taking a position?",
 ];
 
 export const TIMER_PRESETS_SECONDS = [60, 120, 180, 300, 420, 600] as const;
 
 export const MIN_PLAYERS = 3;
 export const MAX_PLAYERS = 30;
+
+// How many questions the question-asker is offered to pick from each round.
+export const QUESTION_CHOICE_COUNT = 3;
 
 export const GAME_CODE_LENGTH = 6;
 // Avoid ambiguous characters: 0/O, 1/I/L

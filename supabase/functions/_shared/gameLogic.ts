@@ -57,6 +57,28 @@ export function drawQuestion(
   return { question, remainingDeck: rest };
 }
 
+/**
+ * Draws `count` distinct questions for the question-asker to choose between.
+ * Refills from a fresh shuffled deck when it runs low, and keeps the
+ * just-asked question off the menu when there are still enough others.
+ */
+export function drawQuestions(
+  deck: string[],
+  lastQuestion: string | null,
+  count: number
+): { questions: string[]; remainingDeck: string[] } {
+  let workingDeck = deck.slice();
+  if (workingDeck.length < count) {
+    const refill = freshQuestionDeck().filter((q) => !workingDeck.includes(q));
+    workingDeck = workingDeck.concat(refill);
+  }
+  const withoutLast = workingDeck.filter((q) => q !== lastQuestion);
+  const pool = withoutLast.length >= count ? withoutLast : workingDeck;
+  const questions = pool.slice(0, count);
+  const remainingDeck = workingDeck.filter((q) => !questions.includes(q));
+  return { questions, remainingDeck };
+}
+
 export interface TallyResult {
   tally: { playerId: string; count: number }[];
   maxVotes: number;

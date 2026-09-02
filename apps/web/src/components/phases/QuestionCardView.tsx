@@ -2,41 +2,56 @@
 
 import { useState } from 'react';
 import { ClientGameState } from '@sw/shared';
+import { BigButton } from '../ui';
 import { useGame } from '@/lib/GameContext';
 import { useLanguage } from '@/lib/i18n';
 
 export function QuestionCardView({ state }: { state: ClientGameState }) {
   const { actions } = useGame();
   const { t } = useLanguage();
-  const [drawing, setDrawing] = useState(false);
+  const [selected, setSelected] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
   if (state.isQuestionCardHolder) {
     return (
-      <div className="flex flex-col items-center gap-8 text-center">
+      <div className="flex w-full flex-col items-center gap-5 text-center">
         <GameOnBadge label={t.questionCard.gameOnBadge} />
-        <div className="card-flip-scene h-80 w-64 max-w-full">
-          <button
-            type="button"
-            aria-label={t.questionCard.ariaTap}
-            disabled={drawing}
-            onClick={() => {
-              setDrawing(true);
-              actions.drawQuestionCard();
-            }}
-            className="card-flip-inner relative h-full w-full disabled:cursor-wait"
-            style={{ transform: drawing ? 'rotateY(180deg)' : undefined }}
-          >
-            <div className="card-face absolute inset-0 flex flex-col items-center justify-center gap-5 rounded-3xl border border-accent/50 bg-gradient-to-br from-[#241a45] to-[#0f1226] shadow-2xl">
-              <span className="text-6xl">🃏</span>
-              <span className="text-sm font-semibold uppercase tracking-[0.3em] text-muted">{t.questionCard.holderTitle}</span>
-              <span className="max-w-[80%] text-base text-foreground">{t.questionCard.tapWhenReady}</span>
-            </div>
-            <div className="card-face card-face-back absolute inset-0 flex items-center justify-center rounded-3xl border border-accent/50 bg-gradient-to-br from-[#241a45] to-[#0f1226] shadow-2xl">
-              <span className="animate-pulse text-lg font-bold text-accent">{t.questionCard.revealing}</span>
-            </div>
-          </button>
-        </div>
-        <p className="max-w-xs text-sm text-muted">{t.questionCard.readAloud}</p>
+        <h2 className="text-2xl font-black tracking-tight">{t.questionCard.holderTitle}</h2>
+        <p className="max-w-xs text-sm text-muted">{t.questionCard.pickPrompt}</p>
+
+        {state.questionChoices.length === 0 ? (
+          <p className="animate-pulse text-sm text-muted">…</p>
+        ) : (
+          <div className="flex w-full flex-col gap-3">
+            {state.questionChoices.map((q) => (
+              <button
+                key={q}
+                type="button"
+                onClick={() => setSelected(q)}
+                className={`rounded-2xl border px-5 py-4 text-left text-base font-semibold leading-snug transition ${
+                  selected === q
+                    ? 'border-accent bg-accent/20 text-foreground'
+                    : 'border-panel-border bg-black/20 text-foreground hover:bg-white/5'
+                }`}
+              >
+                {q}
+              </button>
+            ))}
+          </div>
+        )}
+
+        <BigButton
+          className="mt-1"
+          disabled={!selected || submitting}
+          onClick={() => {
+            if (!selected) return;
+            setSubmitting(true);
+            actions.chooseQuestion(selected);
+          }}
+        >
+          {t.questionCard.askThis}
+        </BigButton>
+        <p className="max-w-xs text-xs text-muted">{t.questionCard.readAloud}</p>
       </div>
     );
   }

@@ -72,7 +72,14 @@ export function setAvatar(
   return authedAction(ApiRoutes.setAvatar)(gameCode, playerId, playerToken, { avatar });
 }
 export const revealRoleAck = authedAction(ApiRoutes.revealRoleAck);
-export const drawQuestionCard = authedAction(ApiRoutes.drawQuestionCard);
+export function chooseQuestion(
+  gameCode: string,
+  playerId: string,
+  playerToken: string,
+  question: string
+): Promise<Timed<ClientGameState>> {
+  return authedAction(ApiRoutes.chooseQuestion)(gameCode, playerId, playerToken, { question });
+}
 export const toggleReadyToVote = authedAction(ApiRoutes.toggleReadyToVote);
 export const showVoteRecord = authedAction(ApiRoutes.showVoteRecord);
 export const hideVoteRecord = authedAction(ApiRoutes.hideVoteRecord);
