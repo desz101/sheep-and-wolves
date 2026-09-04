@@ -43,36 +43,44 @@ export function HowToPlayContent() {
       <section className="flex flex-col gap-4">
         <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">{t.howToPlay.setupHeading}</h2>
         <Panel className="flex flex-col gap-4 p-6 text-sm text-muted">
-          <p>
-            <span className="font-bold text-foreground">{t.howToPlay.setup1Title}</span> {t.howToPlay.setup1Body}
-          </p>
-          <p>
-            <span className="font-bold text-foreground">{t.howToPlay.setup2Title}</span> {t.howToPlay.setup2Body}
-          </p>
-          <p>
-            <span className="font-bold text-foreground">{t.howToPlay.setup3Title}</span> {t.howToPlay.setup3Body}
-          </p>
+          <div>
+            <h3 className="font-bold text-foreground">{t.howToPlay.setup1Title}</h3>
+            <p>{t.howToPlay.setup1Body}</p>
+          </div>
+          <div>
+            <h3 className="font-bold text-foreground">{t.howToPlay.setup2Title}</h3>
+            <p>{t.howToPlay.setup2Body}</p>
+          </div>
+          <div>
+            <h3 className="font-bold text-foreground">{t.howToPlay.setup3Title}</h3>
+            <p>{t.howToPlay.setup3Body}</p>
+          </div>
         </Panel>
       </section>
 
       <section className="flex flex-col gap-4">
         <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">{t.howToPlay.roundHeading}</h2>
         <Panel className="flex flex-col gap-4 p-6 text-sm text-muted">
-          <p>
-            <span className="font-bold text-foreground">{t.howToPlay.round4Title}</span> {t.howToPlay.round4Body}
-          </p>
-          <p>
-            <span className="font-bold text-foreground">{t.howToPlay.round5Title}</span> {t.howToPlay.round5Body}
-          </p>
-          <p>
-            <span className="font-bold text-foreground">{t.howToPlay.round6Title}</span> {t.howToPlay.round6Body}
-          </p>
-          <p>
-            <span className="font-bold text-foreground">{t.howToPlay.round7Title}</span> {t.howToPlay.round7Body}
-          </p>
-          <p>
-            <span className="font-bold text-foreground">{t.howToPlay.round8Title}</span> {t.howToPlay.round8Body}
-          </p>
+          <div>
+            <h3 className="font-bold text-foreground">{t.howToPlay.round4Title}</h3>
+            <p>{t.howToPlay.round4Body}</p>
+          </div>
+          <div>
+            <h3 className="font-bold text-foreground">{t.howToPlay.round5Title}</h3>
+            <p>{t.howToPlay.round5Body}</p>
+          </div>
+          <div>
+            <h3 className="font-bold text-foreground">{t.howToPlay.round6Title}</h3>
+            <p>{t.howToPlay.round6Body}</p>
+          </div>
+          <div>
+            <h3 className="font-bold text-foreground">{t.howToPlay.round7Title}</h3>
+            <p>{t.howToPlay.round7Body}</p>
+          </div>
+          <div>
+            <h3 className="font-bold text-foreground">{t.howToPlay.round8Title}</h3>
+            <p>{t.howToPlay.round8Body}</p>
+          </div>
         </Panel>
       </section>
 
