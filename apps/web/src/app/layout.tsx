@@ -7,6 +7,7 @@ import { HomeMusicPlayer } from "@/components/HomeMusicPlayer";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { SiteFooter } from "@/components/SiteFooter";
 import { LanguageProvider } from "@/lib/i18n";
+import { ORGANIZATION_ID, SITE_URL } from "@/lib/seo";
 import "./globals.css";
 
 const GA_MEASUREMENT_ID = "G-W76YFL656N";
@@ -22,10 +23,30 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const SITE_URL = "https://sheepandwolves.app";
 const SITE_NAME = "Sheep & Wolves";
 const DESCRIPTION =
   "Free real-time social deduction party game. Host a game, share the code, and find the wolves before they outnumber the sheep. No app download required.";
+
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "@id": ORGANIZATION_ID,
+  name: "Wanderluxe LLC",
+  legalName: "Wanderluxe LLC",
+  url: SITE_URL,
+  logo: `${SITE_URL}/icon.jpg`,
+  description:
+    "Wanderluxe LLC is a tourism and experience company based in Maryland, USA, and the publisher of Sheep & Wolves.",
+  address: {
+    "@type": "PostalAddress",
+    addressRegion: "MD",
+    addressCountry: "US",
+  },
+  brand: {
+    "@type": "Brand",
+    name: SITE_NAME,
+  },
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -88,6 +109,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[var(--background)] text-[var(--foreground)]">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
+        />
         <LanguageProvider>
           <LanguageToggle />
           {children}
