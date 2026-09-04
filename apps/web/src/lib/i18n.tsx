@@ -132,6 +132,7 @@ export interface Translations {
     gameOnBadge: string;
     holderTitle: string;
     pickPrompt: string;
+    directTip: string;
     askThis: string;
     readAloud: string;
     someoneFallback: string;
@@ -375,7 +376,8 @@ const en: Translations = {
   questionCard: {
     gameOnBadge: 'Game on — talk freely while you wait',
     holderTitle: 'You have the question card',
-    pickPrompt: 'Pick the question you want to ask — aim it at one player, a few, or the whole group.',
+    pickPrompt: 'Pick the question you want to ask.',
+    directTip: "Direct it at a particular person, a certain few, or all players — it's up to you.",
     askThis: 'Ask this question',
     readAloud: "Read it out loud once everyone's ready — the timer starts the moment you pick it.",
     someoneFallback: 'Someone',
@@ -797,7 +799,8 @@ const es: Translations = {
   questionCard: {
     gameOnBadge: 'El juego ya empezó — hablen libremente mientras esperan',
     holderTitle: 'Tienes la carta de pregunta',
-    pickPrompt: 'Elige la pregunta que quieres hacer — puedes dirigirla a un jugador, a varios o a todo el grupo.',
+    pickPrompt: 'Elige la pregunta que quieres hacer.',
+    directTip: 'Dirígela a una persona en concreto, a un grupo de jugadores o a todos — tú decides.',
     askThis: 'Hacer esta pregunta',
     readAloud: 'Léela en voz alta cuando todos estén listos — el temporizador comienza en cuanto la elijas.',
     someoneFallback: 'Alguien',
