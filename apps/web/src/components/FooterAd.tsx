@@ -27,8 +27,7 @@ export function FooterAd() {
 
   return (
     <ins
-      className="adsbygoogle"
-      style={{ display: 'block' }}
+      className="adsbygoogle block"
       data-ad-client={AD_CLIENT}
       data-ad-slot={AD_SLOT}
       data-ad-format="auto"
