@@ -215,7 +215,7 @@ export interface Translations {
     round8Title: string;
     round8Body: string;
     faqHeading: string;
-    faqs: { question: string; answer: string }[];
+    faqs: { category: string; question: string; answer: string }[];
     hostGame: string;
     moreGames: string;
     backToHome: string;
@@ -474,61 +474,73 @@ const en: Translations = {
     faqHeading: 'Frequently asked questions',
     faqs: [
       {
+        category: 'Getting Started',
         question: 'What is Sheep & Wolves?',
         answer:
           "Sheep & Wolves is a free, real-time social deduction party game played on everyone's phones. Most players are secretly sheep and a hidden few are wolves. The group discusses out loud and votes each round to eliminate a suspected wolf, trying to find every wolf before the wolves outnumber the sheep.",
       },
       {
+        category: 'Getting Started',
         question: 'How many players do I need?',
         answer:
           'You need at least 3 players, and up to 30 can join a single game. The host picks the player count and the number of wolves when setting up the game — the app automatically caps the wolf count so sheep always start in the majority.',
       },
       {
+        category: 'Getting Started',
         question: 'Do players need to download an app?',
         answer:
           "No. Sheep & Wolves runs entirely in the browser. The host creates a game and shares a short code or QR code, and everyone else joins from their own phone's browser — nothing to install.",
       },
       {
+        category: 'Getting Started',
         question: 'Do we need to be in the same room?',
         answer:
           "No — Sheep & Wolves works in person or remotely. Everyone always uses their own phone to see their secret role and vote. If your group is together, discuss out loud face to face; if you're spread out, jump into the game's built-in voice chat so you can still hear tone of voice and reactions in real time, which is what makes catching the wolves possible either way.",
       },
       {
+        category: 'Gameplay & Rules',
         question: 'How does a round work?',
         answer:
           "Each round, one player is dealt three question cards, picks the one they want to ask (things like \"who's being unusually quiet?\"), and reads it aloud — directing it at one specific player, a few people, or the whole group, whichever they choose. That starts the discussion timer, which the host sets when creating the game. When time is up, everyone votes for who they think is a wolf, and the player with the most votes is eliminated and their role is revealed.",
       },
       {
+        category: 'Gameplay & Rules',
         question: 'Can the question be aimed at a specific player?',
         answer:
           'Yes. Whoever holds the question card that round — the question master — decides how to use it. They can put it to one specific player, call out a handful of people, or open it up to everyone at once. That choice is part of the strategy: a pointed question puts pressure on a suspect, while a broad one gets more of the group talking.',
       },
       {
+        category: 'Gameplay & Rules',
         question: 'Do the wolves know who each other are?',
         answer:
           "Yes. As soon as a wolf taps to reveal their role card, their screen also shows the names of the other wolves, each on a matching mini wolf card. Sheep never see this — their card just shows that they're a sheep.",
       },
       {
+        category: 'Gameplay & Rules',
         question: 'Can players see who voted for whom?',
         answer:
           "Only one player each round can: whoever drew that round's question card. After the vote they get a single private look at the full record of who voted for whom. Nobody else can see it, and they don't have to share what they saw — or share it truthfully — so the record is as much a bluffing tool as an information one.",
       },
       {
+        category: 'Gameplay & Rules',
         question: 'What happens if a vote ties?',
         answer:
           'If two or more players tie for the most votes, those tied players go to a quick tiebreaker vote among the rest of the group instead of eliminating no one.',
       },
       {
+        category: 'Winning & Comparisons',
         question: 'How do sheep win? How do wolves win?',
         answer:
           "Sheep win once every wolf has been voted out. Wolves win if they ever equal or outnumber the remaining sheep — so the sheep need to find every wolf before that happens. If the game ever comes down to one sheep and one wolf, the wolf wins that final standoff automatically.",
       },
       {
+        category: 'Winning & Comparisons',
         question: 'Is Sheep & Wolves like Werewolf or Mafia?',
         answer:
           "Yes — Sheep & Wolves is a phone-based take on classic hidden-role social deduction games like Werewolf and Mafia. Instead of a moderator managing roles and votes on paper, everyone's phone handles roles, timers, and voting automatically, so any group can pick up and play with no experience needed.",
       },
       {
+        category: 'Winning & Comparisons',
         question: 'Is Sheep & Wolves free to play?',
         answer: 'Yes, Sheep & Wolves is completely free to host and join, with no account or app download required.',
       },
@@ -898,61 +910,73 @@ const es: Translations = {
     faqHeading: 'Preguntas frecuentes',
     faqs: [
       {
+        category: 'Primeros pasos',
         question: '¿Qué es Sheep & Wolves?',
         answer:
           'Sheep & Wolves es un juego de fiesta de deducción social gratuito y en tiempo real que se juega en los teléfonos de todos. La mayoría de los jugadores son ovejas en secreto y unos pocos ocultos son lobos. El grupo discute en voz alta y vota cada ronda para eliminar a un sospechoso de ser lobo, tratando de encontrar a todos los lobos antes de que superen en número a las ovejas.',
       },
       {
+        category: 'Primeros pasos',
         question: '¿Cuántos jugadores necesito?',
         answer:
           'Necesitas al menos 3 jugadores, y hasta 30 pueden unirse a una sola partida. El anfitrión elige el número de jugadores y de lobos al configurar la partida — la app limita automáticamente el número de lobos para que las ovejas siempre empiecen en mayoría.',
       },
       {
+        category: 'Primeros pasos',
         question: '¿Los jugadores necesitan descargar una app?',
         answer:
           'No. Sheep & Wolves funciona completamente en el navegador. El anfitrión crea una partida y comparte un código corto o un código QR, y todos los demás se unen desde el navegador de su propio teléfono — no hay nada que instalar.',
       },
       {
+        category: 'Primeros pasos',
         question: '¿Necesitamos estar en la misma sala?',
         answer:
           'No — Sheep & Wolves funciona tanto en persona como a distancia. Cada quien usa siempre su propio teléfono para ver su rol secreto y votar. Si el grupo está reunido, discutan en voz alta cara a cara; si están repartidos, entren al chat de voz integrado del juego para seguir escuchando el tono de voz y las reacciones en tiempo real, que es justo lo que hace posible atrapar a los lobos en cualquiera de los dos casos.',
       },
       {
+        category: 'Jugabilidad y reglas',
         question: '¿Cómo funciona una ronda?',
         answer:
           'En cada ronda, un jugador recibe tres cartas de pregunta, elige la que quiere hacer (cosas como "¿quién está inusualmente callado?") y la lee en voz alta — dirigiéndola a un jugador en concreto, a varias personas o a todo el grupo, como prefiera. Eso inicia el temporizador de discusión, que el anfitrión configura al crear la partida. Cuando se acaba el tiempo, todos votan por quién creen que es un lobo, y el jugador con más votos es eliminado y se revela su rol.',
       },
       {
+        category: 'Jugabilidad y reglas',
         question: '¿Se puede dirigir la pregunta a un jugador en concreto?',
         answer:
           'Sí. Quien tiene la carta de pregunta esa ronda — el encargado de la pregunta — decide cómo usarla. Puede dirigirla a un solo jugador, señalar a un grupo de personas o abrirla a todos a la vez. Esa elección es parte de la estrategia: una pregunta directa presiona a un sospechoso, mientras que una abierta hace hablar a más gente del grupo.',
       },
       {
+        category: 'Jugabilidad y reglas',
         question: '¿Los lobos saben quiénes son los demás lobos?',
         answer:
           'Sí. En cuanto un lobo toca para revelar su carta de rol, su pantalla también muestra los nombres de los otros lobos, cada uno en una mini carta de lobo a juego. Las ovejas nunca ven esto — su carta solo muestra que son una oveja.',
       },
       {
+        category: 'Jugabilidad y reglas',
         question: '¿Los jugadores pueden ver quién votó por quién?',
         answer:
           'Solo uno por ronda puede: quien sacó la carta de pregunta de esa ronda. Después de la votación obtiene una única mirada privada al registro completo de quién votó por quién. Nadie más puede verlo, y no está obligado a compartir lo que vio — ni a compartirlo con honestidad — así que el registro es tanto una herramienta de engaño como de información.',
       },
       {
+        category: 'Jugabilidad y reglas',
         question: '¿Qué pasa si hay un empate en la votación?',
         answer:
           'Si dos o más jugadores empatan con más votos, esos jugadores empatados van a una votación rápida de desempate entre el resto del grupo en lugar de no eliminar a nadie.',
       },
       {
+        category: 'Cómo ganar y comparaciones',
         question: '¿Cómo ganan las ovejas? ¿Cómo ganan los lobos?',
         answer:
           'Las ovejas ganan cuando todos los lobos han sido votados fuera. Los lobos ganan si alguna vez igualan o superan en número a las ovejas restantes — así que las ovejas necesitan encontrar a todos los lobos antes de que eso pase. Si el juego llega a una oveja y un lobo, el lobo gana automáticamente ese enfrentamiento final.',
       },
       {
+        category: 'Cómo ganar y comparaciones',
         question: '¿Sheep & Wolves es como Werewolf o Mafia?',
         answer:
           'Sí — Sheep & Wolves es una versión para teléfono de los clásicos juegos de deducción social con roles ocultos como Werewolf y Mafia. En lugar de un moderador que maneja roles y votos en papel, el teléfono de cada quien se encarga de los roles, temporizadores y votaciones automáticamente, así que cualquier grupo puede empezar a jugar sin experiencia previa.',
       },
       {
+        category: 'Cómo ganar y comparaciones',
         question: '¿Sheep & Wolves es gratis?',
         answer: 'Sí, Sheep & Wolves es completamente gratis para crear y unirse, sin necesidad de cuenta ni de descargar ninguna app.',
       },

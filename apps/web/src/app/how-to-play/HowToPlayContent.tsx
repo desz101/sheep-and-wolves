@@ -8,6 +8,16 @@ export function HowToPlayContent() {
   const { t } = useLanguage();
   const faqs = t.howToPlay.faqs;
 
+  const faqCategories: { category: string; items: typeof faqs }[] = [];
+  for (const faq of faqs) {
+    const group = faqCategories.at(-1);
+    if (group?.category === faq.category) {
+      group.items.push(faq);
+    } else {
+      faqCategories.push({ category: faq.category, items: [faq] });
+    }
+  }
+
   const structuredData = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
@@ -66,18 +76,23 @@ export function HowToPlayContent() {
         </Panel>
       </section>
 
-      <section className="flex flex-col gap-4">
+      <section className="flex flex-col gap-6">
         <h2 className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">{t.howToPlay.faqHeading}</h2>
-        <Panel className="divide-y divide-panel-border p-2">
-          {faqs.map((faq) => (
-            <details key={faq.question} className="group p-4">
-              <summary className="cursor-pointer list-none text-sm font-bold text-foreground marker:content-none">
-                {faq.question}
-              </summary>
-              <p className="mt-2 text-sm text-muted">{faq.answer}</p>
-            </details>
-          ))}
-        </Panel>
+        {faqCategories.map(({ category, items }) => (
+          <div key={category} className="flex flex-col gap-3">
+            <h3 className="text-sm font-bold text-foreground">{category}</h3>
+            <Panel className="divide-y divide-panel-border p-2">
+              {items.map((faq) => (
+                <details key={faq.question} className="group p-4">
+                  <summary className="cursor-pointer list-none marker:content-none">
+                    <h4 className="inline text-sm font-bold text-foreground">{faq.question}</h4>
+                  </summary>
+                  <p className="mt-2 text-sm text-muted">{faq.answer}</p>
+                </details>
+              ))}
+            </Panel>
+          </div>
+        ))}
       </section>
 
       <div className="flex w-full flex-col gap-4">
