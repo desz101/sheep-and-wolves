@@ -1,17 +1,18 @@
 # Sheep & Wolves
 
-> A free, real-time social deduction party game played in person on everyone's phones — no app download required.
+> A free, real-time social deduction party game played on everyone's phones, in person or remotely — no app download required.
 
-Sheep & Wolves is a browser-based party game for 3 to 30 players, in the same tradition as Werewolf or Mafia. One player hosts a game and shares a short code or QR code; everyone else joins from their own phone's browser. Roles are dealt secretly — most players are sheep, a hidden few are wolves. The group discusses out loud, face to face, then votes each round to eliminate a suspected wolf. Sheep win once every wolf has been voted out; wolves win if they ever equal or outnumber the remaining sheep.
+Sheep & Wolves is a browser-based party game for 3 to 30 players, in the same tradition as Werewolf or Mafia. One player hosts a game and shares a short code or QR code; everyone else joins from their own phone's browser. Roles are dealt secretly — most players are sheep, a hidden few are wolves. Each round, the player holding the question card picks a discussion prompt and reads it aloud, choosing whether to aim it at one player, a few people, or the whole group. The group discusses out loud — face to face, or over the game's built-in voice chat if playing remotely — then votes each round to eliminate a suspected wolf. Sheep win once every wolf has been voted out; wolves win if they ever equal or outnumber the remaining sheep.
 
 ## Pages
 
 - [Home](https://sheepandwolves.app/): Overview and entry point to host or join a game.
-- [How to Play](https://sheepandwolves.app/how-to-play): Full rules, round-by-round walkthrough, and FAQ (setup, player counts, wolves knowing their teammates, the question-asker's private vote record, tiebreakers, win conditions).
+- [How to Play](https://sheepandwolves.app/how-to-play): Full rules, round-by-round walkthrough, and FAQ (setup, player counts, wolves knowing their teammates, directing questions at players, playing in person or remotely, the question-asker's private vote record, tiebreakers, win conditions).
 - [Host a Game](https://sheepandwolves.app/create): Create a new game and configure player count, wolf count, and discussion timer.
 - [Join a Game](https://sheepandwolves.app/join): Join an existing game using a code or QR code.
 
 ## Notes
 
 - Free to play, no account or app download required.
-- Designed to be played in person — everyone uses their own phone for roles and voting, but discussion happens face to face in the same room.
+- Plays in person or remotely — everyone uses their own phone for roles and voting, and can talk face to face or through the game's built-in voice chat.
+- Each round's question can be directed at a specific player, a few players, or opened up to the whole group.

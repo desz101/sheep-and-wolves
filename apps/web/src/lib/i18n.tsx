@@ -132,6 +132,7 @@ export interface Translations {
     gameOnBadge: string;
     holderTitle: string;
     pickPrompt: string;
+    directTip: string;
     askThis: string;
     readAloud: string;
     someoneFallback: string;
@@ -263,7 +264,8 @@ const en: Translations = {
     step2Title: '2. Everyone gets a secret role.',
     step2Body: 'Most players are sheep; a hidden few are wolves.',
     step3Title: '3. Discuss, then vote.',
-    step3Body: 'Talk it out in person, then vote out who you think is a wolf before they outnumber the sheep.',
+    step3Body:
+      'Talk it out — in person or over voice chat — then vote out who you think is a wolf before they outnumber the sheep.',
     fullRules: 'Full rules & FAQ',
     moreGames: 'More games for game night',
     publicGames: 'Public games looking for players',
@@ -374,7 +376,8 @@ const en: Translations = {
   questionCard: {
     gameOnBadge: 'Game on — talk freely while you wait',
     holderTitle: 'You have the question card',
-    pickPrompt: 'Pick the question you want to ask the group.',
+    pickPrompt: 'Pick the question you want to ask.',
+    directTip: "Direct it at a particular person, a certain few, or all players — it's up to you.",
     askThis: 'Ask this question',
     readAloud: "Read it out loud once everyone's ready — the timer starts the moment you pick it.",
     someoneFallback: 'Someone',
@@ -456,10 +459,10 @@ const en: Translations = {
     roundHeading: 'Playing a round',
     round4Title: '4. Pick a question.',
     round4Body:
-      'One player is dealt three discussion prompts, picks the one they want to ask the group, and reads it aloud — that starts the timer.',
+      'One player is dealt three discussion prompts and picks the one they want to ask, then reads it aloud — that starts the timer. As question master, they choose how to aim it: at one specific player, at a few people, or open to the whole group.',
     round5Title: '5. Discuss out loud.',
     round5Body:
-      "Talk it out as a group in person until the timer runs out. Wolves try to blend in; sheep try to spot who's lying.",
+      "Talk it out as a group — in person, or over the built-in voice chat if you're playing remotely — until the timer runs out. Wolves try to blend in; sheep try to spot who's lying.",
     round6Title: '6. Vote.',
     round6Body:
       'Everyone votes for who they suspect is a wolf. The player with the most votes is eliminated and their role is revealed. Ties go to a quick tiebreaker vote.',
@@ -488,12 +491,17 @@ const en: Translations = {
       {
         question: 'Do we need to be in the same room?',
         answer:
-          "Sheep & Wolves is designed to be played in person. Everyone uses their own phone to see their secret role and vote, but the discussion happens out loud, face to face, which is what makes reading the room — and catching the wolves — possible.",
+          "No — Sheep & Wolves works in person or remotely. Everyone always uses their own phone to see their secret role and vote. If your group is together, discuss out loud face to face; if you're spread out, jump into the game's built-in voice chat so you can still hear tone of voice and reactions in real time, which is what makes catching the wolves possible either way.",
       },
       {
         question: 'How does a round work?',
         answer:
-          "Each round, one player is dealt three question cards, picks the one they want to ask (things like \"who's being unusually quiet?\"), and reads it aloud. That starts the discussion timer, which the host sets when creating the game. When time is up, everyone votes for who they think is a wolf, and the player with the most votes is eliminated and their role is revealed.",
+          "Each round, one player is dealt three question cards, picks the one they want to ask (things like \"who's being unusually quiet?\"), and reads it aloud — directing it at one specific player, a few people, or the whole group, whichever they choose. That starts the discussion timer, which the host sets when creating the game. When time is up, everyone votes for who they think is a wolf, and the player with the most votes is eliminated and their role is revealed.",
+      },
+      {
+        question: 'Can the question be aimed at a specific player?',
+        answer:
+          'Yes. Whoever holds the question card that round — the question master — decides how to use it. They can put it to one specific player, call out a handful of people, or open it up to everyone at once. That choice is part of the strategy: a pointed question puts pressure on a suspect, while a broad one gets more of the group talking.',
       },
       {
         question: 'Do the wolves know who each other are?',
@@ -679,7 +687,8 @@ const es: Translations = {
     step2Title: '2. Todos reciben un rol secreto.',
     step2Body: 'La mayoría de los jugadores son ovejas; unos pocos ocultos son lobos.',
     step3Title: '3. Discutan y luego voten.',
-    step3Body: 'Hablen en persona y luego voten para eliminar a quien crean que es un lobo antes de que superen en número a las ovejas.',
+    step3Body:
+      'Hablen — en persona o por chat de voz — y luego voten para eliminar a quien crean que es un lobo antes de que superen en número a las ovejas.',
     fullRules: 'Reglas completas y preguntas frecuentes',
     moreGames: 'Más juegos para la noche de juegos',
     publicGames: 'Partidas públicas buscando jugadores',
@@ -790,7 +799,8 @@ const es: Translations = {
   questionCard: {
     gameOnBadge: 'El juego ya empezó — hablen libremente mientras esperan',
     holderTitle: 'Tienes la carta de pregunta',
-    pickPrompt: 'Elige la pregunta que quieres hacerle al grupo.',
+    pickPrompt: 'Elige la pregunta que quieres hacer.',
+    directTip: 'Dirígela a una persona en concreto, a un grupo de jugadores o a todos — tú decides.',
     askThis: 'Hacer esta pregunta',
     readAloud: 'Léela en voz alta cuando todos estén listos — el temporizador comienza en cuanto la elijas.',
     someoneFallback: 'Alguien',
@@ -873,10 +883,10 @@ const es: Translations = {
     roundHeading: 'Jugando una ronda',
     round4Title: '4. Elige una pregunta.',
     round4Body:
-      'Un jugador recibe tres preguntas de discusión, elige la que quiere hacerle al grupo y la lee en voz alta — eso inicia el temporizador.',
+      'Un jugador recibe tres preguntas de discusión y elige la que quiere hacer, luego la lee en voz alta — eso inicia el temporizador. Como encargado de la pregunta, decide cómo dirigirla: a un jugador en concreto, a varias personas o abierta a todo el grupo.',
     round5Title: '5. Discutan en voz alta.',
     round5Body:
-      'Hablen como grupo en persona hasta que se acabe el tiempo. Los lobos intentan pasar desapercibidos; las ovejas intentan detectar quién miente.',
+      'Hablen como grupo — en persona, o por el chat de voz integrado si están jugando a distancia — hasta que se acabe el tiempo. Los lobos intentan pasar desapercibidos; las ovejas intentan detectar quién miente.',
     round6Title: '6. Voten.',
     round6Body:
       'Todos votan por a quién sospechan que es un lobo. El jugador con más votos es eliminado y se revela su rol. Los empates van a una votación rápida de desempate.',
@@ -905,12 +915,17 @@ const es: Translations = {
       {
         question: '¿Necesitamos estar en la misma sala?',
         answer:
-          'Sheep & Wolves está diseñado para jugarse en persona. Cada quien usa su propio teléfono para ver su rol secreto y votar, pero la discusión ocurre en voz alta, cara a cara, que es lo que hace posible leer el ambiente — y atrapar a los lobos.',
+          'No — Sheep & Wolves funciona tanto en persona como a distancia. Cada quien usa siempre su propio teléfono para ver su rol secreto y votar. Si el grupo está reunido, discutan en voz alta cara a cara; si están repartidos, entren al chat de voz integrado del juego para seguir escuchando el tono de voz y las reacciones en tiempo real, que es justo lo que hace posible atrapar a los lobos en cualquiera de los dos casos.',
       },
       {
         question: '¿Cómo funciona una ronda?',
         answer:
-          'En cada ronda, un jugador recibe tres cartas de pregunta, elige la que quiere hacer (cosas como "¿quién está inusualmente callado?") y la lee en voz alta. Eso inicia el temporizador de discusión, que el anfitrión configura al crear la partida. Cuando se acaba el tiempo, todos votan por quién creen que es un lobo, y el jugador con más votos es eliminado y se revela su rol.',
+          'En cada ronda, un jugador recibe tres cartas de pregunta, elige la que quiere hacer (cosas como "¿quién está inusualmente callado?") y la lee en voz alta — dirigiéndola a un jugador en concreto, a varias personas o a todo el grupo, como prefiera. Eso inicia el temporizador de discusión, que el anfitrión configura al crear la partida. Cuando se acaba el tiempo, todos votan por quién creen que es un lobo, y el jugador con más votos es eliminado y se revela su rol.',
+      },
+      {
+        question: '¿Se puede dirigir la pregunta a un jugador en concreto?',
+        answer:
+          'Sí. Quien tiene la carta de pregunta esa ronda — el encargado de la pregunta — decide cómo usarla. Puede dirigirla a un solo jugador, señalar a un grupo de personas o abrirla a todos a la vez. Esa elección es parte de la estrategia: una pregunta directa presiona a un sospechoso, mientras que una abierta hace hablar a más gente del grupo.',
       },
       {
         question: '¿Los lobos saben quiénes son los demás lobos?',
