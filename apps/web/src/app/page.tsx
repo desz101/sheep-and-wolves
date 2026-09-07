@@ -6,6 +6,7 @@ import { PublicGameSummary } from '@sw/shared';
 import { fetchPublicGames } from '@/lib/api';
 import { Panel } from '@/components/ui';
 import { useLanguage } from '@/lib/i18n';
+import { ORGANIZATION_ID } from '@/lib/seo';
 
 // Refetch interval for the public games list. Not a live game screen, so no
 // need for the ~1.5s cadence a game-in-progress polls at -- this only needs
@@ -26,6 +27,8 @@ const structuredData = {
     price: '0',
     priceCurrency: 'USD',
   },
+  publisher: { '@id': ORGANIZATION_ID },
+  creator: { '@id': ORGANIZATION_ID },
 };
 
 export default function Home() {

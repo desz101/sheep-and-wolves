@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { PartyPopper, PlayingCard } from 'lucide-react';
+import { PartyPopper, PlayingCard, Target } from 'lucide-react';
 import { ClientGameState } from '@sw/shared';
 import { BigButton } from '../ui';
 import { useGame } from '@/lib/GameContext';
@@ -22,6 +22,10 @@ export function QuestionCardView({ state }: { state: ClientGameState }) {
         <GameOnBadge label={t.questionCard.gameOnBadge} />
         <h2 className="text-2xl font-black tracking-tight">{t.questionCard.holderTitle}</h2>
         <p className="max-w-xs text-sm text-muted">{t.questionCard.pickPrompt}</p>
+        <div className="flex w-full items-center gap-2 rounded-xl border border-accent/30 bg-accent/10 px-4 py-3 text-left text-xs font-medium text-foreground">
+          <Target className="h-4 w-4 shrink-0 text-accent" strokeWidth={2} />
+          <span>{t.questionCard.directTip}</span>
+        </div>
 
         {choices.length === 0 ? (
           <p className="animate-pulse text-sm text-muted">…</p>
