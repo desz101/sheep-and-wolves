@@ -235,6 +235,7 @@ export interface Translations {
   footer: {
     howToPlay: string;
     privacy: string;
+    aboutUs: string;
   };
   privacy: {
     title: string;
@@ -246,6 +247,18 @@ export interface Translations {
     livekitLink: string;
     googlePrivacyLink: string;
     adSettingsLink: string;
+    backToHome: string;
+  };
+  aboutUs: {
+    metaTitle: string;
+    title: string;
+    intro: string;
+    sections: { heading: string; paragraphs: string[] }[];
+    closing: string;
+    ctaHeading: string;
+    ctaBody: string;
+    hostGame: string;
+    howToPlay: string;
     backToHome: string;
   };
 }
@@ -578,6 +591,7 @@ const en: Translations = {
   footer: {
     howToPlay: 'How to Play',
     privacy: 'Privacy',
+    aboutUs: 'About Us',
   },
   privacy: {
     title: 'Privacy Policy',
@@ -662,6 +676,62 @@ const en: Translations = {
     livekitLink: 'LiveKit privacy policy',
     googlePrivacyLink: 'Google Privacy Policy',
     adSettingsLink: 'Google Ad Settings',
+    backToHome: 'Back to Home',
+  },
+  aboutUs: {
+    metaTitle: 'Why We Made Sheep & Wolves',
+    title: 'Why We Made Sheep & Wolves',
+    intro:
+      "We didn't set out to make a party game. We set out to build a room where people could be someone else for a little while — and see what that taught them about who they really are.",
+    sections: [
+      {
+        heading: 'It started with a simple question',
+        paragraphs: [
+          'What happens when you put people under pressure and ask them to play a role?',
+          "Not a role in the theatrical sense — no scripts, no rehearsal. A role that asks you to think fast, hold a secret, read a face, or convince a table full of friends that you're telling the truth when you're not. That kind of pressure does something interesting to people. It strips away the performance we usually put on for each other and replaces it with a different one — one where the stakes are just high enough to matter, but low enough that nobody actually gets hurt.",
+          'We wanted to build that room.',
+        ],
+      },
+      {
+        heading: 'Permission to step outside yourself',
+        paragraphs: [
+          "Most of us spend our lives inside a fairly narrow version of who we are. The reliable one. The honest one. The one who doesn't rock the boat. This game hands you a different part to play — sometimes the deceiver, sometimes the deceived, sometimes just the person trying to hold the group together.",
+          "And yes, that sometimes means lying to your friends' faces and enjoying it. We think that's okay. There's something freeing about being *given permission* to be deceptive in a space where everyone knows the rules of the game. It lets people step out of their usual shell without any real consequence waiting on the other side.",
+        ],
+      },
+      {
+        heading: "For the sheep, it's a different lesson",
+        paragraphs: [
+          "Not everyone is playing the trickster. Some of you are the sheep — trying to figure out who to trust, banding together, comparing notes, watching body language, building a case as a group. That role teaches something too: how teamwork works when the information is incomplete and the pressure is on. You learn to read people together. You learn when to speak up and when to hold back. You learn that a group's judgment is only as good as the trust inside it.",
+        ],
+      },
+      {
+        heading: 'The real subject of the game is trust',
+        paragraphs: [
+          'If you strip everything else away, this game is really about one thing: how fragile trust is.',
+          'It takes so long to build and so little to lose. One wrong guess, one convincing lie, one moment of doubt, and the whole thing can collapse. Watching that happen in real time — watching trust get built, tested, and sometimes shattered, all in the space of one round — is, we think, one of the most honest things a game can show you about people.',
+        ],
+      },
+      {
+        heading: "Built for a world that's grown distant",
+        paragraphs: [
+          "We're living in a moment where it's easier than ever to be in the same room as someone and still feel miles away. Screens in every hand. Conversations happening in a dozen different apps instead of across a table. We wanted to build something that pushes back against that — a reason to put the phones down, look at each other, and actually pay attention.",
+          "This game is our answer: low stakes, high reward. Nobody wins money. Nobody loses anything real. What you get instead is connection, a little bit of delicious confusion when you truly cannot figure out who's who, and the kind of laughter that only happens when a group of people gets caught up in something together.",
+        ],
+      },
+      {
+        heading: 'And in the end, a challenge',
+        paragraphs: [
+          'More than anything, this game is an invitation to question how well you actually know the people around you — and how well they know you. It asks you to notice your own assumptions. To catch yourself misjudging someone. To realize how easily perception can be wrong, and how much fun it is to be proven wrong in a room full of people you like.',
+        ],
+      },
+    ],
+    closing:
+      "That's why we made this. Not just to pass the time — but to bring people back together, if only for a night, and remind them how strange and wonderful it is to try to read another person's mind.",
+    ctaHeading: "Ready to find out who's lying?",
+    ctaBody: 'Gather your group and see how well you really know each other.',
+    hostGame: 'Host a Game',
+    howToPlay: 'How to Play',
     backToHome: 'Back to Home',
   },
 };
@@ -995,6 +1065,7 @@ const es: Translations = {
   footer: {
     howToPlay: 'Cómo Jugar',
     privacy: 'Privacidad',
+    aboutUs: 'Sobre Nosotros',
   },
   privacy: {
     title: 'Política de Privacidad',
@@ -1079,6 +1150,62 @@ const es: Translations = {
     livekitLink: 'Política de privacidad de LiveKit',
     googlePrivacyLink: 'Política de Privacidad de Google',
     adSettingsLink: 'Configuración de anuncios de Google',
+    backToHome: 'Volver al Inicio',
+  },
+  aboutUs: {
+    metaTitle: 'Por Qué Creamos Sheep & Wolves',
+    title: 'Por Qué Creamos Sheep & Wolves',
+    intro:
+      'No nos propusimos crear un juego de fiesta. Nos propusimos construir un espacio donde la gente pudiera ser alguien más por un rato, y ver qué les enseñaba eso sobre quiénes son en realidad.',
+    sections: [
+      {
+        heading: 'Todo empezó con una pregunta simple',
+        paragraphs: [
+          '¿Qué pasa cuando pones a la gente bajo presión y le pides que interprete un papel?',
+          'No un papel en el sentido teatral, sin guion, sin ensayo. Un papel que te obliga a pensar rápido, guardar un secreto, leer un rostro o convencer a toda una mesa de amigos de que dices la verdad cuando no es así. Ese tipo de presión le hace algo interesante a las personas. Despoja la actuación que normalmente ponemos unos frente a otros y la reemplaza por otra distinta: una donde lo que está en juego es lo bastante importante como para que importe, pero lo bastante bajo como para que nadie salga realmente lastimado.',
+          'Quisimos construir ese espacio.',
+        ],
+      },
+      {
+        heading: 'Permiso para salir de ti mismo',
+        paragraphs: [
+          'La mayoría vivimos dentro de una versión bastante estrecha de quiénes somos. El confiable. El honesto. El que no hace olas. Este juego te entrega un papel distinto para interpretar: a veces el engañador, a veces el engañado, a veces solo la persona que intenta mantener unido al grupo.',
+          'Y sí, eso a veces significa mentirles a tus amigos en la cara y disfrutarlo. Creemos que eso está bien. Hay algo liberador en que te *den permiso* de ser deshonesto en un espacio donde todos conocen las reglas del juego. Permite que la gente se salga de su caparazón habitual sin ninguna consecuencia real esperando del otro lado.',
+        ],
+      },
+      {
+        heading: 'Para las ovejas, la lección es otra',
+        paragraphs: [
+          'No todos interpretan al tramposo. Algunos de ustedes son las ovejas: tratan de averiguar en quién confiar, se agrupan, comparan notas, observan el lenguaje corporal, construyen un caso en conjunto. Ese papel también enseña algo: cómo funciona el trabajo en equipo cuando la información es incompleta y la presión está encima. Aprenden a leer a las personas juntos. Aprenden cuándo hablar y cuándo callar. Aprenden que el juicio de un grupo es tan bueno como la confianza que existe dentro de él.',
+        ],
+      },
+      {
+        heading: 'El verdadero tema del juego es la confianza',
+        paragraphs: [
+          'Si quitas todo lo demás, este juego trata en realidad de una sola cosa: lo frágil que es la confianza.',
+          'Toma tanto tiempo construirla y tan poco perderla. Una suposición equivocada, una mentira convincente, un momento de duda, y todo puede derrumbarse. Ver eso suceder en tiempo real, ver cómo se construye la confianza, se pone a prueba y a veces se hace pedazos, todo en el espacio de una sola ronda, es, creemos, una de las cosas más honestas que un juego puede mostrarte sobre las personas.',
+        ],
+      },
+      {
+        heading: 'Creado para un mundo que se ha vuelto distante',
+        paragraphs: [
+          'Vivimos en un momento en el que es más fácil que nunca estar en la misma habitación que alguien y aun así sentirse a kilómetros de distancia. Pantallas en cada mano. Conversaciones ocurriendo en una decena de aplicaciones distintas en lugar de cara a cara. Quisimos construir algo que fuera en contra de eso: una razón para dejar los teléfonos, mirarse a los ojos y realmente prestar atención.',
+          'Este juego es nuestra respuesta: apuestas bajas, recompensa alta. Nadie gana dinero. Nadie pierde nada real. Lo que obtienes en cambio es conexión, un poco de confusión deliciosa cuando de verdad no logras descubrir quién es quién, y el tipo de risa que solo ocurre cuando un grupo de personas se deja llevar por algo juntas.',
+        ],
+      },
+      {
+        heading: 'Y al final, un desafío',
+        paragraphs: [
+          'Más que nada, este juego es una invitación a cuestionar qué tan bien conoces realmente a las personas que te rodean, y qué tan bien te conocen ellas a ti. Te pide notar tus propios prejuicios. Sorprenderte a ti mismo juzgando mal a alguien. Darte cuenta de lo fácil que puede equivocarse la percepción, y lo divertido que es que te demuestren que estabas equivocado en una habitación llena de gente que quieres.',
+        ],
+      },
+    ],
+    closing:
+      'Por eso hicimos esto. No solo para pasar el rato, sino para volver a reunir a las personas, aunque sea por una noche, y recordarles lo extraño y maravilloso que es intentar leer la mente de otra persona.',
+    ctaHeading: '¿Listos para descubrir quién miente?',
+    ctaBody: 'Reúne a tu grupo y descubre qué tan bien se conocen en realidad.',
+    hostGame: 'Crear una Partida',
+    howToPlay: 'Cómo Jugar',
     backToHome: 'Volver al Inicio',
   },
 };
