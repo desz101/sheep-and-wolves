@@ -81,6 +81,12 @@ export default function Home() {
         >
           {t.home.joinGame}
         </Link>
+        <Link
+          href="/about"
+          className="w-full rounded-xl border border-panel-border/60 bg-white/5 px-4 py-3 text-sm font-semibold text-muted transition hover:text-foreground active:scale-[0.98]"
+        >
+          {t.aboutUs.title}
+        </Link>
       </div>
 
       <div className="flex w-full flex-col gap-3 text-left">

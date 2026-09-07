@@ -11,6 +11,10 @@ export function SiteFooter() {
         {t.footer.howToPlay}
       </Link>
       <span className="mx-2 opacity-40">·</span>
+      <Link href="/about" className="hover:text-foreground">
+        {t.footer.aboutUs}
+      </Link>
+      <span className="mx-2 opacity-40">·</span>
       <Link href="/privacy" className="hover:text-foreground">
         {t.footer.privacy}
       </Link>
