@@ -27,14 +27,15 @@ export function VoiceChatBar() {
 
   return (
     <div className="flex flex-col gap-2">
-      {/* Fixed top-center: the button players reach for constantly, kept
+      {/* Fixed bottom-left: the button players reach for constantly, kept
           reachable regardless of scroll position instead of buried in the
-          voice bar below. */}
+          voice bar below. Bottom-left mirrors HomeMusicPlayer's bottom-right
+          toggle, keeping the top corners free for the language toggle. */}
       <button
         onClick={toggleMute}
         disabled={status !== 'connected'}
         aria-label={muted ? t.voice.unmute : t.voice.mute}
-        className={`fixed left-1/2 top-4 z-20 flex h-11 w-11 -translate-x-1/2 items-center justify-center rounded-full border shadow-lg backdrop-blur-sm transition active:scale-95 disabled:opacity-40 ${
+        className={`fixed bottom-4 left-4 z-20 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg backdrop-blur-sm transition active:scale-95 disabled:opacity-40 ${
           muted ? 'border-wolf/40 bg-wolf/20 text-wolf' : 'border-panel-border bg-panel/80 text-foreground'
         }`}
       >
