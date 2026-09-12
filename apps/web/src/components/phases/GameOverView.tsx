@@ -1,11 +1,13 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { ClientGameState } from '@sw/shared';
-import { Panel } from '../ui';
+import { BigButton, Panel } from '../ui';
 import { useLanguage } from '@/lib/i18n';
 
 export function GameOverView({ state }: { state: ClientGameState }) {
   const { t } = useLanguage();
+  const router = useRouter();
   const winner = state.winner;
   if (!winner) return null;
   const sheepWin = winner.team === 'sheep';
@@ -47,6 +49,8 @@ export function GameOverView({ state }: { state: ClientGameState }) {
           ))}
         </ul>
       </Panel>
+
+      <BigButton onClick={() => router.push('/')}>{t.gameOver.newGame}</BigButton>
     </div>
   );
 }
