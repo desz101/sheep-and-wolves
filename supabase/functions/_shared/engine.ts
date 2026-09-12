@@ -352,6 +352,20 @@ export async function joinGame(
   return { game, playerId, playerToken };
 }
 
+export async function kickPlayer(gameCodeRaw: string, requesterId: string, targetPlayerId: string): Promise<Game> {
+  const { game } = await withGame(gameCodeRaw, (game) => {
+    touchIfStale(game, requesterId);
+    requireHost(game, requesterId);
+    if (game.status !== 'LOBBY') throw new GameError('Players can only be removed before the game starts.', 'BAD_STATE');
+    if (targetPlayerId === requesterId) throw new GameError('You cannot remove yourself.', 'NOT_ALLOWED');
+    if (!game.players[targetPlayerId]) throw new GameError('Player not found.', 'NOT_FOUND');
+    delete game.players[targetPlayerId];
+    game.playerOrder = game.playerOrder.filter((id) => id !== targetPlayerId);
+  });
+  await gameStore.deleteTokensForPlayer(game.gameCode, targetPlayerId);
+  return game;
+}
+
 export async function setAvatar(gameCodeRaw: string, requesterId: string, avatar: unknown): Promise<Game> {
   if (!isAvatarKey(avatar)) throw new GameError('Unknown avatar.', 'INVALID_AVATAR');
   const { game } = await withGame(gameCodeRaw, (game) => {

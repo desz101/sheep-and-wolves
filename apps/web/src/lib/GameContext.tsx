@@ -18,6 +18,7 @@ interface GameContextValue {
     chooseQuestion: (question: string) => void;
     toggleReadyToVote: () => void;
     submitVote: (targetPlayerId: string) => void;
+    kickPlayer: (targetPlayerId: string) => void;
     showVoteRecord: () => void;
     hideVoteRecord: () => void;
     hostEndGame: () => void;
@@ -107,6 +108,7 @@ export function GameProvider({ gameCode, children }: { gameCode: string; childre
     chooseQuestion: (question: string) => runAction((gc, pid, tok) => api.chooseQuestion(gc, pid, tok, question)),
     toggleReadyToVote: () => runAction(api.toggleReadyToVote),
     submitVote: (targetPlayerId: string) => runAction((gc, pid, tok) => api.submitVote(gc, pid, tok, targetPlayerId)),
+    kickPlayer: (targetPlayerId: string) => runAction((gc, pid, tok) => api.kickPlayer(gc, pid, tok, targetPlayerId)),
     showVoteRecord: () => runAction(api.showVoteRecord),
     hideVoteRecord: () => runAction(api.hideVoteRecord),
     hostEndGame: () => runAction(api.hostEndGame),

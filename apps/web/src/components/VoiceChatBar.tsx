@@ -1,6 +1,6 @@
 'use client';
 
-import { Mic, Volume2 } from 'lucide-react';
+import { Mic, MicOff, Volume2 } from 'lucide-react';
 import { useVoice } from '@/lib/VoiceContext';
 import { useLanguage } from '@/lib/i18n';
 
@@ -27,6 +27,20 @@ export function VoiceChatBar() {
 
   return (
     <div className="flex flex-col gap-2">
+      {/* Fixed top-center: the button players reach for constantly, kept
+          reachable regardless of scroll position instead of buried in the
+          voice bar below. */}
+      <button
+        onClick={toggleMute}
+        disabled={status !== 'connected'}
+        aria-label={muted ? t.voice.unmute : t.voice.mute}
+        className={`fixed left-1/2 top-4 z-20 flex h-11 w-11 -translate-x-1/2 items-center justify-center rounded-full border shadow-lg backdrop-blur-sm transition active:scale-95 disabled:opacity-40 ${
+          muted ? 'border-wolf/40 bg-wolf/20 text-wolf' : 'border-panel-border bg-panel/80 text-foreground'
+        }`}
+      >
+        {muted ? <MicOff className="h-5 w-5" strokeWidth={2} /> : <Mic className="h-5 w-5" strokeWidth={2} />}
+      </button>
+
       <div className="flex items-center justify-between gap-3 rounded-xl border border-panel-border bg-white/5 px-4 py-2.5">
         <span className="flex items-center gap-2 text-sm font-bold">
           <span
@@ -36,18 +50,9 @@ export function VoiceChatBar() {
           />
           {status === 'connecting' ? t.voice.connecting : muted ? t.voice.muted : t.voice.live}
         </span>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={toggleMute}
-            disabled={status !== 'connected'}
-            className="text-sm font-bold underline underline-offset-4 disabled:opacity-40"
-          >
-            {muted ? t.voice.unmute : t.voice.mute}
-          </button>
-          <button onClick={leave} className="text-sm font-bold text-wolf underline underline-offset-4">
-            {t.voice.leave}
-          </button>
-        </div>
+        <button onClick={leave} className="text-sm font-bold text-wolf underline underline-offset-4">
+          {t.voice.leave}
+        </button>
       </div>
       {status === 'connected' && audioBlocked && (
         <button

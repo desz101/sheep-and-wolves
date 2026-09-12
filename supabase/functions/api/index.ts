@@ -16,6 +16,7 @@ import {
   hostPauseGame,
   hostResumeGame,
   joinGame,
+  kickPlayer,
   listPublicGames,
   pollGameState,
   setAvatar,
@@ -206,6 +207,11 @@ mount(
 );
 mount('post', '/games/:code/vote-record/show', action((gameCode, playerId) => showVoteRecord(gameCode, playerId)));
 mount('post', '/games/:code/vote-record/hide', action((gameCode, playerId) => hideVoteRecord(gameCode, playerId)));
+mount(
+  'post',
+  '/games/:code/kick',
+  action((gameCode, playerId, body) => kickPlayer(gameCode, playerId, String(body.targetPlayerId ?? '')))
+);
 mount('post', '/games/:code/end', action((gameCode, playerId) => hostEndGame(gameCode, playerId)));
 mount('post', '/games/:code/pause', action((gameCode, playerId) => hostPauseGame(gameCode, playerId)));
 mount('post', '/games/:code/resume', action((gameCode, playerId) => hostResumeGame(gameCode, playerId)));

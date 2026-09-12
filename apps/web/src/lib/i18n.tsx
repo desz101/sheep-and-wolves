@@ -89,6 +89,7 @@ export interface Translations {
     voted: string;
     wolf: string;
     sheep: string;
+    kick: string;
   };
   roleCard: {
     ariaYourRole: string;
@@ -113,6 +114,7 @@ export interface Translations {
     endGame: string;
     endGameConfirm: string;
     waitingHostStart: string;
+    kickConfirm: (name: string) => string;
   };
   voice: {
     join: string;
@@ -185,6 +187,7 @@ export interface Translations {
     survived: string;
     // Keyed by the fixed English reason strings the server returns.
     reasons: Record<string, string>;
+    newGame: string;
   };
   voteRecordModal: {
     title: string;
@@ -347,6 +350,7 @@ const en: Translations = {
     voted: 'Voted',
     wolf: '🐺 WOLF',
     sheep: '🐑 SHEEP',
+    kick: 'Remove player',
   },
   roleCard: {
     ariaYourRole: 'Your role',
@@ -371,6 +375,7 @@ const en: Translations = {
     endGame: 'End Game',
     endGameConfirm: 'End this game for everyone?',
     waitingHostStart: 'Waiting for the host to start the game…',
+    kickConfirm: (name) => `Remove ${name} from the game?`,
   },
   voice: {
     join: 'Join Voice Chat',
@@ -449,6 +454,7 @@ const en: Translations = {
         "It's down to one sheep and one wolf -- the wolf wins the standoff.",
       'The wolves now outnumber the sheep.': 'The wolves now outnumber the sheep.',
     },
+    newGame: 'Start or Join a New Game',
   },
   voteRecordModal: {
     title: 'Vote Record',
@@ -839,6 +845,7 @@ const es: Translations = {
     voted: 'Votó',
     wolf: '🐺 LOBO',
     sheep: '🐑 OVEJA',
+    kick: 'Quitar jugador',
   },
   roleCard: {
     ariaYourRole: 'Tu rol',
@@ -863,6 +870,7 @@ const es: Translations = {
     endGame: 'Terminar Partida',
     endGameConfirm: '¿Terminar esta partida para todos?',
     waitingHostStart: 'Esperando a que el anfitrión comience la partida…',
+    kickConfirm: (name) => `¿Quitar a ${name} de la partida?`,
   },
   voice: {
     join: 'Unirse al Chat de Voz',
@@ -941,6 +949,7 @@ const es: Translations = {
         'Quedan una oveja y un lobo — el lobo gana el enfrentamiento final.',
       'The wolves now outnumber the sheep.': 'Los lobos ahora superan en número a las ovejas.',
     },
+    newGame: 'Comenzar o Unirse a una Nueva Partida',
   },
   voteRecordModal: {
     title: 'Registro de Votos',

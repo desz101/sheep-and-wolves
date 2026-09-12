@@ -86,6 +86,14 @@ export function chooseQuestion(
   return authedAction(ApiRoutes.chooseQuestion)(gameCode, playerId, playerToken, { question });
 }
 export const toggleReadyToVote = authedAction(ApiRoutes.toggleReadyToVote);
+export function kickPlayer(
+  gameCode: string,
+  playerId: string,
+  playerToken: string,
+  targetPlayerId: string
+): Promise<Timed<ClientGameState>> {
+  return authedAction(ApiRoutes.kickPlayer)(gameCode, playerId, playerToken, { targetPlayerId });
+}
 export const showVoteRecord = authedAction(ApiRoutes.showVoteRecord);
 export const hideVoteRecord = authedAction(ApiRoutes.hideVoteRecord);
 export const hostEndGame = authedAction(ApiRoutes.hostEndGame);
