@@ -79,7 +79,7 @@ export function GameScreen() {
   }
 
   return (
-    <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-6 p-4 pb-10 pt-6">
+    <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-6 p-4 pb-10 pt-14">
       {!connected && (
         <div className="rounded-xl bg-yellow-500/20 px-4 py-2 text-center text-sm font-semibold text-yellow-300">
           {t.game.reconnecting}
