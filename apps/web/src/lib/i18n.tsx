@@ -187,6 +187,7 @@ export interface Translations {
     survived: string;
     // Keyed by the fixed English reason strings the server returns.
     reasons: Record<string, string>;
+    newGame: string;
   };
   voteRecordModal: {
     title: string;
@@ -453,6 +454,7 @@ const en: Translations = {
         "It's down to one sheep and one wolf -- the wolf wins the standoff.",
       'The wolves now outnumber the sheep.': 'The wolves now outnumber the sheep.',
     },
+    newGame: 'Start or Join a New Game',
   },
   voteRecordModal: {
     title: 'Vote Record',
@@ -947,6 +949,7 @@ const es: Translations = {
         'Quedan una oveja y un lobo — el lobo gana el enfrentamiento final.',
       'The wolves now outnumber the sheep.': 'Los lobos ahora superan en número a las ovejas.',
     },
+    newGame: 'Comenzar o Unirse a una Nueva Partida',
   },
   voteRecordModal: {
     title: 'Registro de Votos',
