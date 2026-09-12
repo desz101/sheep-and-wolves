@@ -4,6 +4,7 @@ import { ClientGameState } from '@sw/shared';
 import { BigButton, Badge, Panel, SectionLabel } from '../ui';
 import { PlayerList } from '../PlayerList';
 import { QrCode } from '../QrCode';
+import { InviteButton } from '../InviteButton';
 import { useGame } from '@/lib/GameContext';
 import { useLanguage } from '@/lib/i18n';
 
@@ -14,13 +15,18 @@ export function LobbyView({ state }: { state: ClientGameState }) {
   const joined = state.players.length;
   const needed = state.config.maxPlayers;
   const canStart = joined >= needed;
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
   // UTM-tagged so GA can tell "someone scanned the lobby QR code" apart from
   // generic Direct traffic -- referrer-based attribution can't see this at
   // all, since scanning a QR code carries no HTTP referrer.
-  const joinUrl =
-    typeof window !== 'undefined'
-      ? `${window.location.origin}/join?code=${state.gameCode}&utm_source=qr_code&utm_medium=in_person&utm_campaign=lobby_join`
-      : '';
+  const joinUrl = origin
+    ? `${origin}/join?code=${state.gameCode}&utm_source=qr_code&utm_medium=in_person&utm_campaign=lobby_join`
+    : '';
+  // Separate UTM tagging from the QR code's -- this link travels through a
+  // text/email/native share sheet instead of a camera scan.
+  const shareUrl = origin
+    ? `${origin}/join?code=${state.gameCode}&utm_source=share&utm_medium=link&utm_campaign=lobby_invite`
+    : '';
 
   return (
     <div className="flex flex-col gap-6">
@@ -42,6 +48,9 @@ export function LobbyView({ state }: { state: ClientGameState }) {
         <div className="text-5xl font-black tracking-[0.15em] text-accent">{state.gameCode}</div>
         <p className="text-sm text-muted">{t.lobby.shareCode}</p>
         {joinUrl && <QrCode value={joinUrl} />}
+        {shareUrl && (
+          <InviteButton url={shareUrl} title={t.lobby.shareTitle} text={t.lobby.shareText(state.gameCode)} />
+        )}
       </Panel>
 
       <Panel className="p-6">
