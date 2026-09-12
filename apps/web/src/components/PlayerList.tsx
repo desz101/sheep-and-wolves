@@ -1,12 +1,23 @@
 'use client';
 
-import { Check, X } from 'lucide-react';
+import { Check, UserX, X } from 'lucide-react';
 import { ClientPlayer } from '@sw/shared';
 import { useLanguage } from '@/lib/i18n';
 import { useVoice } from '@/lib/VoiceContext';
 import { Avatar } from './Avatar';
 
-export function PlayerList({ players, showVoted = false }: { players: ClientPlayer[]; showVoted?: boolean }) {
+export function PlayerList({
+  players,
+  showVoted = false,
+  onKick,
+}: {
+  players: ClientPlayer[];
+  showVoted?: boolean;
+  // Host-only, lobby-only affordance: when set, every non-self row gets a
+  // remove button. Left undefined everywhere else PlayerList is used (mid-game,
+  // non-host viewers) so it never renders there.
+  onKick?: (playerId: string, name: string) => void;
+}) {
   const { t } = useLanguage();
   const { activeSpeakerIds } = useVoice();
   return (
@@ -44,6 +55,16 @@ export function PlayerList({ players, showVoted = false }: { players: ClientPlay
                 {t.playerList.voted}
               </span>
             ) : null}
+            {onKick && !p.isSelf && (
+              <button
+                type="button"
+                onClick={() => onKick(p.id, p.name)}
+                aria-label={t.playerList.kick}
+                className="rounded-full p-1 text-muted hover:text-wolf"
+              >
+                <UserX className="h-4 w-4" strokeWidth={2} />
+              </button>
+            )}
           </div>
         </li>
       ))}

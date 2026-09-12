@@ -89,6 +89,7 @@ export interface Translations {
     voted: string;
     wolf: string;
     sheep: string;
+    kick: string;
   };
   roleCard: {
     ariaYourRole: string;
@@ -113,6 +114,7 @@ export interface Translations {
     endGame: string;
     endGameConfirm: string;
     waitingHostStart: string;
+    kickConfirm: (name: string) => string;
   };
   voice: {
     join: string;
@@ -347,6 +349,7 @@ const en: Translations = {
     voted: 'Voted',
     wolf: '🐺 WOLF',
     sheep: '🐑 SHEEP',
+    kick: 'Remove player',
   },
   roleCard: {
     ariaYourRole: 'Your role',
@@ -371,6 +374,7 @@ const en: Translations = {
     endGame: 'End Game',
     endGameConfirm: 'End this game for everyone?',
     waitingHostStart: 'Waiting for the host to start the game…',
+    kickConfirm: (name) => `Remove ${name} from the game?`,
   },
   voice: {
     join: 'Join Voice Chat',
@@ -839,6 +843,7 @@ const es: Translations = {
     voted: 'Votó',
     wolf: '🐺 LOBO',
     sheep: '🐑 OVEJA',
+    kick: 'Quitar jugador',
   },
   roleCard: {
     ariaYourRole: 'Tu rol',
@@ -863,6 +868,7 @@ const es: Translations = {
     endGame: 'Terminar Partida',
     endGameConfirm: '¿Terminar esta partida para todos?',
     waitingHostStart: 'Esperando a que el anfitrión comience la partida…',
+    kickConfirm: (name) => `¿Quitar a ${name} de la partida?`,
   },
   voice: {
     join: 'Unirse al Chat de Voz',

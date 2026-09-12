@@ -100,6 +100,16 @@ class GameStore {
     if (error) throw error;
   }
 
+  /**
+   * Revokes every session token for a player -- used when the host removes
+   * them from the lobby, so their client's next poll/action fails auth
+   * (BAD_TOKEN) instead of continuing to see a game they're no longer in.
+   */
+  async deleteTokensForPlayer(gameCode: string, playerId: string): Promise<void> {
+    const { error } = await supabase.from('tokens').delete().eq('game_code', gameCode).eq('player_id', playerId);
+    if (error) throw error;
+  }
+
   async has(gameCode: string): Promise<boolean> {
     const { count, error } = await supabase
       .from('games')

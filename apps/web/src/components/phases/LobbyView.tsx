@@ -51,7 +51,16 @@ export function LobbyView({ state }: { state: ClientGameState }) {
             {joined} / {needed}
           </Badge>
         </div>
-        <PlayerList players={state.players} />
+        <PlayerList
+          players={state.players}
+          onKick={
+            isHost
+              ? (playerId, name) => {
+                  if (confirm(t.lobby.kickConfirm(name))) actions.kickPlayer(playerId);
+                }
+              : undefined
+          }
+        />
       </Panel>
     </div>
   );

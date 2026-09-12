@@ -15,6 +15,7 @@ export const ApiRoutes = {
   submitVote: (gameCode: string) => `/games/${gameCode}/vote`,
   showVoteRecord: (gameCode: string) => `/games/${gameCode}/vote-record/show`,
   hideVoteRecord: (gameCode: string) => `/games/${gameCode}/vote-record/hide`,
+  kickPlayer: (gameCode: string) => `/games/${gameCode}/kick`,
   hostEndGame: (gameCode: string) => `/games/${gameCode}/end`,
   hostPauseGame: (gameCode: string) => `/games/${gameCode}/pause`,
   hostResumeGame: (gameCode: string) => `/games/${gameCode}/resume`,
