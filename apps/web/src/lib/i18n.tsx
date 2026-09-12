@@ -115,6 +115,10 @@ export interface Translations {
     endGameConfirm: string;
     waitingHostStart: string;
     kickConfirm: (name: string) => string;
+    inviteFriend: string;
+    linkCopied: string;
+    shareTitle: string;
+    shareText: (code: string) => string;
   };
   voice: {
     join: string;
@@ -376,6 +380,10 @@ const en: Translations = {
     endGameConfirm: 'End this game for everyone?',
     waitingHostStart: 'Waiting for the host to start the game…',
     kickConfirm: (name) => `Remove ${name} from the game?`,
+    inviteFriend: 'Invite a Friend',
+    linkCopied: 'Link Copied!',
+    shareTitle: 'Join my Sheep & Wolves game!',
+    shareText: (code) => `Join my Sheep & Wolves game — code ${code}`,
   },
   voice: {
     join: 'Join Voice Chat',
@@ -871,6 +879,10 @@ const es: Translations = {
     endGameConfirm: '¿Terminar esta partida para todos?',
     waitingHostStart: 'Esperando a que el anfitrión comience la partida…',
     kickConfirm: (name) => `¿Quitar a ${name} de la partida?`,
+    inviteFriend: 'Invitar a un Amigo',
+    linkCopied: '¡Enlace Copiado!',
+    shareTitle: '¡Únete a mi partida de Sheep & Wolves!',
+    shareText: (code) => `Únete a mi partida de Sheep & Wolves — código ${code}`,
   },
   voice: {
     join: 'Unirse al Chat de Voz',
