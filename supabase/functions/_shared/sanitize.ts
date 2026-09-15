@@ -9,6 +9,16 @@ import { PRESENCE_TIMEOUT_MS } from './constants.ts';
  * every request. A player's own `role` is included; every other living
  * player's role is always omitted. An eliminated player's role becomes
  * `revealedRole` (public information) for everyone.
+ *
+ * VULN-DEMO (intentional, for a security-teaching presentation — do not
+ * merge to dev/main): the `role` field below is populated for EVERY player,
+ * not just `requestingPlayerId`. The UI never renders `players[].role`, so
+ * nothing looks different on screen, but the raw API/network response
+ * (e.g. the browser devtools Network tab, or a direct call to
+ * GET /games/:code/state) discloses every player's true role, including
+ * the wolves. This is a classic "excessive data exposure" bug (broken
+ * object-level authorization on a bulk field): the server trusts the
+ * client to just not look at data it was never supposed to receive.
  */
 export function buildClientView(game: Game, requestingPlayerId: string): ClientGameState {
   const self = game.players[requestingPlayerId];
@@ -28,6 +38,7 @@ export function buildClientView(game: Game, requestingPlayerId: string): ClientG
       connectionStatus: Date.now() - p.lastSeenAt > PRESENCE_TIMEOUT_MS ? 'disconnected' : 'connected',
       eliminatedRound: p.eliminatedRound,
       revealedRole: p.isAlive ? null : p.role,
+      role: p.role, // VULN-DEMO: should only ever be sent for `p.id === requestingPlayerId`
     }));
 
   const alivePlayers = game.playerOrder.map((id) => game.players[id]).filter((p) => p && p.isAlive);

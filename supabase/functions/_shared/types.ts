@@ -118,6 +118,9 @@ export interface ClientPlayer {
   connectionStatus: ConnectionStatus;
   eliminatedRound: number | null;
   revealedRole: Role | null;
+  // VULN-DEMO: every player's true role, leaked to every requester regardless
+  // of who is asking or whether the player is alive. See sanitize.ts.
+  role: Role | null;
 }
 
 export interface ClientVoteRecord {
